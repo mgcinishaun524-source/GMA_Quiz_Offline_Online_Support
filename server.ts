@@ -2802,16 +2802,16 @@ app.post('/api/ai/generate-quiz', requireAuth, requireRole(['admin', 'teacher'])
       return;
     }
 
-    // Gemini client (primary)
+    // Groq client (primary — free, fast, no daily quota)
+    const groqClient = isGroqConfigured() ? new Groq({ apiKey: process.env.GROQ_API_KEY }) : null;
+
+    // Gemini client (fallback — used when Groq is unavailable or fails)
     const ai = isGeminiConfigured()
       ? new GoogleGenAI({
           apiKey,
           httpOptions: { headers: { 'User-Agent': 'aistudio-build' } },
         })
       : null;
-
-    // Groq client (fallback — free, no daily quota for llama-3.3-70b-versatile)
-    const groqClient = isGroqConfigured() ? new Groq({ apiKey: process.env.GROQ_API_KEY }) : null;
 
     const systemInstruction = `You are a senior primary school educator and curriculum assessment author for Growing Minds Academy.
 Your task is to draft high quality assessment questions aligned with the requested grade level, subject, and curriculum topics.
@@ -2877,9 +2877,47 @@ ${
         }
       };
 
-      // ── Attempt 1: Gemini (primary) ──────────────────────────────────────
-      let geminiSucceeded = false;
-      if (ai) {
+      // ── Attempt 1: Groq (primary — free, fast) ───────────────────────────
+      let primarySucceeded = false;
+      if (groqClient) {
+        try {
+          const groqSystemPrompt = systemInstruction + '\nRespond ONLY with a valid JSON array of question objects. No markdown, no explanation outside the array.';
+          const groqResp = await groqClient.chat.completions.create({
+            model: 'llama-3.3-70b-versatile',
+            messages: [
+              { role: 'system', content: groqSystemPrompt },
+              { role: 'user', content: promptText },
+            ],
+            temperature: 0.7,
+            max_tokens: 4096,
+            response_format: { type: 'json_object' },
+          });
+          const groqText = groqResp.choices[0]?.message?.content?.trim() || '[]';
+          let rawQuestions: any[] = [];
+          try {
+            const parsed = JSON.parse(groqText);
+            rawQuestions = Array.isArray(parsed) ? parsed : (parsed.questions || parsed.items || Object.values(parsed)[0] || []);
+          } catch { /* fall through to Gemini */ }
+          if (rawQuestions.length > 0) {
+            parseQuestions(rawQuestions, 'Groq Llama-3.3-70b');
+            primarySucceeded = true;
+          }
+        } catch (groqErr) {
+          console.warn(`[AI Fallback] Groq batch ${bIndex + 1} failed: ${(groqErr as Error)?.message}. Trying Gemini.`);
+        }
+      }
+
+      // ── Attempt 2: Gemini (fallback) ─────────────────────────────────────
+      if (!primarySucceeded) {
+        if (!ai) {
+          if (accumulatedQuestions.length > 0) {
+            isPartial = true;
+            partialWarning = `Generated ${accumulatedQuestions.length} of ${count} questions before all AI providers failed.`;
+            break;
+          } else {
+            throw new Error('All AI providers failed or are unconfigured. Set GROQ_API_KEY or GEMINI_API_KEY.');
+          }
+        }
         try {
           const response = await ai.models.generateContent({
             model: 'gemini-2.0-flash',
@@ -2916,56 +2954,24 @@ ${
           });
           const outputText = response.text?.trim() || '[]';
           let rawQuestions: any[] = [];
-          try { rawQuestions = JSON.parse(outputText); } catch { /* fall through to Groq */ }
+          try { rawQuestions = JSON.parse(outputText); } catch { /* ignore */ }
           if (rawQuestions.length > 0) {
-            parseQuestions(rawQuestions, 'Gemini 3.8 Flash');
-            geminiSucceeded = true;
+            parseQuestions(rawQuestions, 'Gemini 2.0 Flash');
+          } else if (accumulatedQuestions.length > 0) {
+            isPartial = true;
+            partialWarning = `Generated ${accumulatedQuestions.length} of ${count} questions before output parsing was interrupted.`;
+            break;
+          } else {
+            res.status(502).json({ error: 'Model output could not be parsed as valid JSON.' });
+            return;
           }
         } catch (geminiErr) {
-          // Rate limit, quota, or any Gemini error — try Groq next
-          console.warn(`[AI Fallback] Gemini batch ${bIndex + 1} failed: ${(geminiErr as Error)?.message}. Trying Groq.`);
-        }
-      }
-
-      // ── Attempt 2: Groq fallback (if Gemini unavailable or failed) ────────
-      if (!geminiSucceeded) {
-        if (!groqClient) {
-          // Neither provider worked
           if (accumulatedQuestions.length > 0) {
             isPartial = true;
             partialWarning = `Generated ${accumulatedQuestions.length} of ${count} questions before all AI providers failed.`;
             break;
           } else {
-            throw new Error('All AI providers failed or are unconfigured. Set GEMINI_API_KEY or GROQ_API_KEY.');
-          }
-        }
-        try {
-          const groqSystemPrompt = systemInstruction + '\nRespond ONLY with a valid JSON array of question objects. No markdown, no explanation outside the array.';
-          const groqResp = await groqClient.chat.completions.create({
-            model: 'llama-3.3-70b-versatile',
-            messages: [
-              { role: 'system', content: groqSystemPrompt },
-              { role: 'user', content: promptText },
-            ],
-            temperature: 0.7,
-            max_tokens: 4096,
-            response_format: { type: 'json_object' },
-          });
-          const groqText = groqResp.choices[0]?.message?.content?.trim() || '[]';
-          let rawQuestions: any[] = [];
-          try {
-            const parsed = JSON.parse(groqText);
-            // Groq with json_object returns an object — unwrap the array if nested
-            rawQuestions = Array.isArray(parsed) ? parsed : (parsed.questions || parsed.items || Object.values(parsed)[0] || []);
-          } catch { /* ignore parse errors — accumulatedQuestions may still have results */ }
-          parseQuestions(rawQuestions, 'Groq Llama-3.3-70b');
-        } catch (groqErr) {
-          if (accumulatedQuestions.length > 0) {
-            isPartial = true;
-            partialWarning = `Generated ${accumulatedQuestions.length} of ${count} questions before Groq fallback also failed.`;
-            break;
-          } else {
-            throw groqErr;
+            throw geminiErr;
           }
         }
       }
