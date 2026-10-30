@@ -2877,51 +2877,47 @@ ${
         }
       };
 
-      // ── Attempt 1: Gemini (primary) via SDK with structured schema ──────
+      // ── Attempt 1: Gemini (primary) — plain fetch, no SDK ───────────────
       let primarySucceeded = false;
-      if (ai && apiKey && isGeminiConfigured()) {
+      if (apiKey && isGeminiConfigured()) {
         try {
-          const response = await ai.models.generateContent({
-            model: 'gemini-2.0-flash',
-            contents: promptText,
-            config: {
-              systemInstruction,
-              responseMimeType: 'application/json',
-              responseSchema: {
-                type: Type.ARRAY,
-                items: {
-                  type: Type.OBJECT,
-                  properties: {
-                    type: { type: Type.STRING },
-                    prompt: { type: Type.STRING },
-                    options: {
-                      type: Type.ARRAY,
-                      items: {
-                        type: Type.OBJECT,
-                        properties: { id: { type: Type.STRING }, text: { type: Type.STRING } },
-                        required: ['id', 'text'],
-                      },
-                    },
-                    correctAnswer: { type: Type.STRING },
-                    marks: { type: Type.INTEGER },
-                    topic: { type: Type.STRING },
-                    explanation: { type: Type.STRING },
-                  },
-                  required: ['type', 'prompt', 'correctAnswer', 'marks', 'topic'],
-                },
-              },
+          const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+          const geminiPayload = {
+            system_instruction: { parts: [{ text: systemInstruction }] },
+            contents: [{ role: 'user', parts: [{ text: promptText }] }],
+            generationConfig: {
+              response_mime_type: 'application/json',
+              temperature: 0.7,
+              maxOutputTokens: 4096,
             },
+          };
+          const gRes = await fetch(geminiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(geminiPayload),
           });
-          const outputText = response.text?.trim() || '';
-          const cleaned = outputText.replace(/^```(?:json)?\n?/i, '').replace(/\n?```$/i, '').trim();
+          if (!gRes.ok) {
+            const errBody = await gRes.json().catch(() => ({}));
+            throw new Error(`Gemini ${gRes.status}: ${errBody?.error?.message || gRes.statusText}`);
+          }
+          const gData = await gRes.json();
+          const rawText = gData?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
+          // Strip any markdown fences if the model added them
+          const stripped = rawText.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim();
           let rawQuestions: any[] = [];
           try {
-            const parsed = JSON.parse(cleaned || '[]');
-            rawQuestions = Array.isArray(parsed) ? parsed : (parsed.questions || parsed.items || []);
-          } catch { /* fall through to Groq */ }
+            const parsed = JSON.parse(stripped || '[]');
+            rawQuestions = Array.isArray(parsed)
+              ? parsed
+              : parsed.questions || parsed.items || parsed.data || Object.values(parsed).find((v: any) => Array.isArray(v)) || [];
+          } catch (pe) {
+            console.warn('[Gemini parse fail]', (pe as Error).message, '| text:', stripped.substring(0, 100));
+          }
           if (rawQuestions.length > 0) {
             parseQuestions(rawQuestions, 'Gemini 2.0 Flash');
             primarySucceeded = true;
+          } else {
+            console.warn('[Gemini] Parsed 0 questions from text length:', stripped.length);
           }
         } catch (geminiErr) {
           console.warn(`[AI Fallback] Gemini batch ${bIndex + 1} failed: ${(geminiErr as Error)?.message}. Trying Groq.`);

@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "tsx server.ts",
-    "build": "vite build && esbuild server.ts --platform=node --format=esm --bundle --external:vite --external:express --external:dotenv --external:@google/genai --external:@supabase/supabase-js --external:bcryptjs --external:jsonwebtoken --outfile=dist/server.js",
+    "build": "vite build && esbuild server.ts --platform=node --format=esm --bundle --external:vite --external:express --external:dotenv --external:@supabase/supabase-js --external:bcryptjs --external:jsonwebtoken --outfile=dist/server.js",
     "start": "node dist/server.js",
     "preview": "vite preview",
     "clean": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\"",
