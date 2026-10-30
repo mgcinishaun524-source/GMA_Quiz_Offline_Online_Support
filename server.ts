@@ -2898,6 +2898,7 @@ ${
           }
           const geminiData = await geminiResp.json();
           const outputText = geminiData?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
+          console.log('[Gemini raw output]', outputText.substring(0, 300));
           // Strip markdown code fences if present
           const cleaned = outputText.replace(/^```(?:json)?\n?/i, '').replace(/\n?```$/i, '').trim();
           let rawQuestions: any[] = [];
