@@ -2877,33 +2877,42 @@ ${
         }
       };
 
-      // ── Attempt 1: Gemini (primary) via REST API ─────────────────────────
+      // ── Attempt 1: Gemini (primary) via SDK with structured schema ──────
       let primarySucceeded = false;
-      if (apiKey && isGeminiConfigured()) {
+      if (ai && apiKey && isGeminiConfigured()) {
         try {
-          const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-          const fullPrompt = `${systemInstruction}\n\n${promptText}\n\nIMPORTANT: Respond with ONLY a raw JSON array. No markdown, no code fences, no explanation. Start directly with [ and end with ].`;
-          const geminiBody = {
-            contents: [{ role: 'user', parts: [{ text: fullPrompt }] }],
-            generationConfig: {
+          const response = await ai.models.generateContent({
+            model: 'gemini-2.0-flash',
+            contents: promptText,
+            config: {
+              systemInstruction,
               responseMimeType: 'application/json',
-              temperature: 0.7,
-              maxOutputTokens: 4096,
+              responseSchema: {
+                type: Type.ARRAY,
+                items: {
+                  type: Type.OBJECT,
+                  properties: {
+                    type: { type: Type.STRING },
+                    prompt: { type: Type.STRING },
+                    options: {
+                      type: Type.ARRAY,
+                      items: {
+                        type: Type.OBJECT,
+                        properties: { id: { type: Type.STRING }, text: { type: Type.STRING } },
+                        required: ['id', 'text'],
+                      },
+                    },
+                    correctAnswer: { type: Type.STRING },
+                    marks: { type: Type.INTEGER },
+                    topic: { type: Type.STRING },
+                    explanation: { type: Type.STRING },
+                  },
+                  required: ['type', 'prompt', 'correctAnswer', 'marks', 'topic'],
+                },
+              },
             },
-          };
-          const geminiResp = await fetch(geminiUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(geminiBody),
           });
-          if (!geminiResp.ok) {
-            const errText = await geminiResp.text();
-            throw new Error(`Gemini HTTP ${geminiResp.status}: ${errText.substring(0, 200)}`);
-          }
-          const geminiData = await geminiResp.json();
-          const outputText = geminiData?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
-          console.log('[Gemini raw output]', outputText.substring(0, 300));
-          // Strip markdown code fences if present
+          const outputText = response.text?.trim() || '';
           const cleaned = outputText.replace(/^```(?:json)?\n?/i, '').replace(/\n?```$/i, '').trim();
           let rawQuestions: any[] = [];
           try {
