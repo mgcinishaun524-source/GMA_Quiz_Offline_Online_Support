@@ -2877,46 +2877,33 @@ ${
         }
       };
 
-      // ── Attempt 1: Gemini (primary) ──────────────────────────────────────
+      // ── Attempt 1: Gemini (primary) via REST API ─────────────────────────
       let primarySucceeded = false;
-      if (ai) {
+      if (ai && apiKey) {
         try {
-          const response = await ai.models.generateContent({
-            model: 'gemini-2.0-flash',
-            contents: promptText,
-            config: {
-              systemInstruction,
+          const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+          const geminiBody = {
+            systemInstruction: { parts: [{ text: systemInstruction }] },
+            contents: [{ role: 'user', parts: [{ text: promptText }] }],
+            generationConfig: {
               responseMimeType: 'application/json',
-              responseSchema: {
-                type: Type.ARRAY,
-                description: 'A list of generated assessment questions.',
-                items: {
-                  type: Type.OBJECT,
-                  properties: {
-                    type: { type: Type.STRING, description: "Type: 'multiple_choice', 'true_false', or 'short_answer'" },
-                    prompt: { type: Type.STRING, description: 'The question prompt.' },
-                    options: {
-                      type: Type.ARRAY,
-                      description: 'Answer options for multiple-choice.',
-                      items: {
-                        type: Type.OBJECT,
-                        properties: { id: { type: Type.STRING }, text: { type: Type.STRING } },
-                        required: ['id', 'text'],
-                      },
-                    },
-                    correctAnswer: { type: Type.STRING, description: 'Correct option id, true/false, or exact string.' },
-                    marks: { type: Type.INTEGER, description: 'Marks awarded (1 or 2).' },
-                    topic: { type: Type.STRING, description: 'Syllabus topic tag.' },
-                    explanation: { type: Type.STRING, description: 'Pedagogical explanation.' },
-                  },
-                  required: ['type', 'prompt', 'correctAnswer', 'marks', 'topic'],
-                },
-              },
+              temperature: 0.7,
+              maxOutputTokens: 4096,
             },
+          };
+          const geminiResp = await fetch(geminiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(geminiBody),
           });
-          const outputText = response.text?.trim() || '[]';
+          if (!geminiResp.ok) throw new Error(`Gemini HTTP ${geminiResp.status}`);
+          const geminiData = await geminiResp.json();
+          const outputText = geminiData?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '[]';
           let rawQuestions: any[] = [];
-          try { rawQuestions = JSON.parse(outputText); } catch { /* fall through to Groq */ }
+          try {
+            const parsed = JSON.parse(outputText);
+            rawQuestions = Array.isArray(parsed) ? parsed : (parsed.questions || parsed.items || []);
+          } catch { /* fall through to Groq */ }
           if (rawQuestions.length > 0) {
             parseQuestions(rawQuestions, 'Gemini 2.0 Flash');
             primarySucceeded = true;
@@ -2992,6 +2979,13 @@ ${
       details: isProduction ? undefined : message,
     });
   }
+});
+
+// Global error handler — registered here so it works on Vercel serverless
+// (startServer() is not called on Vercel, so this must be outside it)
+app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
+  console.error('[Server Internal Error]', err.stack || err.message);
+  res.status(500).json({ error: 'Internal Server Error' });
 });
 
 // Vite Middleware Integration
