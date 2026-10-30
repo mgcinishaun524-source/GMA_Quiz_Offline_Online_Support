@@ -2733,27 +2733,9 @@ interface QuizGenRequestBody {
   questionType?: 'multiple_choice' | 'true_false' | 'short_answer';
 }
 
-app.post('/api/ai/generate-quiz', async (req: Request<{}, {}, QuizGenRequestBody>, res: Response): Promise<void> => {
+app.post('/api/ai/generate-quiz', requireAuth, requireRole(['admin', 'teacher']), async (req: Request<{}, {}, QuizGenRequestBody>, res: Response): Promise<void> => {
   try {
-    // Check Authorization if provided
-    const authHeader = req.headers.authorization;
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-      const token = authHeader.substring(7);
-      const learner = verifyLearnerToken(token);
-      if (learner) {
-        res.status(403).json({ error: 'Forbidden: Learners are not authorized to generate quiz questions.' });
-        return;
-      }
-      const staff = verifyStaffToken(token);
-      if (staff) {
-        req.user = staff;
-      }
-    }
-
-    if (isProduction && (!req.user || (req.user.role !== 'admin' && req.user.role !== 'teacher'))) {
-      res.status(401).json({ error: 'Authentication required. Only authorized staff may generate assessment questions.' });
-      return;
-    }
+    // req.user is already populated and role-checked by requireAuth + requireRole above.
 
     const {
       grade = 'Grade 3',
