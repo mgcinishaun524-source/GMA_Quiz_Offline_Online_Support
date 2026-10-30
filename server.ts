@@ -2882,10 +2882,14 @@ ${
       if (apiKey && isGeminiConfigured()) {
         try {
           const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-          const fullPrompt = `${systemInstruction}\n\n${promptText}\n\nRespond ONLY with a valid JSON array of question objects matching this schema: [{type, prompt, options (for multiple_choice), correctAnswer, marks, topic, explanation}]. No markdown, no text outside the array.`;
+          const fullPrompt = `${systemInstruction}\n\n${promptText}\n\nIMPORTANT: Respond with ONLY a raw JSON array. No markdown, no code fences, no explanation. Start directly with [ and end with ].`;
           const geminiBody = {
             contents: [{ role: 'user', parts: [{ text: fullPrompt }] }],
-            generationConfig: { temperature: 0.7, maxOutputTokens: 4096 },
+            generationConfig: {
+              responseMimeType: 'application/json',
+              temperature: 0.7,
+              maxOutputTokens: 4096,
+            },
           };
           const geminiResp = await fetch(geminiUrl, {
             method: 'POST',
