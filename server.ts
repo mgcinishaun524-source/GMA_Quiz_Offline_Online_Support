@@ -2976,7 +2976,7 @@ ${
     console.error('[AI Generation Error]', message);
     res.status(500).json({
       error: 'An unexpected error occurred while generating questions with AI.',
-      details: isProduction ? undefined : message,
+      details: message,
     });
   }
 });
