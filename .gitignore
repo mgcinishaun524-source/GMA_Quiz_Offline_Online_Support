@@ -10,3 +10,7 @@ coverage/
 # Local test scaffolding and scratch output (not for the repo)
 .agents/
 *.tmp
+
+# AI Studio internal tooling artifacts (not app source)
+.aistudio/
+public/assets/aistudio/

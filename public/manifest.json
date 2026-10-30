@@ -1,0 +1,16 @@
+{
+  "name": "Growing Minds Academy AI Quiz System",
+  "short_name": "GMA Quiz",
+  "description": "School assessment platform with AI quiz creation, offline assessments, automated marking, and learning analytics.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F5F8FC",
+  "theme_color": "#1C2C5B",
+  "icons": [
+    {
+      "src": "/assets/icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}

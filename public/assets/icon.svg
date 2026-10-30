@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <rect width="100" height="100" rx="12" fill="#1C2C5B"/>
+  <rect x="8" y="8" width="84" height="84" rx="8" fill="none" stroke="#6CABDD" stroke-width="4"/>
+  <path d="M25 65 L25 35 L50 22 L75 35 L75 65 L50 78 Z" fill="#E8F3FC" stroke="#6CABDD" stroke-width="3"/>
+  <text x="50" y="56" font-family="sans-serif" font-size="20" font-weight="bold" fill="#1C2C5B" text-anchor="middle">GMA</text>
+</svg>
