@@ -4,6 +4,7 @@ import fs from 'fs';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 import { GoogleGenAI, Type } from '@google/genai';
+import Groq from 'groq-sdk';
 
 // Load environment variables
 dotenv.config();
@@ -31,6 +32,19 @@ function isGeminiConfigured(): boolean {
   if (trimmed === 'MY_GEMINI_API_KEY' || trimmed === 'YOUR_GEMINI_API_KEY') return false;
   if (trimmed.startsWith('YOUR_')) return false;
   return true;
+}
+
+function isGroqConfigured(): boolean {
+  const key = process.env.GROQ_API_KEY;
+  if (!key) return false;
+  const trimmed = key.trim();
+  if (trimmed === '' || trimmed.startsWith('YOUR_') || trimmed === 'YOUR_GROQ_API_KEY') return false;
+  return true;
+}
+
+// isAiConfigured: true when at least one AI provider is available
+function isAiConfigured(): boolean {
+  return isGeminiConfigured() || isGroqConfigured();
 }
 
 // Parse JSON request bodies with safety limits
@@ -65,6 +79,8 @@ app.get('/api/health', (_req: Request, res: Response) => {
     service: 'Growing Minds Academy Assessment Backend',
     version: '1.0.0',
     geminiConfigured: isGeminiConfigured(),
+    groqConfigured: isGroqConfigured(),
+    aiConfigured: isAiConfigured(),
     supabaseConfigured: isSupabaseConfigured(),
     authMode: isSupabaseConfigured() ? 'supabase' : 'strict-production',
   });
@@ -2790,29 +2806,30 @@ app.post('/api/ai/generate-quiz', async (req: Request<{}, {}, QuizGenRequestBody
 
     const apiKey = process.env.GEMINI_API_KEY;
 
-    // AI question generation is only truthful when a real Gemini API key is
-    // configured. There is deliberately NO synthetic/local fallback: if the key
-    // is missing or a placeholder, the request fails with an explicit error
-    // rather than silently returning fabricated questions presented as AI output.
-    if (!isGeminiConfigured()) {
+    // At least one AI provider must be configured.
+    // Gemini is tried first per batch; Groq is the automatic fallback if Gemini
+    // is unavailable, rate-limited (429), quota-exhausted, or throws any error.
+    // No synthetic questions are ever substituted — both paths call a real AI.
+    if (!isAiConfigured()) {
       res.status(503).json({
         error:
-          'AI question generation is unavailable: GEMINI_API_KEY is not configured on the server. ' +
-          'Set a valid key in the server environment (.env) to enable AI generation. ' +
+          'AI question generation is unavailable: neither GEMINI_API_KEY nor GROQ_API_KEY is configured. ' +
+          'Set at least one valid key in the server environment to enable AI generation. ' +
           'You can still author questions manually in the quiz wizard.',
       });
       return;
     }
 
-    // Live Gemini API with batching and deduplication
-    const ai = new GoogleGenAI({
-      apiKey,
-      httpOptions: {
-        headers: {
-          'User-Agent': 'aistudio-build',
-        },
-      },
-    });
+    // Gemini client (primary)
+    const ai = isGeminiConfigured()
+      ? new GoogleGenAI({
+          apiKey,
+          httpOptions: { headers: { 'User-Agent': 'aistudio-build' } },
+        })
+      : null;
+
+    // Groq client (fallback — free, no daily quota for llama-3.3-70b-versatile)
+    const groqClient = isGroqConfigured() ? new Groq({ apiKey: process.env.GROQ_API_KEY }) : null;
 
     const systemInstruction = `You are a senior primary school educator and curriculum assessment author for Growing Minds Academy.
 Your task is to draft high quality assessment questions aligned with the requested grade level, subject, and curriculum topics.
@@ -2839,77 +2856,8 @@ ${
     : ''
 }`;
 
-      try {
-        const response = await ai.models.generateContent({
-          model: 'gemini-3.8-flash',
-          contents: promptText,
-          config: {
-            systemInstruction,
-            responseMimeType: 'application/json',
-            responseSchema: {
-              type: Type.ARRAY,
-              description: 'A list of generated assessment questions.',
-              items: {
-                type: Type.OBJECT,
-                properties: {
-                  type: {
-                    type: Type.STRING,
-                    description: "Type of question: 'multiple_choice', 'true_false', or 'short_answer'",
-                  },
-                  prompt: {
-                    type: Type.STRING,
-                    description: 'The clear question prompt presented to the learner.',
-                  },
-                  options: {
-                    type: Type.ARRAY,
-                    description: 'Answer options for multiple-choice questions.',
-                    items: {
-                      type: Type.OBJECT,
-                      properties: {
-                        id: { type: Type.STRING },
-                        text: { type: Type.STRING },
-                      },
-                      required: ['id', 'text'],
-                    },
-                  },
-                  correctAnswer: {
-                    type: Type.STRING,
-                    description: 'Correct option id (for multiple_choice), true/false string, or exact text key.',
-                  },
-                  marks: {
-                    type: Type.INTEGER,
-                    description: 'Marks awarded for correct answer (typically 1 or 2).',
-                  },
-                  topic: {
-                    type: Type.STRING,
-                    description: 'Specific topic tag from the provided syllabus topics.',
-                  },
-                  explanation: {
-                    type: Type.STRING,
-                    description: 'Pedagogical explanation shown to teacher or after result release.',
-                  },
-                },
-                required: ['type', 'prompt', 'correctAnswer', 'marks', 'topic'],
-              },
-            },
-          },
-        });
-
-        const outputText = response.text?.trim() || '[]';
-        let rawQuestions: any[] = [];
-        try {
-          rawQuestions = JSON.parse(outputText);
-        } catch {
-          if (accumulatedQuestions.length > 0) {
-            isPartial = true;
-            partialWarning = `Generated ${accumulatedQuestions.length} of ${count} questions before output parsing was interrupted.`;
-            break;
-          } else {
-            res.status(502).json({ error: 'Model output could not be parsed as valid JSON.' });
-            return;
-          }
-        }
-
+      // ── Helper: parse raw question array from either provider ──────────────
+      const parseQuestions = (rawQuestions: any[], providerLabel: string) => {
         if (Array.isArray(rawQuestions)) {
           for (const q of rawQuestions) {
             const promptStr = String(q.prompt || '').trim();
@@ -2940,18 +2888,103 @@ ${
                 topic: String(q.topic || topics[0] || 'Curriculum'),
                 explanation: String(q.explanation || `Derived from ${grade} syllabus standards.`),
                 isAccepted: true,
-                generationNote: `Generated by Gemini 3.8 Flash (Batch ${bIndex + 1}). Verified server-side.`,
+                generationNote: `Generated by ${providerLabel} (Batch ${bIndex + 1}). Verified server-side.`,
               });
             }
           }
         }
-      } catch (batchErr) {
-        if (accumulatedQuestions.length > 0) {
-          isPartial = true;
-          partialWarning = `Generated ${accumulatedQuestions.length} of ${count} questions before AI provider rate limit was reached.`;
-          break;
-        } else {
-          throw batchErr;
+      };
+
+      // ── Attempt 1: Gemini (primary) ──────────────────────────────────────
+      let geminiSucceeded = false;
+      if (ai) {
+        try {
+          const response = await ai.models.generateContent({
+            model: 'gemini-3.8-flash',
+            contents: promptText,
+            config: {
+              systemInstruction,
+              responseMimeType: 'application/json',
+              responseSchema: {
+                type: Type.ARRAY,
+                description: 'A list of generated assessment questions.',
+                items: {
+                  type: Type.OBJECT,
+                  properties: {
+                    type: { type: Type.STRING, description: "Type: 'multiple_choice', 'true_false', or 'short_answer'" },
+                    prompt: { type: Type.STRING, description: 'The question prompt.' },
+                    options: {
+                      type: Type.ARRAY,
+                      description: 'Answer options for multiple-choice.',
+                      items: {
+                        type: Type.OBJECT,
+                        properties: { id: { type: Type.STRING }, text: { type: Type.STRING } },
+                        required: ['id', 'text'],
+                      },
+                    },
+                    correctAnswer: { type: Type.STRING, description: 'Correct option id, true/false, or exact string.' },
+                    marks: { type: Type.INTEGER, description: 'Marks awarded (1 or 2).' },
+                    topic: { type: Type.STRING, description: 'Syllabus topic tag.' },
+                    explanation: { type: Type.STRING, description: 'Pedagogical explanation.' },
+                  },
+                  required: ['type', 'prompt', 'correctAnswer', 'marks', 'topic'],
+                },
+              },
+            },
+          });
+          const outputText = response.text?.trim() || '[]';
+          let rawQuestions: any[] = [];
+          try { rawQuestions = JSON.parse(outputText); } catch { /* fall through to Groq */ }
+          if (rawQuestions.length > 0) {
+            parseQuestions(rawQuestions, 'Gemini 3.8 Flash');
+            geminiSucceeded = true;
+          }
+        } catch (geminiErr) {
+          // Rate limit, quota, or any Gemini error — try Groq next
+          console.warn(`[AI Fallback] Gemini batch ${bIndex + 1} failed: ${(geminiErr as Error)?.message}. Trying Groq.`);
+        }
+      }
+
+      // ── Attempt 2: Groq fallback (if Gemini unavailable or failed) ────────
+      if (!geminiSucceeded) {
+        if (!groqClient) {
+          // Neither provider worked
+          if (accumulatedQuestions.length > 0) {
+            isPartial = true;
+            partialWarning = `Generated ${accumulatedQuestions.length} of ${count} questions before all AI providers failed.`;
+            break;
+          } else {
+            throw new Error('All AI providers failed or are unconfigured. Set GEMINI_API_KEY or GROQ_API_KEY.');
+          }
+        }
+        try {
+          const groqSystemPrompt = systemInstruction + '\nRespond ONLY with a valid JSON array of question objects. No markdown, no explanation outside the array.';
+          const groqResp = await groqClient.chat.completions.create({
+            model: 'llama-3.3-70b-versatile',
+            messages: [
+              { role: 'system', content: groqSystemPrompt },
+              { role: 'user', content: promptText },
+            ],
+            temperature: 0.7,
+            max_tokens: 4096,
+            response_format: { type: 'json_object' },
+          });
+          const groqText = groqResp.choices[0]?.message?.content?.trim() || '[]';
+          let rawQuestions: any[] = [];
+          try {
+            const parsed = JSON.parse(groqText);
+            // Groq with json_object returns an object — unwrap the array if nested
+            rawQuestions = Array.isArray(parsed) ? parsed : (parsed.questions || parsed.items || Object.values(parsed)[0] || []);
+          } catch { /* ignore parse errors — accumulatedQuestions may still have results */ }
+          parseQuestions(rawQuestions, 'Groq Llama-3.3-70b');
+        } catch (groqErr) {
+          if (accumulatedQuestions.length > 0) {
+            isPartial = true;
+            partialWarning = `Generated ${accumulatedQuestions.length} of ${count} questions before Groq fallback also failed.`;
+            break;
+          } else {
+            throw groqErr;
+          }
         }
       }
     }
@@ -2965,9 +2998,9 @@ ${
     });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Unknown server error during AI quiz generation';
-    console.error('[Gemini API Error]', message);
+    console.error('[AI Generation Error]', message);
     res.status(500).json({
-      error: 'An unexpected error occurred while generating questions with Gemini AI.',
+      error: 'An unexpected error occurred while generating questions with AI.',
       details: isProduction ? undefined : message,
     });
   }
