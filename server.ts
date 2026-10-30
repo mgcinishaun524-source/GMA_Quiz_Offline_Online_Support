@@ -2879,29 +2879,30 @@ ${
 
       // ── Attempt 1: Gemini (primary) via REST API ─────────────────────────
       let primarySucceeded = false;
-      if (ai && apiKey) {
+      if (apiKey && isGeminiConfigured()) {
         try {
           const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+          const fullPrompt = `${systemInstruction}\n\n${promptText}\n\nRespond ONLY with a valid JSON array of question objects matching this schema: [{type, prompt, options (for multiple_choice), correctAnswer, marks, topic, explanation}]. No markdown, no text outside the array.`;
           const geminiBody = {
-            systemInstruction: { parts: [{ text: systemInstruction }] },
-            contents: [{ role: 'user', parts: [{ text: promptText }] }],
-            generationConfig: {
-              responseMimeType: 'application/json',
-              temperature: 0.7,
-              maxOutputTokens: 4096,
-            },
+            contents: [{ role: 'user', parts: [{ text: fullPrompt }] }],
+            generationConfig: { temperature: 0.7, maxOutputTokens: 4096 },
           };
           const geminiResp = await fetch(geminiUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(geminiBody),
           });
-          if (!geminiResp.ok) throw new Error(`Gemini HTTP ${geminiResp.status}`);
+          if (!geminiResp.ok) {
+            const errText = await geminiResp.text();
+            throw new Error(`Gemini HTTP ${geminiResp.status}: ${errText.substring(0, 200)}`);
+          }
           const geminiData = await geminiResp.json();
-          const outputText = geminiData?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '[]';
+          const outputText = geminiData?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
+          // Strip markdown code fences if present
+          const cleaned = outputText.replace(/^```(?:json)?\n?/i, '').replace(/\n?```$/i, '').trim();
           let rawQuestions: any[] = [];
           try {
-            const parsed = JSON.parse(outputText);
+            const parsed = JSON.parse(cleaned || '[]');
             rawQuestions = Array.isArray(parsed) ? parsed : (parsed.questions || parsed.items || []);
           } catch { /* fall through to Groq */ }
           if (rawQuestions.length > 0) {
@@ -2927,7 +2928,7 @@ ${
         try {
           const groqSystemPrompt = systemInstruction + '\nRespond ONLY with a valid JSON array of question objects. No markdown, no explanation outside the array.';
           const groqResp = await groqClient.chat.completions.create({
-            model: 'llama-3.3-70b-versatile',
+            model: 'llama3-70b-8192',
             messages: [
               { role: 'system', content: groqSystemPrompt },
               { role: 'user', content: promptText },
