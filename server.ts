@@ -2927,7 +2927,7 @@ ${
           }
         }
         try {
-          const groqSystemPrompt = systemInstruction + '\nRespond ONLY with a valid JSON array of question objects. No markdown, no explanation outside the array.';
+          const groqSystemPrompt = systemInstruction + '\nYou MUST respond with ONLY a valid JSON array. Start your response with [ and end with ]. No markdown fences, no extra text.';
           const groqResp = await groqClient.chat.completions.create({
             model: 'openai/gpt-oss-20b',
             messages: [
@@ -2936,16 +2936,20 @@ ${
             ],
             temperature: 0.7,
             max_tokens: 4096,
-            response_format: { type: 'json_object' },
           });
-          const groqText = groqResp.choices[0]?.message?.content?.trim() || '[]';
+          const groqRaw = groqResp.choices[0]?.message?.content?.trim() || '';
+          console.log('[Groq raw]', groqRaw.substring(0, 200));
+          // Strip markdown fences if model wrapped output anyway
+          const groqCleaned = groqRaw.replace(/^```(?:json)?\n?/i, '').replace(/\n?```$/i, '').trim();
           let rawQuestions: any[] = [];
           try {
-            const parsed = JSON.parse(groqText);
-            rawQuestions = Array.isArray(parsed) ? parsed : (parsed.questions || parsed.items || Object.values(parsed)[0] || []);
-          } catch { /* ignore */ }
+            const parsed = JSON.parse(groqCleaned || '[]');
+            rawQuestions = Array.isArray(parsed) ? parsed : (parsed.questions || parsed.items || Object.values(parsed).find(v => Array.isArray(v)) || []);
+          } catch (parseErr) {
+            console.warn('[Groq parse error]', (parseErr as Error).message, 'raw:', groqCleaned.substring(0, 100));
+          }
           if (rawQuestions.length > 0) {
-            parseQuestions(rawQuestions, 'Groq Llama-3.3-70b');
+            parseQuestions(rawQuestions, 'Groq GPT-OSS-20b');
           } else if (accumulatedQuestions.length > 0) {
             isPartial = true;
             partialWarning = `Generated ${accumulatedQuestions.length} of ${count} questions before all providers failed.`;
