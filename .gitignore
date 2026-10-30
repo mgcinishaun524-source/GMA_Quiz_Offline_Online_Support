@@ -1,0 +1,12 @@
+node_modules/
+build/
+dist/
+coverage/
+.DS_Store
+*.log
+.env*
+!.env.example
+
+# Local test scaffolding and scratch output (not for the repo)
+.agents/
+*.tmp
