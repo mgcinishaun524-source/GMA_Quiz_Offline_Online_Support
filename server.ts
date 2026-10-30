@@ -2882,7 +2882,7 @@ ${
       if (ai) {
         try {
           const response = await ai.models.generateContent({
-            model: 'gemini-3.8-flash',
+            model: 'gemini-2.0-flash',
             contents: promptText,
             config: {
               systemInstruction,
