@@ -2928,7 +2928,7 @@ ${
         try {
           const groqSystemPrompt = systemInstruction + '\nRespond ONLY with a valid JSON array of question objects. No markdown, no explanation outside the array.';
           const groqResp = await groqClient.chat.completions.create({
-            model: 'llama3-70b-8192',
+            model: 'openai/gpt-oss-20b',
             messages: [
               { role: 'system', content: groqSystemPrompt },
               { role: 'user', content: promptText },
