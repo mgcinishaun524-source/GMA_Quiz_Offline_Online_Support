@@ -29,49 +29,59 @@ export const NetworkSimulatorBar: React.FC = () => {
   };
 
   return (
-    <div className="bg-[#0B1F4B]/95 text-white text-xs px-4 py-1.5 flex flex-wrap items-center justify-between gap-2 border-b border-white/10">
+    <div
+      className={[
+        'text-xs px-4 py-1 flex flex-wrap items-center justify-between gap-2',
+        'border-b transition-colors duration-300',
+        isOnline
+          ? 'bg-[#0B1F4B] border-white/[0.06]'
+          : 'bg-amber-950/80 border-amber-400/20',
+      ].join(' ')}
+    >
+      {/* ── Left: status ──────────────────────────────────────────────── */}
       <div className="flex items-center gap-3 flex-wrap">
-        {/* Connection status */}
         {isOnline ? (
-          <span className="flex items-center gap-1.5 text-[#D6A21E]/90 font-medium">
-            <Wifi size={12} className="shrink-0" />
-            Connected
+          <span className="flex items-center gap-1.5 text-slate-400 font-medium">
+            <Wifi size={11} className="text-[#D6A21E]/70 shrink-0" aria-hidden="true" />
+            <span>Connected</span>
           </span>
         ) : (
           <span className="flex items-center gap-1.5 text-amber-300 font-semibold">
-            <WifiOff size={12} className="shrink-0" />
-            Offline Mode Active
+            <WifiOff size={11} className="shrink-0" aria-hidden="true" />
+            <span>Offline Mode Active</span>
           </span>
         )}
 
-        {/* Queued submissions badge */}
+        {/* Queued badge */}
         {syncState.pendingCount > 0 && (
-          <span className="bg-amber-400/20 text-amber-300 border border-amber-400/30 px-2 py-0.5 rounded-full text-[11px] font-semibold">
+          <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-400/15 border border-amber-400/25 text-amber-300 text-[10px] font-semibold">
             {syncState.pendingCount} {syncState.pendingCount === 1 ? 'submission' : 'submissions'} queued
           </span>
         )}
 
-        {/* Syncing indicator */}
+        {/* Syncing */}
         {syncState.isSyncing && (
-          <span className="flex items-center gap-1 text-[#D6A21E]/80 animate-pulse">
-            <RefreshCw size={11} className="animate-spin" />
+          <span className="flex items-center gap-1 text-[#D6A21E]/60 text-[10px]">
+            <RefreshCw size={10} className="animate-spin" aria-hidden="true" />
             Syncing…
           </span>
         )}
       </div>
 
+      {/* ── Right: controls ───────────────────────────────────────────── */}
       <div className="flex items-center gap-2">
         {simulationAvailable && (
           <button
             onClick={handleToggleOffline}
             type="button"
-            className={`
-              px-2.5 py-0.5 text-[11px] font-semibold rounded-full border cursor-pointer transition-all duration-150
-              ${isSimulated
-                ? 'bg-[#D6A21E] text-[#0B1F4B] border-[#D6A21E] hover:bg-[#C4941C]'
-                : 'bg-transparent text-white/70 border-white/20 hover:border-white/50 hover:text-white'
-              }
-            `}
+            className={[
+              'px-2.5 py-0.5 text-[10px] font-semibold rounded-md border',
+              'cursor-pointer transition-all duration-150',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D6A21E]/50',
+              isSimulated
+                ? 'bg-[#D6A21E] text-[#0B1F4B] border-[#D6A21E] hover:bg-[#C4941C] active:scale-[0.97]'
+                : 'bg-transparent text-slate-500 border-white/[0.12] hover:border-white/25 hover:text-slate-300 active:scale-[0.97]',
+            ].join(' ')}
           >
             {isSimulated ? 'Go Online' : 'Simulate Offline'}
           </button>
@@ -82,9 +92,13 @@ export const NetworkSimulatorBar: React.FC = () => {
             onClick={handleSyncNow}
             disabled={syncState.isSyncing}
             type="button"
-            className="flex items-center gap-1 px-2.5 py-0.5 text-[11px] font-semibold bg-[#D6A21E] text-[#0B1F4B] rounded-full hover:bg-[#C4941C] disabled:opacity-50 transition-all duration-150 cursor-pointer"
+            className="flex items-center gap-1 px-2.5 py-0.5 text-[10px] font-semibold
+              bg-[#D6A21E]/90 text-[#0B1F4B] rounded-md border border-[#D6A21E]
+              hover:bg-[#D6A21E] active:scale-[0.97]
+              disabled:opacity-50 disabled:cursor-not-allowed
+              transition-all duration-150 cursor-pointer"
           >
-            <RefreshCw size={10} className={syncState.isSyncing ? 'animate-spin' : ''} />
+            <RefreshCw size={9} className={syncState.isSyncing ? 'animate-spin' : ''} aria-hidden="true" />
             Sync Now
           </button>
         )}
