@@ -110,9 +110,9 @@ export const TeacherAnalyticsPage: React.FC = () => {
       />
 
       {/* Filter Row */}
-      <div className="bg-white border border-[#CBD5E1] p-4 flex items-center justify-between shadow-xs">
+      <div className="bg-white border border-[#CBD5E1] p-4 flex items-center justify-between shadow-sm">
         <div className="flex items-center gap-2">
-          <span className="text-xs font-bold uppercase tracking-wider text-[#1C2C5B]">
+          <span className="text-xs font-bold uppercase tracking-wider text-[#0B1F4B]">
             Viewing Class:
           </span>
           <SelectField
@@ -136,9 +136,9 @@ export const TeacherAnalyticsPage: React.FC = () => {
       {/* Charts Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Class Average by Quiz */}
-        <div className="bg-white border border-[#CBD5E1] p-5 shadow-xs">
+        <div className="bg-white border border-[#CBD5E1] p-5 shadow-sm">
           <div className="pb-3 mb-4 border-b border-[#CBD5E1]">
-            <h3 className="text-sm font-bold uppercase tracking-wider text-[#1C2C5B]">
+            <h3 className="text-sm font-bold uppercase tracking-wider text-[#0B1F4B]">
               Class Average Across Quizzes
             </h3>
             <p className="text-xs text-[#64748B]">
@@ -155,20 +155,20 @@ export const TeacherAnalyticsPage: React.FC = () => {
                   <YAxis stroke="#64748B" fontSize={11} domain={[0, 100]} tickLine={false} />
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: '#1C2C5B',
-                      borderColor: '#1C2C5B',
+                      backgroundColor: '#0B1F4B',
+                      borderColor: '#0B1F4B',
                       color: '#fff',
                       fontSize: 12,
                     }}
                   />
                   <Legend wrapperStyle={{ fontSize: 11, paddingTop: 10 }} />
-                  <Bar dataKey="classAverage" name="Class Average (%)" fill="#1C2C5B" />
+                  <Bar dataKey="classAverage" name="Class Average (%)" fill="#0B1F4B" />
                   <Bar dataKey="benchmark" name="Target Benchmark (%)" fill="#CBD5E1" />
                 </BarChart>
               </ResponsiveContainer>
             </div>
           ) : (
-            <div className="h-64 w-full flex flex-col items-center justify-center text-center border border-dashed border-[#CBD5E1] bg-[#F5F8FC]">
+            <div className="h-64 w-full flex flex-col items-center justify-center text-center border border-dashed border-[#CBD5E1] bg-[#F7F7F4]">
               <AlertCircle size={20} className="text-[#94A3B8] mb-2" />
               <p className="text-xs font-semibold text-[#64748B]">
                 No marked submissions yet for this class.
@@ -181,9 +181,9 @@ export const TeacherAnalyticsPage: React.FC = () => {
         </div>
 
         {/* Topic-Level Accuracy */}
-        <div className="bg-white border border-[#CBD5E1] p-5 shadow-xs">
+        <div className="bg-white border border-[#CBD5E1] p-5 shadow-sm">
           <div className="pb-3 mb-4 border-b border-[#CBD5E1]">
-            <h3 className="text-sm font-bold uppercase tracking-wider text-[#1C2C5B]">
+            <h3 className="text-sm font-bold uppercase tracking-wider text-[#0B1F4B]">
               Curriculum Topic Accuracy Breakdown
             </h3>
             <p className="text-xs text-[#64748B]">
@@ -204,18 +204,18 @@ export const TeacherAnalyticsPage: React.FC = () => {
                   <YAxis dataKey="topic" type="category" stroke="#64748B" fontSize={10} tickLine={false} />
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: '#1C2C5B',
-                      borderColor: '#1C2C5B',
+                      backgroundColor: '#0B1F4B',
+                      borderColor: '#0B1F4B',
                       color: '#fff',
                       fontSize: 12,
                     }}
                   />
-                  <Bar dataKey="accuracy" name="Accuracy (%)" fill="#6CABDD" />
+                  <Bar dataKey="accuracy" name="Accuracy (%)" fill="#D6A21E" />
                 </BarChart>
               </ResponsiveContainer>
             </div>
           ) : (
-            <div className="h-64 w-full flex flex-col items-center justify-center text-center border border-dashed border-[#CBD5E1] bg-[#F5F8FC]">
+            <div className="h-64 w-full flex flex-col items-center justify-center text-center border border-dashed border-[#CBD5E1] bg-[#F7F7F4]">
               <AlertCircle size={20} className="text-[#94A3B8] mb-2" />
               <p className="text-xs font-semibold text-[#64748B]">
                 No topic accuracy data available.
@@ -229,10 +229,10 @@ export const TeacherAnalyticsPage: React.FC = () => {
       </div>
 
       {/* Learners Needing Additional Support (Evidence-Based Observation) */}
-      <div className="bg-white border border-[#CBD5E1] p-5 shadow-xs">
+      <div className="bg-white border border-[#CBD5E1] p-5 shadow-sm">
         <div className="pb-3 mb-4 border-b border-[#CBD5E1]">
-          <h3 className="text-sm font-bold uppercase tracking-wider text-[#1C2C5B] flex items-center gap-2">
-            <AlertCircle size={16} className="text-[#1C2C5B]" />
+          <h3 className="text-sm font-bold uppercase tracking-wider text-[#0B1F4B] flex items-center gap-2">
+            <AlertCircle size={16} className="text-[#0B1F4B]" />
             <span>Targeted Support Opportunities (Formative Observations)</span>
           </h3>
           <p className="text-xs text-[#64748B]">
@@ -241,7 +241,7 @@ export const TeacherAnalyticsPage: React.FC = () => {
         </div>
 
         {learnersNeedingSupport.length === 0 ? (
-          <div className="p-6 text-center border border-dashed border-[#CBD5E1] bg-[#F5F8FC]">
+          <div className="p-6 text-center border border-dashed border-[#CBD5E1] bg-[#F7F7F4]">
             <p className="text-xs font-semibold text-[#64748B]">
               No learners currently below the pass mark in this class.
             </p>
@@ -254,13 +254,13 @@ export const TeacherAnalyticsPage: React.FC = () => {
             {learnersNeedingSupport.map((item) => (
               <div
                 key={item.id}
-                className="p-4 bg-[#F5F8FC] border border-[#CBD5E1] flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs"
+                className="p-4 bg-[#F7F7F4] border border-[#CBD5E1] flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs"
               >
                 <div>
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="font-bold text-sm text-[#1C2C5B]">{item.name}</span>
+                    <span className="font-bold text-sm text-[#0B1F4B]">{item.name}</span>
                     <span className="font-mono text-[#64748B]">({item.id})</span>
-                    <span className="bg-[#E8F3FC] text-[#1C2C5B] px-2 py-0.5 border border-[#6CABDD]/40 font-semibold">
+                    <span className="bg-[#F7F7F4] text-[#0B1F4B] px-2 py-0.5 border border-[#D6A21E]/40 font-semibold">
                       Mean Score: {item.currentAverage}
                     </span>
                   </div>
@@ -272,7 +272,7 @@ export const TeacherAnalyticsPage: React.FC = () => {
                       item.strugglingTopics.map((topic, i) => (
                         <span
                           key={i}
-                          className="bg-white text-[#1C2C5B] border border-[#CBD5E1] px-2 py-0.5 text-[10px] font-medium"
+                          className="bg-white text-[#0B1F4B] border border-[#CBD5E1] px-2 py-0.5 text-[10px] font-medium"
                         >
                           {topic}
                         </span>

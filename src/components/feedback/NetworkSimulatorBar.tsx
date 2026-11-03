@@ -4,8 +4,8 @@ import { syncQueueService, SyncState } from '../../lib/sync-queue';
 import { Wifi, WifiOff, RefreshCw } from 'lucide-react';
 
 export const NetworkSimulatorBar: React.FC = () => {
-  const [isOnline, setIsOnline] = useState<boolean>(networkManager.isOnline());
-  const [isSimulated, setIsSimulated] = useState<boolean>(networkManager.isSimulatingOffline());
+  const [isOnline, setIsOnline] = useState(networkManager.isOnline());
+  const [isSimulated, setIsSimulated] = useState(networkManager.isSimulatingOffline());
   const [syncState, setSyncState] = useState<SyncState>(syncQueueService.getState());
   const simulationAvailable = networkManager.isSimulationAvailable();
 
@@ -14,18 +14,13 @@ export const NetworkSimulatorBar: React.FC = () => {
       setIsOnline(status);
       setIsSimulated(networkManager.isSimulatingOffline());
     });
-    const unsubSync = syncQueueService.subscribe((state) => {
-      setSyncState(state);
-    });
-    return () => {
-      unsubNet();
-      unsubSync();
-    };
+    const unsubSync = syncQueueService.subscribe((state) => setSyncState(state));
+    return () => { unsubNet(); unsubSync(); };
   }, []);
 
   const handleToggleOffline = () => {
-    const nextSim = networkManager.toggleSimulation();
-    setIsSimulated(nextSim);
+    networkManager.toggleSimulation();
+    setIsSimulated(networkManager.isSimulatingOffline());
     setIsOnline(networkManager.isOnline());
   };
 
@@ -34,32 +29,33 @@ export const NetworkSimulatorBar: React.FC = () => {
   };
 
   return (
-    <div className="bg-[#1C2C5B] text-white border-b border-[#6CABDD]/30 text-xs px-4 py-1.5 flex flex-wrap items-center justify-between gap-3">
-      <div className="flex items-center gap-3">
-        <div className="flex items-center gap-1.5 font-medium">
-          {isOnline ? (
-            <span className="flex items-center gap-1.5 text-[#6CABDD]">
-              <Wifi size={14} className="shrink-0" />
-              <span>Network: Connected</span>
-            </span>
-          ) : (
-            <span className="flex items-center gap-1.5 text-[#FCD34D] font-semibold">
-              <WifiOff size={14} className="shrink-0" />
-              <span>Network: Offline Mode Active</span>
-            </span>
-          )}
-        </div>
-
-        {syncState.pendingCount > 0 && (
-          <span className="bg-[#FEF3C7] text-[#92400E] px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider">
-            {syncState.pendingCount} Offline {syncState.pendingCount === 1 ? 'Submission' : 'Submissions'} Queued
+    <div className="bg-[#0B1F4B]/95 text-white text-xs px-4 py-1.5 flex flex-wrap items-center justify-between gap-2 border-b border-white/10">
+      <div className="flex items-center gap-3 flex-wrap">
+        {/* Connection status */}
+        {isOnline ? (
+          <span className="flex items-center gap-1.5 text-[#D6A21E]/90 font-medium">
+            <Wifi size={12} className="shrink-0" />
+            Connected
+          </span>
+        ) : (
+          <span className="flex items-center gap-1.5 text-amber-300 font-semibold">
+            <WifiOff size={12} className="shrink-0" />
+            Offline Mode Active
           </span>
         )}
 
+        {/* Queued submissions badge */}
+        {syncState.pendingCount > 0 && (
+          <span className="bg-amber-400/20 text-amber-300 border border-amber-400/30 px-2 py-0.5 rounded-full text-[11px] font-semibold">
+            {syncState.pendingCount} {syncState.pendingCount === 1 ? 'submission' : 'submissions'} queued
+          </span>
+        )}
+
+        {/* Syncing indicator */}
         {syncState.isSyncing && (
-          <span className="flex items-center gap-1 text-[#6CABDD] animate-pulse">
-            <RefreshCw size={12} className="animate-spin" />
-            <span>Syncing records with school server...</span>
+          <span className="flex items-center gap-1 text-[#D6A21E]/80 animate-pulse">
+            <RefreshCw size={11} className="animate-spin" />
+            Syncing…
           </span>
         )}
       </div>
@@ -69,14 +65,15 @@ export const NetworkSimulatorBar: React.FC = () => {
           <button
             onClick={handleToggleOffline}
             type="button"
-            className={`px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider border cursor-pointer transition-colors ${
-              isSimulated
-                ? 'bg-[#6CABDD] text-[#1C2C5B] border-[#6CABDD] hover:bg-white'
-                : 'bg-transparent text-white border-white/30 hover:border-white hover:bg-white/10'
-            }`}
-            title="Toggle simulated network disconnection to test tablet offline workflows (development only)"
+            className={`
+              px-2.5 py-0.5 text-[11px] font-semibold rounded-full border cursor-pointer transition-all duration-150
+              ${isSimulated
+                ? 'bg-[#D6A21E] text-[#0B1F4B] border-[#D6A21E] hover:bg-[#C4941C]'
+                : 'bg-transparent text-white/70 border-white/20 hover:border-white/50 hover:text-white'
+              }
+            `}
           >
-            {isSimulated ? 'Exit Offline Simulation (Go Online)' : 'Simulate Offline Mode'}
+            {isSimulated ? 'Go Online' : 'Simulate Offline'}
           </button>
         )}
 
@@ -85,10 +82,10 @@ export const NetworkSimulatorBar: React.FC = () => {
             onClick={handleSyncNow}
             disabled={syncState.isSyncing}
             type="button"
-            className="flex items-center gap-1 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider bg-[#6CABDD] text-[#1C2C5B] hover:bg-white border border-[#6CABDD] transition-colors cursor-pointer disabled:opacity-50"
+            className="flex items-center gap-1 px-2.5 py-0.5 text-[11px] font-semibold bg-[#D6A21E] text-[#0B1F4B] rounded-full hover:bg-[#C4941C] disabled:opacity-50 transition-all duration-150 cursor-pointer"
           >
-            <RefreshCw size={11} className={syncState.isSyncing ? 'animate-spin' : ''} />
-            <span>Sync Now</span>
+            <RefreshCw size={10} className={syncState.isSyncing ? 'animate-spin' : ''} />
+            Sync Now
           </button>
         )}
       </div>

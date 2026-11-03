@@ -23,10 +23,6 @@ export const AppShell: React.FC = () => {
   const { user, role, logout } = useAuth();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  // Runtime mode is reported by the backend (/api/health authMode) so the footer
-  // reflects actual authentication readiness rather than the build-time VITE_APP_MODE
-  // flag alone.
   const [authMode, setAuthMode] = useState<string | null>(null);
 
   useEffect(() => {
@@ -34,65 +30,58 @@ export const AppShell: React.FC = () => {
     fetch('/api/health')
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
-        if (!cancelled && data && typeof data.authMode === 'string') {
-          setAuthMode(data.authMode);
-        }
+        if (!cancelled && data && typeof data.authMode === 'string') setAuthMode(data.authMode);
       })
-      .catch(() => {
-        if (!cancelled) setAuthMode(null);
-      });
-    return () => {
-      cancelled = true;
-    };
+      .catch(() => { if (!cancelled) setAuthMode(null); });
+    return () => { cancelled = true; };
   }, []);
 
-  // Hydrate the academic directory (subjects, classes, faculty) from the server for
-  // staff portals so every record created in Supabase is available across screens.
   useEffect(() => {
     if (role === 'admin' || role === 'teacher') {
       void directoryApiService.hydrateDirectory();
     }
   }, [role]);
 
+  // Close mobile menu on route change
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, []);
+
   const runtimeModeLabel =
-    authMode === 'supabase'
-      ? 'Production Auth (Supabase Verified)'
-      : authMode === 'strict-production'
-      ? 'Production Mode (Database Required)'
-      : 'Runtime Mode Unknown';
+    authMode === 'supabase' ? 'Production Auth (Supabase Verified)'
+    : authMode === 'strict-production' ? 'Production Mode (Database Required)'
+    : 'Runtime Mode Unknown';
 
   const adminNavItems = [
-    { to: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { to: '/admin/learners', label: 'Learners', icon: Users },
-    { to: '/admin/teachers', label: 'Teachers', icon: GraduationCap },
-    { to: '/admin/classes', label: 'Classes', icon: Layers },
-    { to: '/admin/subjects', label: 'Subjects', icon: BookOpen },
-    { to: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
-    { to: '/admin/settings', label: 'Settings', icon: Settings },
+    { to: '/admin/dashboard',  label: 'Dashboard', icon: LayoutDashboard },
+    { to: '/admin/learners',   label: 'Learners',  icon: Users },
+    { to: '/admin/teachers',   label: 'Teachers',  icon: GraduationCap },
+    { to: '/admin/classes',    label: 'Classes',   icon: Layers },
+    { to: '/admin/subjects',   label: 'Subjects',  icon: BookOpen },
+    { to: '/admin/analytics',  label: 'Analytics', icon: BarChart3 },
+    { to: '/admin/settings',   label: 'Settings',  icon: Settings },
   ];
 
   const teacherNavItems = [
-    { to: '/teacher/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { to: '/teacher/quizzes', label: 'Quizzes', icon: HelpCircle },
-    { to: '/teacher/classes', label: 'Classes', icon: Layers },
-    { to: '/teacher/submissions', label: 'Submissions', icon: FileCheck },
-    { to: '/teacher/results', label: 'Results', icon: CheckCircle2 },
-    { to: '/teacher/analytics', label: 'Analytics', icon: BarChart3 },
-    { to: '/teacher/settings', label: 'Settings', icon: Settings },
+    { to: '/teacher/dashboard',    label: 'Dashboard',   icon: LayoutDashboard },
+    { to: '/teacher/quizzes',      label: 'Quizzes',     icon: HelpCircle },
+    { to: '/teacher/classes',      label: 'Classes',     icon: Layers },
+    { to: '/teacher/submissions',  label: 'Submissions', icon: FileCheck },
+    { to: '/teacher/results',      label: 'Results',     icon: CheckCircle2 },
+    { to: '/teacher/analytics',    label: 'Analytics',   icon: BarChart3 },
+    { to: '/teacher/settings',     label: 'Settings',    icon: Settings },
   ];
 
   const learnerNavItems = [
     { to: '/learner/dashboard', label: 'My Dashboard', icon: LayoutDashboard },
-    { to: '/learner/quizzes', label: 'My Quizzes', icon: HelpCircle },
-    { to: '/learner/results', label: 'My Results', icon: CheckCircle2 },
+    { to: '/learner/quizzes',   label: 'My Quizzes',   icon: HelpCircle },
+    { to: '/learner/results',   label: 'My Results',   icon: CheckCircle2 },
   ];
 
   const navItems =
-    role === 'admin'
-      ? adminNavItems
-      : role === 'teacher'
-      ? teacherNavItems
-      : learnerNavItems;
+    role === 'admin' ? adminNavItems
+    : role === 'teacher' ? teacherNavItems
+    : learnerNavItems;
 
   const handleLogout = () => {
     logout();
@@ -100,31 +89,31 @@ export const AppShell: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F5F8FC] flex flex-col font-sans">
-      {/* Top Network & Offline Simulation Bar */}
+    <div className="min-h-screen bg-[#F7F7F4] flex flex-col font-sans">
       <NetworkSimulatorBar />
 
-      {/* Main Header */}
-      <header className="bg-[#1C2C5B] text-white border-b border-[#6CABDD]/30 sticky top-0 z-40 shadow-sm">
+      {/* ── Header ─────────────────────────────────────────────────────── */}
+      <header className="bg-[#0B1F4B] text-white sticky top-0 z-40 shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            {/* Brand Logo & Wordmark */}
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-[#1C2C5B] border-2 border-[#6CABDD] flex items-center justify-center shrink-0">
-                <span className="font-bold text-sm tracking-wider text-[#6CABDD]">GMA</span>
+
+            {/* Brand */}
+            <div className="flex items-center gap-3 shrink-0">
+              <div className="w-9 h-9 border-2 border-[#D6A21E] flex items-center justify-center rounded-sm">
+                <span className="font-extrabold text-xs tracking-widest text-[#D6A21E]">GMA</span>
               </div>
-              <div>
-                <span className="text-base font-bold tracking-tight text-white block uppercase">
+              <div className="hidden sm:block">
+                <span className="text-sm font-extrabold tracking-tight text-white block">
                   Growing Minds Academy
                 </span>
-                <span className="text-[11px] font-medium text-[#6CABDD] tracking-wider block">
-                  AI QUIZ & LEARNING ANALYTICS
+                <span className="text-[10px] font-semibold text-[#D6A21E]/80 tracking-widest block uppercase">
+                  AI Quiz & Analytics
                 </span>
               </div>
             </div>
 
-            {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center space-x-1 lg:space-x-2">
+            {/* Desktop nav */}
+            <nav className="hidden md:flex items-center space-x-0.5 lg:space-x-1" aria-label="Main navigation">
               {navItems.map((item) => {
                 const Icon = item.icon;
                 return (
@@ -132,47 +121,48 @@ export const AppShell: React.FC = () => {
                     key={item.to}
                     to={item.to}
                     className={({ isActive }) =>
-                      `flex items-center gap-2 px-3 py-1.5 text-xs font-semibold uppercase tracking-wider transition-colors border ${
+                      `flex items-center gap-2 px-3 py-1.5 text-xs font-semibold uppercase tracking-wider rounded-md transition-all duration-150 ${
                         isActive
-                          ? 'bg-[#6CABDD] text-[#1C2C5B] border-[#6CABDD]'
-                          : 'text-slate-200 border-transparent hover:text-white hover:bg-white/10'
+                          ? 'text-[#D6A21E] bg-white/10 border-b-2 border-[#D6A21E]'
+                          : 'text-slate-300 hover:text-white hover:bg-white/8'
                       }`
                     }
                   >
-                    <Icon size={14} className="shrink-0" />
+                    <Icon size={13} className="shrink-0" />
                     <span>{item.label}</span>
                   </NavLink>
                 );
               })}
             </nav>
 
-            {/* Right Side: Role Badge & User Avatar */}
-            <div className="flex items-center gap-3">
-              {/* Verified Static Role Badge */}
-              <div className="flex items-center gap-2 px-2.5 py-1 text-xs font-semibold uppercase tracking-wider bg-[#0F172A] border border-[#6CABDD]/50 text-[#E8F3FC]">
-                <span className="w-2 h-2 bg-[#6CABDD]" />
-                <span>Role: {role?.toUpperCase()}</span>
+            {/* Right side */}
+            <div className="flex items-center gap-2 sm:gap-3">
+              {/* Role badge */}
+              <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold uppercase tracking-wider bg-[#D6A21E]/15 border border-[#D6A21E]/30 text-[#D6A21E] rounded-full">
+                <span className="w-1.5 h-1.5 bg-[#D6A21E] rounded-full" />
+                {role?.toUpperCase()}
               </div>
 
-              {/* User info & Logout */}
-              <div className="hidden sm:flex items-center gap-2 border-l border-white/20 pl-3">
-                <div className="w-8 h-8 bg-[#6CABDD] text-[#1C2C5B] font-bold text-xs flex items-center justify-center shrink-0">
+              {/* User info */}
+              <div className="hidden sm:flex items-center gap-2 pl-3 border-l border-white/15">
+                <div className="w-8 h-8 bg-[#D6A21E] text-[#0B1F4B] font-bold text-xs flex items-center justify-center rounded-full shrink-0">
                   {user?.avatarInitial || 'GM'}
                 </div>
-                <div className="text-left hidden lg:block">
-                  <span className="text-xs font-semibold text-white block leading-tight">
+                <div className="hidden lg:block text-left">
+                  <span className="text-xs font-semibold text-white block leading-tight truncate max-w-[120px]">
                     {user?.name || 'Authorized User'}
                   </span>
-                  <span className="text-[10px] text-slate-300 block">
+                  <span className="text-[10px] text-slate-400 block truncate max-w-[120px]">
                     {user?.className || user?.email || 'School Access'}
                   </span>
                 </div>
                 <button
                   onClick={handleLogout}
-                  className="p-1.5 text-slate-300 hover:text-white transition-colors cursor-pointer"
+                  className="p-1.5 text-slate-400 hover:text-white hover:bg-white/10 rounded-md transition-all duration-150 cursor-pointer"
                   title="Sign out"
+                  aria-label="Sign out"
                 >
-                  <LogOut size={16} />
+                  <LogOut size={15} />
                 </button>
               </div>
 
@@ -180,7 +170,9 @@ export const AppShell: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="md:hidden p-2 text-white hover:bg-white/10"
+                className="md:hidden p-2 text-white hover:bg-white/10 rounded-md transition-all duration-150 cursor-pointer"
+                aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
+                aria-expanded={mobileMenuOpen}
               >
                 {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
               </button>
@@ -188,9 +180,9 @@ export const AppShell: React.FC = () => {
           </div>
         </div>
 
-        {/* Mobile menu drawer */}
+        {/* Mobile drawer */}
         {mobileMenuOpen && (
-          <div className="md:hidden bg-[#1C2C5B] border-t border-[#6CABDD]/20 px-4 pt-2 pb-4 space-y-1">
+          <div className="md:hidden bg-[#0B1F4B] border-t border-white/10 px-4 pt-3 pb-4 space-y-1 shadow-xl">
             {navItems.map((item) => {
               const Icon = item.icon;
               return (
@@ -199,8 +191,10 @@ export const AppShell: React.FC = () => {
                   to={item.to}
                   onClick={() => setMobileMenuOpen(false)}
                   className={({ isActive }) =>
-                    `flex items-center gap-2.5 px-3 py-2 text-xs font-semibold uppercase tracking-wider ${
-                      isActive ? 'bg-[#6CABDD] text-[#1C2C5B]' : 'text-slate-200 hover:bg-white/10'
+                    `flex items-center gap-3 px-3 py-2.5 text-sm font-semibold rounded-lg transition-all duration-150 ${
+                      isActive
+                        ? 'bg-[#D6A21E]/15 text-[#D6A21E] border-l-2 border-[#D6A21E]'
+                        : 'text-slate-300 hover:bg-white/8 hover:text-white'
                     }`
                   }
                 >
@@ -209,9 +203,21 @@ export const AppShell: React.FC = () => {
                 </NavLink>
               );
             })}
-            <div className="pt-2 border-t border-white/10 flex items-center justify-between text-xs text-slate-300">
-              <span>Signed in as {user?.name}</span>
-              <button onClick={handleLogout} className="text-[#6CABDD] underline cursor-pointer">
+            <div className="pt-3 mt-1 border-t border-white/10 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 bg-[#D6A21E] text-[#0B1F4B] font-bold text-xs flex items-center justify-center rounded-full">
+                  {user?.avatarInitial || 'GM'}
+                </div>
+                <div>
+                  <span className="text-xs font-semibold text-white block">{user?.name || 'User'}</span>
+                  <span className="text-[10px] text-slate-400 block uppercase tracking-wider">{role}</span>
+                </div>
+              </div>
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-1.5 text-xs text-[#D6A21E] font-semibold hover:text-white transition-colors cursor-pointer"
+              >
+                <LogOut size={13} />
                 Sign Out
               </button>
             </div>
@@ -219,20 +225,21 @@ export const AppShell: React.FC = () => {
         )}
       </header>
 
-      {/* Main Content Area */}
+      {/* ── Main Content ───────────────────────────────────────────────── */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         <Outlet />
       </main>
 
-      {/* Footer */}
-      <footer className="bg-white border-t border-[#CBD5E1] py-4 text-xs text-[#64748B]">
+      {/* ── Footer ─────────────────────────────────────────────────────── */}
+      <footer className="bg-white border-t border-slate-200 py-4 text-xs text-slate-500">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2">
           <div>
-            <span className="font-semibold text-[#1C2C5B]">Growing Minds Academy</span> — AI-Powered Quiz & Learning Analytics Platform
+            <span className="font-bold text-[#0B1F4B]">Growing Minds Academy</span>
+            {' '}— AI-Powered Quiz & Learning Analytics
           </div>
-          <div className="flex items-center gap-4 text-[11px]">
-            <span>Local Offline Persistence: IndexedDB</span>
-            <span className="hidden sm:inline">|</span>
+          <div className="flex items-center gap-3 text-[11px] flex-wrap justify-center">
+            <span>Offline: IndexedDB</span>
+            <span className="hidden sm:inline text-slate-300">|</span>
             <span>{runtimeModeLabel}</span>
           </div>
         </div>

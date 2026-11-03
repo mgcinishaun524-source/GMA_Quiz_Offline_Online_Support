@@ -21,7 +21,7 @@ export const UnauthorizedPage: React.FC = () => {
         <div className="w-12 h-12 bg-[#FEE2E2] border border-[#B91C1C] flex items-center justify-center mx-auto mb-4">
           <ShieldAlert size={24} className="text-[#B91C1C]" />
         </div>
-        <h2 className="text-xl font-bold text-[#1C2C5B] uppercase tracking-tight">Access Restricted</h2>
+        <h2 className="text-xl font-bold text-[#0B1F4B] uppercase tracking-tight">Access Restricted</h2>
         <p className="text-sm text-[#64748B] mt-2 mb-6">
           You do not have permission to view this section with your current role (
           <span className="font-semibold text-[#0F172A]">{role?.toUpperCase() || 'ANONYMOUS'}</span>

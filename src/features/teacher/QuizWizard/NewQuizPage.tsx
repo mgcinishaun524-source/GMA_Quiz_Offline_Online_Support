@@ -384,7 +384,7 @@ export const NewQuizPage: React.FC = () => {
       />
 
       {/* Step Indicator — Rectangular & Strict Brand Colours */}
-      <div className="bg-white border border-[#CBD5E1] p-3 shadow-xs">
+      <div className="bg-white border border-[#CBD5E1] p-3 shadow-sm">
         <div className="grid grid-cols-5 gap-2 text-center text-xs">
           {[
             { num: 1, label: '1. Assessment Details' },
@@ -400,10 +400,10 @@ export const NewQuizPage: React.FC = () => {
               }}
               className={`py-2 px-1 text-xs font-bold uppercase tracking-wider border transition-colors cursor-pointer ${
                 step === item.num
-                  ? 'bg-[#1C2C5B] text-white border-[#1C2C5B]'
+                  ? 'bg-[#0B1F4B] text-white border-[#0B1F4B]'
                   : step > item.num
-                  ? 'bg-[#E8F3FC] text-[#1C2C5B] border-[#6CABDD]/40'
-                  : 'bg-[#F5F8FC] text-[#64748B] border-[#CBD5E1]'
+                  ? 'bg-[#F7F7F4] text-[#0B1F4B] border-[#D6A21E]/40'
+                  : 'bg-[#F7F7F4] text-[#64748B] border-[#CBD5E1]'
               }`}
             >
               {item.label}
@@ -422,9 +422,9 @@ export const NewQuizPage: React.FC = () => {
 
       {/* STEP 1: Assessment Details */}
       {step === 1 && (
-        <div className="bg-white border border-[#CBD5E1] p-6 shadow-xs space-y-5">
+        <div className="bg-white border border-[#CBD5E1] p-6 shadow-sm space-y-5">
           <div className="pb-3 border-b border-[#CBD5E1]">
-            <h3 className="text-base font-bold uppercase tracking-wider text-[#1C2C5B]">
+            <h3 className="text-base font-bold uppercase tracking-wider text-[#0B1F4B]">
               Step 1: Assessment Configuration & Topics
             </h3>
             <p className="text-xs text-[#64748B]">
@@ -477,7 +477,7 @@ export const NewQuizPage: React.FC = () => {
 
           {/* Topics Covered */}
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-[#1C2C5B] mb-1.5">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[#0B1F4B] mb-1.5">
               Curriculum Topics Covered This Week <span className="text-[#B91C1C]">*</span>
             </label>
             <div className="flex gap-2 mb-2">
@@ -502,7 +502,7 @@ export const NewQuizPage: React.FC = () => {
               {topicsCovered.map((topic) => (
                 <span
                   key={topic}
-                  className="bg-[#E8F3FC] text-[#1C2C5B] text-xs font-medium px-2.5 py-1 border border-[#6CABDD]/40 flex items-center gap-1.5"
+                  className="bg-[#F7F7F4] text-[#0B1F4B] text-xs font-medium px-2.5 py-1 border border-[#D6A21E]/40 flex items-center gap-1.5"
                 >
                   <span>{topic}</span>
                   <button
@@ -563,9 +563,9 @@ export const NewQuizPage: React.FC = () => {
       {/* STEP 2: Question Creation */}
       {step === 2 && (
         <div className="space-y-6">
-          <div className="bg-white border border-[#CBD5E1] p-5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="bg-white border border-[#CBD5E1] p-5 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <h3 className="text-base font-bold uppercase tracking-wider text-[#1C2C5B]">
+              <h3 className="text-base font-bold uppercase tracking-wider text-[#0B1F4B]">
                 Step 2: Question Bank ({questions.length} Items)
               </h3>
               <p className="text-xs text-[#64748B]">
@@ -598,10 +598,10 @@ export const NewQuizPage: React.FC = () => {
           </div>
 
           {questions.map((q, idx) => (
-            <div key={q.id} className="bg-white border border-[#CBD5E1] p-5 shadow-xs space-y-4">
+            <div key={q.id} className="bg-white border border-[#CBD5E1] p-5 shadow-sm space-y-4">
               <div className="flex items-center justify-between pb-3 border-b border-[#CBD5E1]/60">
                 <div className="flex items-center gap-2">
-                  <span className="font-bold text-xs text-[#1C2C5B] bg-[#E8F3FC] px-2 py-0.5 border border-[#6CABDD]/30">
+                  <span className="font-bold text-xs text-[#0B1F4B] bg-[#F7F7F4] px-2 py-0.5 border border-[#D6A21E]/30">
                     Question #{idx + 1}
                   </span>
                   <span className="text-xs font-semibold text-[#64748B] uppercase">
@@ -614,7 +614,7 @@ export const NewQuizPage: React.FC = () => {
                     type="button"
                     onClick={() => handleMoveQuestion(idx, 'up')}
                     disabled={idx === 0}
-                    className="p-1 text-[#64748B] hover:text-[#1C2C5B] disabled:opacity-30 cursor-pointer"
+                    className="p-1 text-[#64748B] hover:text-[#0B1F4B] disabled:opacity-30 cursor-pointer"
                     title="Move Question Up"
                   >
                     <MoveUp size={15} />
@@ -623,7 +623,7 @@ export const NewQuizPage: React.FC = () => {
                     type="button"
                     onClick={() => handleMoveQuestion(idx, 'down')}
                     disabled={idx === questions.length - 1}
-                    className="p-1 text-[#64748B] hover:text-[#1C2C5B] disabled:opacity-30 cursor-pointer"
+                    className="p-1 text-[#64748B] hover:text-[#0B1F4B] disabled:opacity-30 cursor-pointer"
                     title="Move Question Down"
                   >
                     <MoveDown size={15} />
@@ -652,7 +652,7 @@ export const NewQuizPage: React.FC = () => {
               {/* Options for MCQ */}
               {q.type === 'multiple_choice' && q.options && (
                 <div className="space-y-2">
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-[#1C2C5B]">
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-[#0B1F4B]">
                     Multiple Choice Options (Select Radio Button for Correct Answer)
                   </label>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
@@ -662,7 +662,7 @@ export const NewQuizPage: React.FC = () => {
                         <div
                           key={opt.id}
                           className={`flex items-center gap-2.5 p-2 border ${
-                            isCorrect ? 'border-[#1C2C5B] bg-[#E8F3FC]' : 'border-[#CBD5E1] bg-white'
+                            isCorrect ? 'border-[#0B1F4B] bg-[#F7F7F4]' : 'border-[#CBD5E1] bg-white'
                           }`}
                         >
                           <input
@@ -670,7 +670,7 @@ export const NewQuizPage: React.FC = () => {
                             name={`correct-${q.id}`}
                             checked={isCorrect}
                             onChange={() => handleUpdateQuestion(idx, { correctAnswer: opt.id })}
-                            className="accent-[#1C2C5B] cursor-pointer"
+                            className="accent-[#0B1F4B] cursor-pointer"
                           />
                           <InputField
                             type="text"
@@ -692,7 +692,7 @@ export const NewQuizPage: React.FC = () => {
               {/* True / False */}
               {q.type === 'true_false' && (
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-[#1C2C5B] mb-2">
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-[#0B1F4B] mb-2">
                     Correct Answer
                   </label>
                   <div className="flex gap-4">
@@ -702,7 +702,7 @@ export const NewQuizPage: React.FC = () => {
                         name={`tf-${q.id}`}
                         checked={q.correctAnswer === 'true'}
                         onChange={() => handleUpdateQuestion(idx, { correctAnswer: 'true' })}
-                        className="accent-[#1C2C5B]"
+                        className="accent-[#0B1F4B]"
                       />
                       <span>TRUE</span>
                     </label>
@@ -712,7 +712,7 @@ export const NewQuizPage: React.FC = () => {
                         name={`tf-${q.id}`}
                         checked={q.correctAnswer === 'false'}
                         onChange={() => handleUpdateQuestion(idx, { correctAnswer: 'false' })}
-                        className="accent-[#1C2C5B]"
+                        className="accent-[#0B1F4B]"
                       />
                       <span>FALSE</span>
                     </label>
@@ -772,10 +772,10 @@ export const NewQuizPage: React.FC = () => {
       {/* STEP 3: AI-Assisted Generation */}
       {step === 3 && (
         <div className="space-y-6">
-          <div className="bg-[#1C2C5B] text-white p-6 shadow-xs border border-[#1C2C5B]">
+          <div className="bg-[#0B1F4B] text-white p-6 shadow-sm border border-[#0B1F4B]">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-white/20">
               <div>
-                <span className="text-xs font-bold text-[#6CABDD] uppercase tracking-wider block">
+                <span className="text-xs font-bold text-[#D6A21E] uppercase tracking-wider block">
                   AI Question Assistant
                 </span>
                 <h3 className="text-lg font-bold text-white mt-0.5">
@@ -784,7 +784,7 @@ export const NewQuizPage: React.FC = () => {
                 <p className="text-xs text-slate-300 mt-1">
                   Drafting questions for <strong className="text-white">{grade}</strong> •{' '}
                   <strong className="text-white">{selectedSubject?.name}</strong> • Topics:{' '}
-                  <strong className="text-[#6CABDD]">{topicsCovered.join(', ') || 'General'}</strong>
+                  <strong className="text-[#D6A21E]">{topicsCovered.join(', ') || 'General'}</strong>
                 </p>
               </div>
 
@@ -798,8 +798,8 @@ export const NewQuizPage: React.FC = () => {
                       onClick={() => setAiGenCount(preset)}
                       className={`px-2 py-1 text-xs font-semibold border transition-colors ${
                         aiGenCount === preset
-                          ? 'bg-[#6CABDD] text-[#1C2C5B] border-[#6CABDD]'
-                          : 'bg-[#0F172A] text-slate-300 border-white/20 hover:border-[#6CABDD]'
+                          ? 'bg-[#D6A21E] text-[#0B1F4B] border-[#D6A21E]'
+                          : 'bg-[#0F172A] text-slate-300 border-white/20 hover:border-[#D6A21E]'
                       }`}
                     >
                       {preset}
@@ -818,7 +818,7 @@ export const NewQuizPage: React.FC = () => {
                           setAiGenCount(Math.min(50, Math.max(1, val)));
                         }
                       }}
-                      className="w-12 bg-transparent text-white text-xs font-mono text-center outline-none border-b border-[#6CABDD]"
+                      className="w-12 bg-transparent text-white text-xs font-mono text-center outline-none border-b border-[#D6A21E]"
                       title="Enter custom question count (1 to 50)"
                     />
                   </div>
@@ -839,18 +839,18 @@ export const NewQuizPage: React.FC = () => {
               <span>
                 Questions are generated live by the Gemini API. If AI generation is unavailable, an explicit error is shown. Every item requires teacher verification.
               </span>
-              <span className="text-[#6CABDD] font-semibold">Ready to generate</span>
+              <span className="text-[#D6A21E] font-semibold">Ready to generate</span>
             </div>
           </div>
 
           {aiNotice && (
-            <div className="p-3 bg-[#E8F3FC] border border-[#6CABDD] text-[#1C2C5B] text-xs font-semibold">
+            <div className="p-3 bg-[#F7F7F4] border border-[#D6A21E] text-[#0B1F4B] text-xs font-semibold">
               {aiNotice}
             </div>
           )}
 
           {incompleteInfo && incompleteInfo.missing > 0 && (
-            <div className="p-3 bg-[#FFFBEB] border border-[#F59E0B] text-[#92400E] text-xs flex flex-wrap items-center justify-between gap-3 shadow-xs">
+            <div className="p-3 bg-[#FFFBEB] border border-[#F59E0B] text-[#92400E] text-xs flex flex-wrap items-center justify-between gap-3 shadow-sm">
               <div>
                 <strong className="block font-bold">Incomplete Generation Detected</strong>
                 <span>Generated {incompleteInfo.generated} of {incompleteInfo.requested} requested items ({incompleteInfo.missing} missing due to provider batch size limits).</span>
@@ -870,7 +870,7 @@ export const NewQuizPage: React.FC = () => {
           {aiGeneratedItems.length > 0 && (
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h4 className="text-sm font-bold uppercase tracking-wider text-[#1C2C5B]">
+                <h4 className="text-sm font-bold uppercase tracking-wider text-[#0B1F4B]">
                   Generated AI Drafts ({aiGeneratedItems.length})
                 </h4>
                 <PrimaryButton onClick={handleAcceptAllAI} className="text-xs py-1 px-3">
@@ -881,11 +881,11 @@ export const NewQuizPage: React.FC = () => {
               {aiGeneratedItems.map((item) => (
                 <div
                   key={item.id}
-                  className="bg-white border border-[#CBD5E1] p-5 shadow-xs space-y-3"
+                  className="bg-white border border-[#CBD5E1] p-5 shadow-sm space-y-3"
                 >
                   <div className="flex items-center justify-between pb-2 border-b border-[#CBD5E1]/60">
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-bold bg-[#E8F3FC] text-[#1C2C5B] px-2 py-0.5 border border-[#6CABDD]/40">
+                      <span className="text-xs font-bold bg-[#F7F7F4] text-[#0B1F4B] px-2 py-0.5 border border-[#D6A21E]/40">
                         AI Draft
                       </span>
                       <span className="text-xs font-semibold text-[#64748B]">{item.topic}</span>
@@ -920,13 +920,13 @@ export const NewQuizPage: React.FC = () => {
                           key={opt.id}
                           className={`p-2 border ${
                             item.correctAnswer === opt.id
-                              ? 'bg-[#E8F3FC] border-[#1C2C5B] font-bold text-[#1C2C5B]'
-                              : 'bg-[#F5F8FC] border-[#CBD5E1] text-[#0F172A]'
+                              ? 'bg-[#F7F7F4] border-[#0B1F4B] font-bold text-[#0B1F4B]'
+                              : 'bg-[#F7F7F4] border-[#CBD5E1] text-[#0F172A]'
                           }`}
                         >
                           <span>{opt.text}</span>
                           {item.correctAnswer === opt.id && (
-                            <span className="ml-2 text-[10px] text-[#6CABDD] uppercase font-bold">
+                            <span className="ml-2 text-[10px] text-[#D6A21E] uppercase font-bold">
                               (Correct Key)
                             </span>
                           )}
@@ -935,7 +935,7 @@ export const NewQuizPage: React.FC = () => {
                     </div>
                   )}
 
-                  <div className="text-[11px] text-[#64748B] bg-[#F5F8FC] p-2 border border-[#CBD5E1]/60">
+                  <div className="text-[11px] text-[#64748B] bg-[#F7F7F4] p-2 border border-[#CBD5E1]/60">
                     <strong>Explanation:</strong> {item.explanation}
                   </div>
                 </div>
@@ -946,7 +946,7 @@ export const NewQuizPage: React.FC = () => {
           {/* Current Question Count in Quiz */}
           <div className="p-4 bg-white border border-[#CBD5E1] flex items-center justify-between text-xs">
             <span>
-              Current Quiz Bank: <strong className="text-[#1C2C5B]">{questions.length} Questions</strong> accepted
+              Current Quiz Bank: <strong className="text-[#0B1F4B]">{questions.length} Questions</strong> accepted
             </span>
             <OutlineButton onClick={() => setStep(2)}>Review Current Questions in Step 2</OutlineButton>
           </div>
@@ -955,27 +955,27 @@ export const NewQuizPage: React.FC = () => {
 
       {/* STEP 4: Learner Preview */}
       {step === 4 && (
-        <div className="bg-white border border-[#CBD5E1] p-6 shadow-xs space-y-6">
+        <div className="bg-white border border-[#CBD5E1] p-6 shadow-sm space-y-6">
           <div className="pb-3 border-b border-[#CBD5E1] flex items-center justify-between">
             <div>
-              <span className="text-xs font-bold uppercase tracking-wider text-[#6CABDD] block">
+              <span className="text-xs font-bold uppercase tracking-wider text-[#D6A21E] block">
                 Learner Preview Mode
               </span>
-              <h3 className="text-lg font-bold text-[#1C2C5B]">{title}</h3>
+              <h3 className="text-lg font-bold text-[#0B1F4B]">{title}</h3>
               <p className="text-xs text-[#64748B] mt-0.5">
                 Exact appearance as rendered on school tablets during active taking
               </p>
             </div>
-            <span className="text-xs font-mono font-bold text-[#1C2C5B] bg-[#E8F3FC] px-3 py-1 border border-[#6CABDD]/40">
+            <span className="text-xs font-mono font-bold text-[#0B1F4B] bg-[#F7F7F4] px-3 py-1 border border-[#D6A21E]/40">
               Duration: {durationMinutes} mins
             </span>
           </div>
 
           <div className="space-y-6 max-w-2xl mx-auto">
             {questions.map((q, idx) => (
-              <div key={q.id} className="p-5 border border-[#CBD5E1] bg-[#F5F8FC]">
+              <div key={q.id} className="p-5 border border-[#CBD5E1] bg-[#F7F7F4]">
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-xs font-bold text-[#1C2C5B] uppercase">
+                  <span className="text-xs font-bold text-[#0B1F4B] uppercase">
                     Question {idx + 1} of {questions.length}
                   </span>
                   <span className="text-xs text-[#64748B]">{q.marks} Marks</span>
@@ -987,7 +987,7 @@ export const NewQuizPage: React.FC = () => {
                     {q.options.map((opt) => (
                       <div
                         key={opt.id}
-                        className="p-3 bg-white border border-[#CBD5E1] text-xs font-medium text-[#0F172A] hover:border-[#6CABDD] cursor-pointer"
+                        className="p-3 bg-white border border-[#CBD5E1] text-xs font-medium text-[#0F172A] hover:border-[#D6A21E] cursor-pointer"
                       >
                         {opt.text}
                       </div>
@@ -997,10 +997,10 @@ export const NewQuizPage: React.FC = () => {
 
                 {q.type === 'true_false' && (
                   <div className="grid grid-cols-2 gap-3">
-                    <div className="p-3 bg-white border border-[#CBD5E1] text-xs font-bold text-center hover:border-[#6CABDD] cursor-pointer">
+                    <div className="p-3 bg-white border border-[#CBD5E1] text-xs font-bold text-center hover:border-[#D6A21E] cursor-pointer">
                       TRUE
                     </div>
-                    <div className="p-3 bg-white border border-[#CBD5E1] text-xs font-bold text-center hover:border-[#6CABDD] cursor-pointer">
+                    <div className="p-3 bg-white border border-[#CBD5E1] text-xs font-bold text-center hover:border-[#D6A21E] cursor-pointer">
                       FALSE
                     </div>
                   </div>
@@ -1022,9 +1022,9 @@ export const NewQuizPage: React.FC = () => {
 
       {/* STEP 5: Publication Settings */}
       {step === 5 && (
-        <div className="bg-white border border-[#CBD5E1] p-6 shadow-xs space-y-6">
+        <div className="bg-white border border-[#CBD5E1] p-6 shadow-sm space-y-6">
           <div className="pb-3 border-b border-[#CBD5E1]">
-            <h3 className="text-base font-bold uppercase tracking-wider text-[#1C2C5B]">
+            <h3 className="text-base font-bold uppercase tracking-wider text-[#0B1F4B]">
               Step 5: Availability & Release Policy Rules
             </h3>
             <p className="text-xs text-[#64748B]">
@@ -1085,8 +1085,8 @@ export const NewQuizPage: React.FC = () => {
               </FormField>
             </div>
 
-            <div className="p-5 bg-[#F5F8FC] border border-[#CBD5E1] space-y-3 text-xs">
-              <h4 className="font-bold text-xs uppercase tracking-wider text-[#1C2C5B]">
+            <div className="p-5 bg-[#F7F7F4] border border-[#CBD5E1] space-y-3 text-xs">
+              <h4 className="font-bold text-xs uppercase tracking-wider text-[#0B1F4B]">
                 Publication Summary Check
               </h4>
               <div className="flex justify-between py-1 border-b border-[#CBD5E1]/60">
@@ -1099,13 +1099,13 @@ export const NewQuizPage: React.FC = () => {
               </div>
               <div className="flex justify-between py-1 border-b border-[#CBD5E1]/60">
                 <span className="text-[#64748B]">Total Marks:</span>
-                <span className="font-bold text-[#1C2C5B]">
+                <span className="font-bold text-[#0B1F4B]">
                   {questions.reduce((sum, q) => sum + q.marks, 0)} Marks
                 </span>
               </div>
               <div className="flex justify-between py-1 border-b border-[#CBD5E1]/60">
                 <span className="text-[#64748B]">Release Visibility:</span>
-                <span className="font-semibold text-[#1C2C5B] uppercase">{releasePolicy}</span>
+                <span className="font-semibold text-[#0B1F4B] uppercase">{releasePolicy}</span>
               </div>
               <div className="flex justify-between py-1">
                 <span className="text-[#64748B]">Offline Support:</span>
@@ -1116,7 +1116,7 @@ export const NewQuizPage: React.FC = () => {
             </div>
           </div>
 
-          <div className="p-4 bg-[#E8F3FC] border border-[#6CABDD]/50 text-xs text-[#1C2C5B]">
+          <div className="p-4 bg-[#F7F7F4] border border-[#D6A21E]/50 text-xs text-[#0B1F4B]">
             <p className="font-bold">Honest Architectural Confirmation</p>
             <p className="mt-0.5 text-[#0F172A]">
               Saving a draft does not expose questions to learners. Clicking "Publish Assessment" immediately enables tablet downloading and assessment taking.

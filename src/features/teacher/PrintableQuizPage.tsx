@@ -187,11 +187,11 @@ export const PrintableQuizPage: React.FC = () => {
     let bodyHtml = '';
     if (isAnswerKey && answerKey) {
       bodyHtml = `
-        <div style="font-family: Arial, sans-serif; color: #1C2C5B; margin: 20px;">
+        <div style="font-family: Arial, sans-serif; color: #0B1F4B; margin: 20px;">
           <h1 style="text-align: center; margin-bottom: 2px;">GROWING MINDS ACADEMY</h1>
           <h3 style="text-align: center; color: #DC2626; margin-top: 0;">CONFIDENTIAL TEACHER ANSWER KEY & MARK SCHEME</h3>
           <p style="text-align: center; font-size: 10pt; color: #DC2626; font-weight: bold;">FOR AUTHORIZED TEACHING STAFF ONLY • STRICTLY PROHIBITED FROM STUDENT ACCESS</p>
-          <hr style="border: 1px solid #1C2C5B; margin: 15px 0;" />
+          <hr style="border: 1px solid #0B1F4B; margin: 15px 0;" />
           <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 11pt;">
             <tr><td><strong>Assessment:</strong> ${answerKey.title}</td><td><strong>Cohort:</strong> ${answerKey.grade} (${answerKey.className || 'All'})</td></tr>
             <tr><td><strong>Subject:</strong> ${answerKey.subjectName || 'General'}</td><td><strong>Total Marks:</strong> ${answerKey.totalMarks} Marks</td></tr>
@@ -211,7 +211,7 @@ export const PrintableQuizPage: React.FC = () => {
                   ${q.options
                     .map(
                       (opt, i) => `
-                    <li style="margin-bottom: 4px; ${opt.id === q.correctAnswer ? 'font-weight: bold; color: #1C2C5B; background-color: #E8F3FC; padding: 4px;' : ''}">
+                    <li style="margin-bottom: 4px; ${opt.id === q.correctAnswer ? 'font-weight: bold; color: #0B1F4B; background-color: #F7F7F4; padding: 4px;' : ''}">
                       [${['A', 'B', 'C', 'D', 'E'][i] || i + 1}] ${opt.text} ${opt.id === q.correctAnswer ? '<strong>(CORRECT KEY)</strong>' : ''}
                     </li>
                   `
@@ -221,8 +221,8 @@ export const PrintableQuizPage: React.FC = () => {
               `
                   : ''
               }
-              ${q.type === 'true_false' ? `<p style="margin-left: 20px; font-weight: bold; color: #1C2C5B;">CORRECT KEY: ${String(q.correctAnswer).toUpperCase()}</p>` : ''}
-              ${q.type === 'short_answer' ? `<p style="margin-left: 20px; font-weight: bold; color: #1C2C5B;">ACCEPTED KEY: "${q.correctAnswer}"</p>` : ''}
+              ${q.type === 'true_false' ? `<p style="margin-left: 20px; font-weight: bold; color: #0B1F4B;">CORRECT KEY: ${String(q.correctAnswer).toUpperCase()}</p>` : ''}
+              ${q.type === 'short_answer' ? `<p style="margin-left: 20px; font-weight: bold; color: #0B1F4B;">ACCEPTED KEY: "${q.correctAnswer}"</p>` : ''}
               ${q.explanation ? `<p style="font-size: 10pt; color: #475569; margin-left: 20px;"><strong>Marking Guide & Explanation:</strong> ${q.explanation}</p>` : ''}
             </div>
           `
@@ -233,9 +233,9 @@ export const PrintableQuizPage: React.FC = () => {
     } else if (paper) {
       bodyHtml = `
         <div style="font-family: Arial, sans-serif; color: #0F172A; margin: 20px;">
-          <h1 style="text-align: center; color: #1C2C5B; margin-bottom: 2px;">GROWING MINDS ACADEMY</h1>
+          <h1 style="text-align: center; color: #0B1F4B; margin-bottom: 2px;">GROWING MINDS ACADEMY</h1>
           <p style="text-align: center; font-size: 10pt; color: #64748B; margin-top: 0; text-transform: uppercase;">Excellence • Integrity • Curiosity</p>
-          <h2 style="text-align: center; margin-top: 4px; border-top: 2px solid #1C2C5B; padding-top: 8px;">OFFICIAL ASSESSMENT EXAMINATION PAPER</h2>
+          <h2 style="text-align: center; margin-top: 4px; border-top: 2px solid #0B1F4B; padding-top: 8px;">OFFICIAL ASSESSMENT EXAMINATION PAPER</h2>
           
           <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 10.5pt;">
             <tr><td><strong>Assessment:</strong> ${paper.title}</td><td><strong>Cohort:</strong> ${paper.grade} (${paper.className || 'All'})</td></tr>
@@ -243,7 +243,7 @@ export const PrintableQuizPage: React.FC = () => {
             <tr><td><strong>Total Marks:</strong> ${paper.totalMarks} Marks</td><td><strong>Questions:</strong> ${paper.questionCount} Questions</td></tr>
           </table>
 
-          <table style="width: 100%; border: 2px solid #1C2C5B; border-collapse: collapse; margin-bottom: 20px;">
+          <table style="width: 100%; border: 2px solid #0B1F4B; border-collapse: collapse; margin-bottom: 20px;">
             <tr><td colspan="2" style="background-color: #F8FAFC; padding: 6px; font-weight: bold; border-bottom: 1px solid #CBD5E1;">CANDIDATE IDENTIFICATION DETAILS</td></tr>
             <tr>
               <td style="padding: 8px; width: 50%;">Candidate Name: ___________________________________</td>
@@ -264,7 +264,7 @@ export const PrintableQuizPage: React.FC = () => {
             5. Hand this question paper to your examiner when time expires.
           </div>
 
-          <hr style="border: 1px solid #1C2C5B; margin-bottom: 20px;" />
+          <hr style="border: 1px solid #0B1F4B; margin-bottom: 20px;" />
 
           ${paper.questions
             .map(
@@ -357,8 +357,8 @@ export const PrintableQuizPage: React.FC = () => {
     return (
       <div className="min-h-[400px] flex items-center justify-center bg-white border border-[#CBD5E1] p-12 text-center">
         <div>
-          <div className="w-8 h-8 border-3 border-[#6CABDD] border-t-transparent animate-spin mx-auto mb-3" />
-          <p className="text-xs font-semibold text-[#1C2C5B]">Preparing Examination Print Layout...</p>
+          <div className="w-8 h-8 border-3 border-[#D6A21E] border-t-transparent animate-spin mx-auto mb-3" />
+          <p className="text-xs font-semibold text-[#0B1F4B]">Preparing Examination Print Layout...</p>
         </div>
       </div>
     );
@@ -368,7 +368,7 @@ export const PrintableQuizPage: React.FC = () => {
     return (
       <div className="bg-white border border-[#CBD5E1] p-10 text-center space-y-4">
         <AlertCircle size={36} className="mx-auto text-[#DC2626]" />
-        <h3 className="text-base font-bold text-[#1C2C5B]">Examination Document Unavailable</h3>
+        <h3 className="text-base font-bold text-[#0B1F4B]">Examination Document Unavailable</h3>
         <p className="text-xs text-[#64748B] max-w-md mx-auto">{errorMessage || 'The requested assessment could not be formatted for print export.'}</p>
         <OutlineButton onClick={() => navigate(-1)} icon={<ArrowLeft size={13} />}>
           Go Back
@@ -382,7 +382,7 @@ export const PrintableQuizPage: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Print Controls Bar - strictly hidden in @media print */}
-      <div className="no-print bg-[#1C2C5B] text-white p-4 shadow-xs flex flex-wrap items-center justify-between gap-3">
+      <div className="no-print bg-[#0B1F4B] text-white p-4 shadow-sm flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <button
             onClick={() => navigate(-1)}
@@ -391,7 +391,7 @@ export const PrintableQuizPage: React.FC = () => {
             <ArrowLeft size={14} /> Back
           </button>
           <div className="h-4 w-px bg-white/20" />
-          <span className="text-xs font-bold uppercase tracking-wider text-[#6CABDD]">
+          <span className="text-xs font-bold uppercase tracking-wider text-[#D6A21E]">
             Print & PDF Export Utility
           </span>
         </div>
@@ -403,7 +403,7 @@ export const PrintableQuizPage: React.FC = () => {
                 type="button"
                 onClick={() => handleModeChange('paper')}
                 className={`px-3 py-1 font-semibold transition-colors flex items-center gap-1.5 ${
-                  viewMode === 'paper' ? 'bg-[#6CABDD] text-[#1C2C5B]' : 'text-slate-300 hover:text-white'
+                  viewMode === 'paper' ? 'bg-[#D6A21E] text-[#0B1F4B]' : 'text-slate-300 hover:text-white'
                 }`}
               >
                 <FileText size={12} /> Candidate Paper
@@ -412,7 +412,7 @@ export const PrintableQuizPage: React.FC = () => {
                 type="button"
                 onClick={() => handleModeChange('answer_key')}
                 className={`px-3 py-1 font-semibold transition-colors flex items-center gap-1.5 ${
-                  viewMode === 'answer_key' ? 'bg-[#6CABDD] text-[#1C2C5B]' : 'text-slate-300 hover:text-white'
+                  viewMode === 'answer_key' ? 'bg-[#D6A21E] text-[#0B1F4B]' : 'text-slate-300 hover:text-white'
                 }`}
               >
                 <ShieldCheck size={12} /> Staff Answer Key (Confidential)
@@ -470,16 +470,16 @@ export const PrintableQuizPage: React.FC = () => {
         {viewMode === 'paper' && paper && (
           <div className="space-y-6">
             {/* Formal Examination Header */}
-            <div className="border-b-2 border-[#1C2C5B] pb-4 text-center space-y-1">
+            <div className="border-b-2 border-[#0B1F4B] pb-4 text-center space-y-1">
               <div className="flex items-center justify-center gap-2">
-                <span className="text-xl font-black tracking-widest text-[#1C2C5B] uppercase">
+                <span className="text-xl font-black tracking-widest text-[#0B1F4B] uppercase">
                   {paper.institution}
                 </span>
               </div>
               <p className="text-[11px] font-semibold text-[#64748B] tracking-wider uppercase">
                 {paper.motto}
               </p>
-              <div className="inline-block bg-[#1C2C5B] text-white text-xs font-bold px-3 py-0.5 tracking-wider uppercase mt-1">
+              <div className="inline-block bg-[#0B1F4B] text-white text-xs font-bold px-3 py-0.5 tracking-wider uppercase mt-1">
                 {paper.documentType}
               </div>
             </div>
@@ -488,25 +488,25 @@ export const PrintableQuizPage: React.FC = () => {
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-[#F8FAFC] border border-[#CBD5E1] p-3 text-xs">
               <div>
                 <span className="text-[10px] uppercase font-bold text-[#64748B] block">Subject</span>
-                <span className="font-bold text-[#1C2C5B]">{paper.subjectName || 'General'}</span>
+                <span className="font-bold text-[#0B1F4B]">{paper.subjectName || 'General'}</span>
               </div>
               <div>
                 <span className="text-[10px] uppercase font-bold text-[#64748B] block">Cohort / Grade</span>
-                <span className="font-bold text-[#1C2C5B]">{paper.grade} ({paper.className || 'All'})</span>
+                <span className="font-bold text-[#0B1F4B]">{paper.grade} ({paper.className || 'All'})</span>
               </div>
               <div>
                 <span className="text-[10px] uppercase font-bold text-[#64748B] block">Time Allowed</span>
-                <span className="font-bold text-[#1C2C5B]">{paper.durationMinutes} Minutes</span>
+                <span className="font-bold text-[#0B1F4B]">{paper.durationMinutes} Minutes</span>
               </div>
               <div>
                 <span className="text-[10px] uppercase font-bold text-[#64748B] block">Total Marks</span>
-                <span className="font-bold text-[#1C2C5B]">{paper.totalMarks} Marks Available</span>
+                <span className="font-bold text-[#0B1F4B]">{paper.totalMarks} Marks Available</span>
               </div>
             </div>
 
             {/* Candidate Identification Box */}
-            <div className="border-2 border-[#1C2C5B] p-4 bg-white space-y-3">
-              <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#1C2C5B] block border-b border-[#CBD5E1] pb-1">
+            <div className="border-2 border-[#0B1F4B] p-4 bg-white space-y-3">
+              <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#0B1F4B] block border-b border-[#CBD5E1] pb-1">
                 Candidate Identification Details (Please Print In Ink)
               </span>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
@@ -535,7 +535,7 @@ export const PrintableQuizPage: React.FC = () => {
 
             {/* Candidate Instructions */}
             <div className="bg-[#F8FAFC] border border-[#CBD5E1] p-3 text-[11px] text-[#334155] space-y-1">
-              <strong className="text-[#1C2C5B] uppercase block">Instructions to Candidates:</strong>
+              <strong className="text-[#0B1F4B] uppercase block">Instructions to Candidates:</strong>
               <p>1. Check that your question paper contains all <strong>{paper.questionCount} numbered questions</strong> before beginning.</p>
               <p>2. For Multiple Choice questions: Mark your chosen response by shading or ticking the corresponding box [A], [B], [C], or [D].</p>
               <p>3. For True/False questions: Tick either [ &nbsp; ] TRUE or [ &nbsp; ] FALSE.</p>
@@ -545,7 +545,7 @@ export const PrintableQuizPage: React.FC = () => {
 
             {/* Assessment Title Header */}
             <div className="pt-2 pb-1 border-b border-[#CBD5E1] flex justify-between items-baseline">
-              <h2 className="text-base font-bold text-[#1C2C5B]">{paper.title}</h2>
+              <h2 className="text-base font-bold text-[#0B1F4B]">{paper.title}</h2>
               <span className="text-xs font-semibold text-[#64748B]">{paper.questionCount} Questions</span>
             </div>
 
@@ -558,14 +558,14 @@ export const PrintableQuizPage: React.FC = () => {
                 >
                   <div className="flex justify-between items-baseline">
                     <div className="flex items-center gap-2">
-                      <span className="font-extrabold text-sm text-[#1C2C5B]">
+                      <span className="font-extrabold text-sm text-[#0B1F4B]">
                         Question {q.number}.
                       </span>
                       <span className="text-[10px] font-semibold text-[#64748B] uppercase tracking-wider">
                         Topic: {q.topic}
                       </span>
                     </div>
-                    <span className="text-xs font-bold text-[#1C2C5B] bg-[#F1F5F9] px-2 py-0.5 border border-[#CBD5E1]">
+                    <span className="text-xs font-bold text-[#0B1F4B] bg-[#F1F5F9] px-2 py-0.5 border border-[#CBD5E1]">
                       [{q.marks} {q.marks === 1 ? 'Mark' : 'Marks'}]
                     </span>
                   </div>
@@ -583,7 +583,7 @@ export const PrintableQuizPage: React.FC = () => {
                           key={opt.id}
                           className="flex items-center gap-2.5 p-2 border border-[#CBD5E1] bg-[#FAFAFA]"
                         >
-                          <div className="w-5 h-5 border-2 border-[#1C2C5B] flex items-center justify-center font-bold text-[10px] text-[#1C2C5B]">
+                          <div className="w-5 h-5 border-2 border-[#0B1F4B] flex items-center justify-center font-bold text-[10px] text-[#0B1F4B]">
                             {optionLetters[optIdx] || optIdx + 1}
                           </div>
                           <span className="text-xs text-[#0F172A]">{opt.text}</span>
@@ -596,12 +596,12 @@ export const PrintableQuizPage: React.FC = () => {
                   {q.type === 'true_false' && (
                     <div className="flex items-center gap-6 pl-3 pt-1">
                       <div className="flex items-center gap-2 border border-[#CBD5E1] px-4 py-2 bg-[#FAFAFA]">
-                        <div className="w-5 h-5 border-2 border-[#1C2C5B]" />
-                        <span className="text-xs font-bold text-[#1C2C5B]">TRUE</span>
+                        <div className="w-5 h-5 border-2 border-[#0B1F4B]" />
+                        <span className="text-xs font-bold text-[#0B1F4B]">TRUE</span>
                       </div>
                       <div className="flex items-center gap-2 border border-[#CBD5E1] px-4 py-2 bg-[#FAFAFA]">
-                        <div className="w-5 h-5 border-2 border-[#1C2C5B]" />
-                        <span className="text-xs font-bold text-[#1C2C5B]">FALSE</span>
+                        <div className="w-5 h-5 border-2 border-[#0B1F4B]" />
+                        <span className="text-xs font-bold text-[#0B1F4B]">FALSE</span>
                       </div>
                     </div>
                   )}
@@ -633,7 +633,7 @@ export const PrintableQuizPage: React.FC = () => {
           <div className="space-y-6">
             {/* Header */}
             <div className="border-b-2 border-[#DC2626] pb-4 text-center space-y-1">
-              <span className="text-xl font-black tracking-widest text-[#1C2C5B] uppercase block">
+              <span className="text-xl font-black tracking-widest text-[#0B1F4B] uppercase block">
                 {answerKey.institution}
               </span>
               <div className="inline-block bg-[#DC2626] text-white text-xs font-bold px-3 py-1 tracking-wider uppercase">
@@ -672,7 +672,7 @@ export const PrintableQuizPage: React.FC = () => {
                   className="page-break-avoid border border-[#CBD5E1] p-4 bg-[#FAFAFA] space-y-2 text-xs"
                 >
                   <div className="flex justify-between items-baseline border-b border-[#CBD5E1] pb-1.5">
-                    <span className="font-bold text-[#1C2C5B]">
+                    <span className="font-bold text-[#0B1F4B]">
                       Question #{q.number} ({q.type.replace('_', ' ').toUpperCase()})
                     </span>
                     <span className="font-semibold text-[#64748B]">
@@ -692,7 +692,7 @@ export const PrintableQuizPage: React.FC = () => {
                             key={opt.id}
                             className={`p-2 border flex items-center justify-between ${
                               isCorrect
-                                ? 'bg-[#E8F3FC] border-[#1C2C5B] font-bold text-[#1C2C5B]'
+                                ? 'bg-[#F7F7F4] border-[#0B1F4B] font-bold text-[#0B1F4B]'
                                 : 'bg-white border-[#CBD5E1] text-[#64748B]'
                             }`}
                           >
@@ -700,8 +700,8 @@ export const PrintableQuizPage: React.FC = () => {
                               <strong>{optionLetters[optIdx]}.</strong> {opt.text}
                             </span>
                             {isCorrect && (
-                              <span className="flex items-center gap-1 text-[10px] text-[#1C2C5B] font-extrabold uppercase">
-                                <CheckCircle2 size={12} className="text-[#1C2C5B]" /> Correct Key
+                              <span className="flex items-center gap-1 text-[10px] text-[#0B1F4B] font-extrabold uppercase">
+                                <CheckCircle2 size={12} className="text-[#0B1F4B]" /> Correct Key
                               </span>
                             )}
                           </div>
@@ -712,14 +712,14 @@ export const PrintableQuizPage: React.FC = () => {
 
                   {/* True/False answer key */}
                   {q.type === 'true_false' && (
-                    <div className="p-2.5 bg-[#E8F3FC] border border-[#1C2C5B] inline-block font-extrabold text-[#1C2C5B]">
+                    <div className="p-2.5 bg-[#F7F7F4] border border-[#0B1F4B] inline-block font-extrabold text-[#0B1F4B]">
                       Verified Key: {String(q.correctAnswer).toUpperCase()}
                     </div>
                   )}
 
                   {/* Short Answer key */}
                   {q.type === 'short_answer' && (
-                    <div className="p-2.5 bg-[#E8F3FC] border border-[#1C2C5B] inline-block font-mono font-bold text-[#1C2C5B]">
+                    <div className="p-2.5 bg-[#F7F7F4] border border-[#0B1F4B] inline-block font-mono font-bold text-[#0B1F4B]">
                       Accepted Key: "{q.correctAnswer}"
                     </div>
                   )}
@@ -727,7 +727,7 @@ export const PrintableQuizPage: React.FC = () => {
                   {/* Explanation */}
                   {q.explanation && (
                     <div className="pt-1.5 text-[11px] text-[#475569] border-t border-[#CBD5E1]/60 mt-2">
-                      <strong className="text-[#1C2C5B]">Marking Guide & Explanation:</strong> {q.explanation}
+                      <strong className="text-[#0B1F4B]">Marking Guide & Explanation:</strong> {q.explanation}
                     </div>
                   )}
                 </div>

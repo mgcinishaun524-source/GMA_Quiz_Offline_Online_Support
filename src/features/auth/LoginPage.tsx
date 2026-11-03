@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../app/AuthContext';
 import { FormField, InputField } from '../../components/ui/FormControls';
-import { PrimaryButton, OutlineButton } from '../../components/ui/Buttons';
-import { Eye, EyeOff, ShieldCheck, GraduationCap, School } from 'lucide-react';
+import { PrimaryButton } from '../../components/ui/Buttons';
+import { Eye, EyeOff } from 'lucide-react';
 
 export const LoginPage: React.FC = () => {
   const { loginStaff, loginLearner } = useAuth();
@@ -21,14 +21,8 @@ export const LoginPage: React.FC = () => {
   const handleStaffSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage('');
-    if (!email) {
-      setErrorMessage('Please enter your school email address or username.');
-      return;
-    }
-    if (!password) {
-      setErrorMessage('Please enter your password.');
-      return;
-    }
+    if (!email) { setErrorMessage('Please enter your school email address or username.'); return; }
+    if (!password) { setErrorMessage('Please enter your password.'); return; }
     setIsLoading(true);
     try {
       const user = await loginStaff(email, password);
@@ -43,13 +37,10 @@ export const LoginPage: React.FC = () => {
   const handleLearnerSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage('');
-    if (!learnerId || !pin) {
-      setErrorMessage('Please enter both your Student Number and 4-digit PIN.');
-      return;
-    }
+    if (!learnerId || !pin) { setErrorMessage('Please enter both your Student Number and 4-digit PIN.'); return; }
     setIsLoading(true);
     try {
-      const user = await loginLearner(learnerId, pin);
+      await loginLearner(learnerId, pin);
       navigate('/learner/dashboard');
     } catch (err: unknown) {
       setErrorMessage(err instanceof Error ? err.message : 'Invalid credentials');
@@ -59,80 +50,69 @@ export const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F5F8FC] flex flex-col justify-center items-center py-12 px-4 sm:px-6 lg:px-8">
-      {/* Brand Header */}
-      <div className="text-center mb-8 max-w-md">
-        <div className="inline-flex items-center justify-center w-14 h-14 bg-[#1C2C5B] border-2 border-[#6CABDD] mb-3">
-          <span className="text-xl font-bold text-[#6CABDD] tracking-wider">GMA</span>
+    <div className="min-h-screen bg-[#F7F7F4] flex flex-col justify-center items-center py-12 px-4 sm:px-6">
+      {/* Brand */}
+      <div className="text-center mb-8">
+        <div className="inline-flex items-center justify-center w-16 h-16 bg-[#0B1F4B] border-2 border-[#D6A21E] rounded-xl mb-4 shadow-lg">
+          <span className="text-xl font-extrabold text-[#D6A21E] tracking-widest">GMA</span>
         </div>
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-[#1C2C5B] tracking-tight uppercase">
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-[#0B1F4B] tracking-tight">
           Growing Minds Academy
         </h1>
-        <p className="text-xs font-semibold text-[#6CABDD] tracking-widest uppercase mt-1">
-          AI-Powered Quiz & Learning Analytics System
+        <p className="text-xs font-semibold text-[#D6A21E] tracking-widest uppercase mt-1">
+          AI-Powered Quiz & Learning Analytics
         </p>
       </div>
 
-      {/* Main Login Card */}
-      <div className="bg-white border border-[#CBD5E1] shadow-md w-full max-w-md p-6 sm:p-8">
-        <div className="mb-6 pb-3 border-b border-[#CBD5E1]">
-          <h2 className="text-lg font-bold text-[#0F172A]">Sign In to Your School Portal</h2>
-          <p className="text-xs text-[#64748B] mt-0.5">
+      {/* Card */}
+      <div className="bg-white rounded-2xl shadow-xl border border-slate-200 w-full max-w-md p-6 sm:p-8">
+        <div className="mb-6 pb-4 border-b border-slate-100">
+          <h2 className="text-lg font-bold text-slate-900">Sign In to Your School Portal</h2>
+          <p className="text-xs text-slate-500 mt-0.5">
             Select your role to access quizzes, results, and learning tools.
           </p>
         </div>
 
-        {/* Role Tab Selector */}
-        <div className="grid grid-cols-2 gap-2 mb-6">
-          <button
-            type="button"
-            onClick={() => {
-              setActiveTab('staff');
-              setErrorMessage('');
-            }}
-            className={`py-2 px-3 text-xs font-bold uppercase tracking-wider border cursor-pointer transition-colors ${
-              activeTab === 'staff'
-                ? 'bg-[#1C2C5B] text-white border-[#1C2C5B]'
-                : 'bg-[#F5F8FC] text-[#64748B] border-[#CBD5E1] hover:text-[#1C2C5B]'
-            }`}
-          >
-            Teacher / Admin
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setActiveTab('learner');
-              setErrorMessage('');
-            }}
-            className={`py-2 px-3 text-xs font-bold uppercase tracking-wider border cursor-pointer transition-colors ${
-              activeTab === 'learner'
-                ? 'bg-[#1C2C5B] text-white border-[#1C2C5B]'
-                : 'bg-[#F5F8FC] text-[#64748B] border-[#CBD5E1] hover:text-[#1C2C5B]'
-            }`}
-          >
-            Learner (Tablet)
-          </button>
+        {/* Tab selector */}
+        <div className="grid grid-cols-2 gap-2 mb-6 bg-[#F7F7F4] rounded-xl p-1">
+          {(['staff', 'learner'] as const).map((tab) => (
+            <button
+              key={tab}
+              type="button"
+              onClick={() => { setActiveTab(tab); setErrorMessage(''); }}
+              className={`
+                py-2 px-3 text-xs font-bold uppercase tracking-wider rounded-lg cursor-pointer transition-all duration-150
+                ${activeTab === tab
+                  ? 'bg-[#0B1F4B] text-white shadow-sm'
+                  : 'text-slate-500 hover:text-[#0B1F4B]'
+                }
+              `}
+            >
+              {tab === 'staff' ? 'Teacher / Admin' : 'Learner (Tablet)'}
+            </button>
+          ))}
         </div>
 
+        {/* Error */}
         {errorMessage && (
-          <div className="mb-5 p-3 bg-[#FEE2E2] border border-[#B91C1C]/40 text-[#B91C1C] text-xs font-medium">
+          <div className="mb-5 p-3 bg-red-50 border border-red-200 text-red-700 text-xs font-medium rounded-lg">
             {errorMessage}
           </div>
         )}
 
-        {/* Staff Form */}
+        {/* Staff form */}
         {activeTab === 'staff' && (
           <form onSubmit={handleStaffSubmit} className="space-y-4">
-            <FormField label="School Email Address" required>
+            <FormField label="School Email Address or Username" required>
               <InputField
-                type="email"
+                type="text"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="your.name@gma.edu"
+                placeholder="your.name@school.edu or username"
                 required
+                autoComplete="username"
               />
             </FormField>
-
             <FormField label="Password" required>
               <InputField
                 type="password"
@@ -140,16 +120,16 @@ export const LoginPage: React.FC = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter password"
                 required
+                autoComplete="current-password"
               />
             </FormField>
-
-            <PrimaryButton type="submit" isLoading={isLoading} className="w-full mt-2">
+            <PrimaryButton type="submit" isLoading={isLoading} className="w-full mt-2 py-2.5">
               Sign In to Staff Workspace
             </PrimaryButton>
           </form>
         )}
 
-        {/* Learner Form */}
+        {/* Learner form */}
         {activeTab === 'learner' && (
           <form onSubmit={handleLearnerSubmit} className="space-y-4">
             <FormField label="Learner ID / Student Number" required helperText="e.g. GMA-2026-0301">
@@ -161,7 +141,6 @@ export const LoginPage: React.FC = () => {
                 required
               />
             </FormField>
-
             <FormField label="4-Digit Tablet PIN" required>
               <div className="relative">
                 <InputField
@@ -172,18 +151,19 @@ export const LoginPage: React.FC = () => {
                   placeholder="••••"
                   className="pr-10 text-center tracking-widest font-mono text-base"
                   required
+                  autoComplete="current-password"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPin(!showPin)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#64748B] hover:text-[#1C2C5B]"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#0B1F4B] transition-colors cursor-pointer"
+                  aria-label={showPin ? 'Hide PIN' : 'Show PIN'}
                 >
                   {showPin ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
             </FormField>
-
-            <PrimaryButton type="submit" isLoading={isLoading} className="w-full mt-2">
+            <PrimaryButton type="submit" isLoading={isLoading} className="w-full mt-2 py-2.5">
               Start Quiz Portal
             </PrimaryButton>
           </form>

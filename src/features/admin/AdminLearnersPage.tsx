@@ -169,7 +169,7 @@ export const AdminLearnersPage: React.FC = () => {
   const columns: Column<Learner>[] = [
     {
       header: 'Learner ID',
-      accessor: (l) => <span className="font-mono font-bold text-xs text-[#1C2C5B]">{l.id}</span>,
+      accessor: (l) => <span className="font-mono font-bold text-xs text-[#0B1F4B]">{l.id}</span>,
     },
     {
       header: 'Full Name',
@@ -214,21 +214,21 @@ export const AdminLearnersPage: React.FC = () => {
         <div className="flex items-center justify-end gap-1.5" onClick={(e) => e.stopPropagation()}>
           <button
             onClick={() => setViewingLearner(l)}
-            className="p-1.5 text-[#64748B] hover:text-[#1C2C5B] hover:bg-[#E8F3FC] transition-colors"
+            className="p-1.5 text-[#64748B] hover:text-[#0B1F4B] hover:bg-[#F7F7F4] transition-colors"
             title="View Details"
           >
             <Eye size={14} />
           </button>
           <button
             onClick={() => openEditModal(l)}
-            className="p-1.5 text-[#64748B] hover:text-[#1C2C5B] hover:bg-[#E8F3FC] transition-colors"
+            className="p-1.5 text-[#64748B] hover:text-[#0B1F4B] hover:bg-[#F7F7F4] transition-colors"
             title="Edit Learner"
           >
             <Edit2 size={14} />
           </button>
           <button
             onClick={() => handleToggleStatus(l)}
-            className="p-1.5 text-[#64748B] hover:text-[#1C2C5B] hover:bg-[#E8F3FC] transition-colors"
+            className="p-1.5 text-[#64748B] hover:text-[#0B1F4B] hover:bg-[#F7F7F4] transition-colors"
             title={l.isActive ? 'Deactivate Account' : 'Activate Account'}
           >
             {l.isActive ? <UserX size={14} /> : <UserCheck size={14} />}
@@ -272,7 +272,7 @@ export const AdminLearnersPage: React.FC = () => {
       )}
 
       {/* Filters and Search Bar */}
-      <div className="bg-white border border-[#CBD5E1] p-4 flex flex-col md:flex-row gap-3 items-center justify-between shadow-xs">
+      <div className="bg-white border border-[#CBD5E1] p-4 flex flex-col md:flex-row gap-3 items-center justify-between shadow-sm">
         <div className="relative w-full md:w-80">
           <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#64748B]" />
           <InputField
@@ -336,7 +336,7 @@ export const AdminLearnersPage: React.FC = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0F172A]/40 backdrop-blur-xs">
           <div className="bg-white border border-[#CBD5E1] shadow-lg max-w-lg w-full p-6">
             <div className="flex items-center justify-between pb-3 mb-4 border-b border-[#CBD5E1]">
-              <h3 className="text-base font-bold uppercase tracking-wider text-[#1C2C5B]">
+              <h3 className="text-base font-bold uppercase tracking-wider text-[#0B1F4B]">
                 {editingLearner ? `Edit Learner: ${editingLearner.id}` : 'Register New Learner'}
               </h3>
               <button
@@ -344,7 +344,7 @@ export const AdminLearnersPage: React.FC = () => {
                   setIsAddModalOpen(false);
                   setEditingLearner(null);
                 }}
-                className="text-[#64748B] hover:text-[#1C2C5B]"
+                className="text-[#64748B] hover:text-[#0B1F4B]"
               >
                 <X size={18} />
               </button>
@@ -456,14 +456,14 @@ export const AdminLearnersPage: React.FC = () => {
           <div className="bg-white border border-[#CBD5E1] shadow-lg max-w-md w-full p-6">
             <div className="flex items-center justify-between pb-3 mb-4 border-b border-[#CBD5E1]">
               <div>
-                <h3 className="text-base font-bold text-[#1C2C5B]">Learner Profile Card</h3>
-                <span className="text-xs font-mono text-[#6CABDD] font-semibold">
+                <h3 className="text-base font-bold text-[#0B1F4B]">Learner Profile Card</h3>
+                <span className="text-xs font-mono text-[#D6A21E] font-semibold">
                   {viewingLearner.id}
                 </span>
               </div>
               <button
                 onClick={() => setViewingLearner(null)}
-                className="text-[#64748B] hover:text-[#1C2C5B]"
+                className="text-[#64748B] hover:text-[#0B1F4B]"
               >
                 <X size={18} />
               </button>
@@ -478,7 +478,7 @@ export const AdminLearnersPage: React.FC = () => {
               </div>
               <div className="flex justify-between py-1.5 border-b border-[#CBD5E1]/40">
                 <span className="text-[#64748B]">Grade Level:</span>
-                <span className="font-semibold text-[#1C2C5B]">{viewingLearner.grade}</span>
+                <span className="font-semibold text-[#0B1F4B]">{viewingLearner.grade}</span>
               </div>
               <div className="flex justify-between py-1.5 border-b border-[#CBD5E1]/40">
                 <span className="text-[#64748B]">Assigned Class:</span>
@@ -486,7 +486,7 @@ export const AdminLearnersPage: React.FC = () => {
               </div>
               <div className="flex justify-between py-1.5 border-b border-[#CBD5E1]/40">
                 <span className="text-[#64748B]">Tablet PIN:</span>
-                <span className="font-mono font-bold text-[#1C2C5B]">
+                <span className="font-mono font-bold text-[#0B1F4B]">
                   {viewingLearner.pin ? viewingLearner.pin : '•••• (hashed)'}
                 </span>
               </div>

@@ -24,17 +24,17 @@ export const AdminSettingsPage: React.FC = () => {
       />
 
       {isSaved && (
-        <div className="p-3 bg-[#E8F3FC] border border-[#6CABDD] text-[#1C2C5B] text-xs font-semibold">
+        <div className="p-3 bg-[#F7F7F4] border border-[#D6A21E] text-[#0B1F4B] text-xs font-semibold">
           School configuration and assessment rules updated successfully.
         </div>
       )}
 
       <form onSubmit={handleSave} className="space-y-6">
         {/* School Profile */}
-        <div className="bg-white border border-[#CBD5E1] p-5 shadow-xs">
+        <div className="bg-white border border-[#CBD5E1] p-5 shadow-sm">
           <div className="pb-3 mb-4 border-b border-[#CBD5E1]">
-            <h3 className="text-sm font-bold uppercase tracking-wider text-[#1C2C5B] flex items-center gap-2">
-              <School size={16} className="text-[#6CABDD]" />
+            <h3 className="text-sm font-bold uppercase tracking-wider text-[#0B1F4B] flex items-center gap-2">
+              <School size={16} className="text-[#D6A21E]" />
               <span>Institutional Identity & Profile</span>
             </h3>
             <p className="text-xs text-[#64748B]">Official school name and accreditation details</p>
@@ -61,9 +61,9 @@ export const AdminSettingsPage: React.FC = () => {
         </div>
 
         {/* Academic Calendar */}
-        <div className="bg-white border border-[#CBD5E1] p-5 shadow-xs">
+        <div className="bg-white border border-[#CBD5E1] p-5 shadow-sm">
           <div className="pb-3 mb-4 border-b border-[#CBD5E1]">
-            <h3 className="text-sm font-bold uppercase tracking-wider text-[#1C2C5B]">
+            <h3 className="text-sm font-bold uppercase tracking-wider text-[#0B1F4B]">
               Academic Calendar & Assessment Window
             </h3>
             <p className="text-xs text-[#64748B]">Active school term and grading calendar</p>
@@ -101,9 +101,9 @@ export const AdminSettingsPage: React.FC = () => {
         </div>
 
         {/* Assessment Defaults */}
-        <div className="bg-white border border-[#CBD5E1] p-5 shadow-xs">
+        <div className="bg-white border border-[#CBD5E1] p-5 shadow-sm">
           <div className="pb-3 mb-4 border-b border-[#CBD5E1]">
-            <h3 className="text-sm font-bold uppercase tracking-wider text-[#1C2C5B]">
+            <h3 className="text-sm font-bold uppercase tracking-wider text-[#0B1F4B]">
               Default Assessment Policies & Offline Rules
             </h3>
             <p className="text-xs text-[#64748B]">

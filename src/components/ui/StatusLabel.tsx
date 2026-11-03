@@ -22,76 +22,66 @@ interface StatusLabelProps {
   className?: string;
 }
 
-export const StatusLabel: React.FC<StatusLabelProps> = ({
-  status,
-  variant,
-  label,
-  className = '',
-}) => {
+export const StatusLabel: React.FC<StatusLabelProps> = ({ status, variant, label, className = '' }) => {
   const norm = (variant || status || 'neutral').toLowerCase().replace(/\s+/g, '_');
 
-  // STRICT RULE: ABSOLUTELY NO GREEN.
-  // Using sky blue (#6CABDD), deep navy (#1C2C5B), pale blue (#E8F3FC), neutral slate (#475569), amber (#B45309).
-  let colorClasses = 'bg-[#F1F5F9] text-[#475569] border-[#CBD5E1]';
+  // NO GREEN. Navy, gold, amber, slate only.
+  let colorClasses = 'bg-slate-100 text-slate-600 border-slate-200';
   let displayLabel = label || status;
 
   switch (norm) {
     case 'published':
     case 'in_progress':
-      colorClasses = 'bg-[#E8F3FC] text-[#1C2C5B] border-[#6CABDD]/40 font-medium';
+      colorClasses = 'bg-[#0B1F4B]/8 text-[#0B1F4B] border-[#0B1F4B]/20 font-medium';
       if (!label) displayLabel = norm === 'published' ? 'Published' : 'In Progress';
       break;
-
     case 'results_released':
-      colorClasses = 'bg-[#1C2C5B] text-[#FFFFFF] border-[#1C2C5B] font-medium';
+      colorClasses = 'bg-[#D6A21E]/15 text-[#8B6510] border-[#D6A21E]/30 font-semibold';
       if (!label) displayLabel = 'Results Released';
       break;
-
     case 'closed':
-      colorClasses = 'bg-[#F1F5F9] text-[#0F172A] border-[#CBD5E1]';
+      colorClasses = 'bg-slate-100 text-slate-700 border-slate-200';
       if (!label) displayLabel = 'Closed';
       break;
-
     case 'draft':
-      colorClasses = 'bg-[#FFFFFF] text-[#64748B] border-[#CBD5E1] border-dashed';
+      colorClasses = 'bg-white text-slate-500 border-slate-300 border-dashed';
       if (!label) displayLabel = 'Draft';
       break;
-
     case 'synced':
     case 'marked':
-      colorClasses = 'bg-[#E8F3FC] text-[#1C2C5B] border-[#6CABDD]/50 font-medium';
-      if (!label) displayLabel = norm === 'synced' ? 'Synced with School' : 'Marked';
+      colorClasses = 'bg-[#0B1F4B]/8 text-[#0B1F4B] border-[#0B1F4B]/20 font-medium';
+      if (!label) displayLabel = norm === 'synced' ? 'Synced' : 'Marked';
       break;
-
     case 'saved_offline':
     case 'pending_sync':
-      colorClasses = 'bg-[#FEF3C7] text-[#92400E] border-[#F59E0B]/30 font-medium';
+      colorClasses = 'bg-amber-50 text-amber-800 border-amber-200 font-medium';
       if (!label) displayLabel = norm === 'saved_offline' ? 'Saved Offline' : 'Pending Sync';
       break;
-
     case 'submitted':
-      colorClasses = 'bg-[#E8F3FC] text-[#1C2C5B] border-[#CBD5E1]';
+      colorClasses = 'bg-[#0B1F4B]/6 text-[#0B1F4B] border-[#0B1F4B]/15';
       if (!label) displayLabel = 'Submitted';
       break;
-
     case 'active':
-      colorClasses = 'bg-[#E8F3FC] text-[#1C2C5B] border-[#6CABDD]/40 font-medium';
+      colorClasses = 'bg-[#D6A21E]/10 text-[#8B6510] border-[#D6A21E]/25 font-medium';
       if (!label) displayLabel = 'Active';
       break;
-
     case 'inactive':
-      colorClasses = 'bg-[#F1F5F9] text-[#94A3B8] border-[#CBD5E1]';
+      colorClasses = 'bg-slate-100 text-slate-400 border-slate-200';
       if (!label) displayLabel = 'Inactive';
       break;
-
     default:
-      colorClasses = 'bg-[#F1F5F9] text-[#475569] border-[#CBD5E1]';
+      colorClasses = 'bg-slate-100 text-slate-600 border-slate-200';
   }
 
-  // Rectangular badge with subtle border, no pill, no circled icon
   return (
     <span
-      className={`inline-flex items-center px-2.5 py-0.5 text-xs font-medium border uppercase tracking-wider ${colorClasses} ${className}`}
+      className={`
+        inline-flex items-center px-2.5 py-0.5
+        text-xs font-medium border
+        rounded-full
+        uppercase tracking-wider
+        ${colorClasses} ${className}
+      `}
     >
       {displayLabel}
     </span>

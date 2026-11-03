@@ -1,1 +1,76 @@
 @import "tailwindcss";
+
+/* ============================================================
+   GROWING MINDS ACADEMY — DESIGN TOKENS
+   ============================================================ */
+:root {
+  --gma-navy:       #0B1F4B;
+  --gma-navy-light: #142860;
+  --gma-gold:       #D6A21E;
+  --gma-gold-dark:  #B8891A;
+  --gma-warm-white: #F7F7F4;
+  --gma-white:      #FFFFFF;
+
+  /* Transition defaults */
+  --gma-transition: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ============================================================
+   GLOBAL RESETS & BASE
+   ============================================================ */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--gma-warm-white);
+  color: #0F172A;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ============================================================
+   FOCUS RING — accessible, branded
+   ============================================================ */
+:focus-visible {
+  outline: 2px solid var(--gma-gold);
+  outline-offset: 2px;
+}
+
+/* ============================================================
+   SMOOTH SCROLLING
+   ============================================================ */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* ============================================================
+   REDUCED MOTION — respect user preference
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ============================================================
+   SCROLLBAR — subtle, branded
+   ============================================================ */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--gma-warm-white);
+}
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gma-navy);
+}

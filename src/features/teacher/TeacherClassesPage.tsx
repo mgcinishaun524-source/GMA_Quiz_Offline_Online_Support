@@ -46,8 +46,8 @@ export const TeacherClassesPage: React.FC = () => {
             onClick={() => setSelectedClassId(cls.id)}
             className={`px-4 py-2 text-xs font-bold uppercase tracking-wider border cursor-pointer transition-colors ${
               selectedClass?.id === cls.id
-                ? 'bg-[#1C2C5B] text-white border-[#1C2C5B]'
-                : 'bg-white text-[#64748B] border-[#CBD5E1] hover:text-[#1C2C5B] hover:border-[#6CABDD]'
+                ? 'bg-[#0B1F4B] text-white border-[#0B1F4B]'
+                : 'bg-white text-[#64748B] border-[#CBD5E1] hover:text-[#0B1F4B] hover:border-[#D6A21E]'
             }`}
           >
             {cls.name} ({cls.grade})
@@ -58,12 +58,12 @@ export const TeacherClassesPage: React.FC = () => {
       {selectedClass && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Class Summary Banner */}
-          <div className="lg:col-span-3 bg-white border border-[#CBD5E1] p-5 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="lg:col-span-3 bg-white border border-[#CBD5E1] p-5 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-              <span className="text-xs font-bold uppercase tracking-wider text-[#6CABDD]">
+              <span className="text-xs font-bold uppercase tracking-wider text-[#D6A21E]">
                 {selectedClass.grade} Cohort
               </span>
-              <h2 className="text-xl font-bold text-[#1C2C5B]">{selectedClass.name}</h2>
+              <h2 className="text-xl font-bold text-[#0B1F4B]">{selectedClass.name}</h2>
               <p className="text-xs text-[#64748B] mt-1">
                 Form Teacher: <strong className="text-[#0F172A]">{selectedClass.classTeacherName}</strong> •{' '}
                 Location: <strong className="text-[#0F172A]">{selectedClass.room || 'Main Block'}</strong>
@@ -73,13 +73,13 @@ export const TeacherClassesPage: React.FC = () => {
             <div className="flex items-center gap-6 text-xs">
               <div>
                 <span className="text-[#64748B] block">Enrolled Learners</span>
-                <span className="text-2xl font-extrabold text-[#1C2C5B]">
+                <span className="text-2xl font-extrabold text-[#0B1F4B]">
                   {enrolledLearners.length}
                 </span>
               </div>
               <div className="border-l border-[#CBD5E1] pl-6">
                 <span className="text-[#64748B] block">Assessments Run</span>
-                <span className="text-2xl font-extrabold text-[#1C2C5B]">
+                <span className="text-2xl font-extrabold text-[#0B1F4B]">
                   {classQuizzes.length}
                 </span>
               </div>
@@ -87,23 +87,23 @@ export const TeacherClassesPage: React.FC = () => {
           </div>
 
           {/* Left 2 Cols: Enrolled Learners Table */}
-          <div className="lg:col-span-2 bg-white border border-[#CBD5E1] p-5 shadow-xs">
+          <div className="lg:col-span-2 bg-white border border-[#CBD5E1] p-5 shadow-sm">
             <div className="flex items-center justify-between pb-3 mb-4 border-b border-[#CBD5E1]">
-              <h3 className="text-sm font-bold uppercase tracking-wider text-[#1C2C5B]">
+              <h3 className="text-sm font-bold uppercase tracking-wider text-[#0B1F4B]">
                 Enrolled Student Roster ({enrolledLearners.length})
               </h3>
               <span className="text-xs text-[#64748B]">Active tablet login credentials</span>
             </div>
 
             {enrolledLearners.length === 0 ? (
-              <div className="p-8 text-center bg-[#F5F8FC] border border-dashed border-[#CBD5E1] text-xs text-[#64748B]">
+              <div className="p-8 text-center bg-[#F7F7F4] border border-dashed border-[#CBD5E1] text-xs text-[#64748B]">
                 No students currently assigned to this class group.
               </div>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs border-collapse">
                   <thead>
-                    <tr className="bg-[#1C2C5B] text-white">
+                    <tr className="bg-[#0B1F4B] text-white">
                       <th className="p-2.5 font-semibold uppercase">Learner ID</th>
                       <th className="p-2.5 font-semibold uppercase">Student Name</th>
                       <th className="p-2.5 font-semibold uppercase">Tablet PIN</th>
@@ -113,8 +113,8 @@ export const TeacherClassesPage: React.FC = () => {
                   </thead>
                   <tbody className="divide-y divide-[#CBD5E1]/60">
                     {enrolledLearners.map((learner) => (
-                      <tr key={learner.id} className="hover:bg-[#F5F8FC]">
-                        <td className="p-2.5 font-mono font-bold text-[#1C2C5B]">{learner.id}</td>
+                      <tr key={learner.id} className="hover:bg-[#F7F7F4]">
+                        <td className="p-2.5 font-mono font-bold text-[#0B1F4B]">{learner.id}</td>
                         <td className="p-2.5 font-semibold text-[#0F172A]">
                           {learner.firstName} {learner.lastName}
                         </td>
@@ -136,16 +136,16 @@ export const TeacherClassesPage: React.FC = () => {
           </div>
 
           {/* Right Col: Class Assessment History */}
-          <div className="bg-white border border-[#CBD5E1] p-5 shadow-xs">
+          <div className="bg-white border border-[#CBD5E1] p-5 shadow-sm">
             <div className="flex items-center justify-between pb-3 mb-4 border-b border-[#CBD5E1]">
-              <h3 className="text-sm font-bold uppercase tracking-wider text-[#1C2C5B]">
+              <h3 className="text-sm font-bold uppercase tracking-wider text-[#0B1F4B]">
                 Cohort Assessment History
               </h3>
               <span className="text-xs text-[#64748B]">{classQuizzes.length} Total</span>
             </div>
 
             {classQuizzes.length === 0 ? (
-              <div className="p-6 text-center bg-[#F5F8FC] border border-dashed border-[#CBD5E1] text-xs text-[#64748B]">
+              <div className="p-6 text-center bg-[#F7F7F4] border border-dashed border-[#CBD5E1] text-xs text-[#64748B]">
                 No quizzes have been assigned to this cohort yet.
               </div>
             ) : (
@@ -153,10 +153,10 @@ export const TeacherClassesPage: React.FC = () => {
                 {classQuizzes.map((quiz) => (
                   <div
                     key={quiz.id}
-                    className="p-3 bg-[#F5F8FC] border border-[#CBD5E1] hover:border-[#6CABDD] transition-colors"
+                    className="p-3 bg-[#F7F7F4] border border-[#CBD5E1] hover:border-[#D6A21E] transition-colors"
                   >
                     <div className="flex justify-between items-start mb-1">
-                      <span className="font-bold text-xs text-[#1C2C5B]">{quiz.title}</span>
+                      <span className="font-bold text-xs text-[#0B1F4B]">{quiz.title}</span>
                       <StatusLabel status={quiz.status} />
                     </div>
                     <div className="text-[11px] text-[#64748B] flex justify-between mt-2 pt-2 border-t border-[#CBD5E1]/50">

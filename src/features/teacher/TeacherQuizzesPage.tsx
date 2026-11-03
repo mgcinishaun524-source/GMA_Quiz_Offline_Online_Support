@@ -110,7 +110,7 @@ export const TeacherQuizzesPage: React.FC = () => {
           <div className="flex gap-2">
             <OutlineButton
               onClick={() => navigate('/teacher/quizzes/new?mode=ai')}
-              icon={<Sparkles size={14} className="text-[#1C2C5B]" />}
+              icon={<Sparkles size={14} className="text-[#0B1F4B]" />}
             >
               Generate with AI
             </OutlineButton>
@@ -138,8 +138,8 @@ export const TeacherQuizzesPage: React.FC = () => {
             onClick={() => setActiveTab(tab.key)}
             className={`px-3 py-1.5 text-xs font-bold uppercase tracking-wider border cursor-pointer transition-colors ${
               activeTab === tab.key
-                ? 'bg-[#1C2C5B] text-white border-[#1C2C5B]'
-                : 'bg-white text-[#64748B] border-[#CBD5E1] hover:text-[#1C2C5B] hover:border-[#6CABDD]'
+                ? 'bg-[#0B1F4B] text-white border-[#0B1F4B]'
+                : 'bg-white text-[#64748B] border-[#CBD5E1] hover:text-[#0B1F4B] hover:border-[#D6A21E]'
             }`}
           >
             {tab.label}
@@ -148,7 +148,7 @@ export const TeacherQuizzesPage: React.FC = () => {
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="bg-white border border-[#CBD5E1] p-4 flex flex-col md:flex-row gap-3 items-center justify-between shadow-xs">
+      <div className="bg-white border border-[#CBD5E1] p-4 flex flex-col md:flex-row gap-3 items-center justify-between shadow-sm">
         <div className="relative w-full md:w-80">
           <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#64748B]" />
           <InputField
@@ -200,8 +200,8 @@ export const TeacherQuizzesPage: React.FC = () => {
 
       {/* Quizzes List */}
       {filtered.length === 0 ? (
-        <div className="bg-white border border-[#CBD5E1] p-12 text-center shadow-xs">
-          <h3 className="text-base font-bold text-[#1C2C5B]">No Quizzes Found</h3>
+        <div className="bg-white border border-[#CBD5E1] p-12 text-center shadow-sm">
+          <h3 className="text-base font-bold text-[#0B1F4B]">No Quizzes Found</h3>
           <p className="text-xs text-[#64748B] mt-1 mb-4">
             Try adjusting your search query or status filter above.
           </p>
@@ -214,23 +214,23 @@ export const TeacherQuizzesPage: React.FC = () => {
           {filtered.map((quiz) => (
             <div
               key={quiz.id}
-              className="bg-white border border-[#CBD5E1] p-5 shadow-xs hover:border-[#6CABDD] transition-colors"
+              className="bg-white border border-[#CBD5E1] p-5 shadow-sm hover:border-[#D6A21E] transition-colors"
             >
               <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 pb-3 border-b border-[#CBD5E1]/60">
                 <div>
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="text-xs font-bold uppercase tracking-wider text-[#6CABDD]">
+                    <span className="text-xs font-bold uppercase tracking-wider text-[#D6A21E]">
                       {quiz.subjectName} • {quiz.className} ({quiz.grade})
                     </span>
                     <span className="text-[#CBD5E1]">•</span>
                     <span className="text-xs text-[#64748B] capitalize">{quiz.difficulty} Difficulty</span>
                   </div>
-                  <h3 className="text-base font-bold text-[#1C2C5B]">{quiz.title}</h3>
+                  <h3 className="text-base font-bold text-[#0B1F4B]">{quiz.title}</h3>
                   <div className="flex flex-wrap gap-1 mt-2">
                     {quiz.topicsCovered.map((topic, i) => (
                       <span
                         key={i}
-                        className="bg-[#F5F8FC] text-[#475569] text-[10px] font-medium px-2 py-0.5 border border-[#CBD5E1]"
+                        className="bg-[#F7F7F4] text-[#475569] text-[10px] font-medium px-2 py-0.5 border border-[#CBD5E1]"
                       >
                         {topic}
                       </span>
@@ -256,7 +256,7 @@ export const TeacherQuizzesPage: React.FC = () => {
                   <span>•</span>
                   <span>
                     Release Policy:{' '}
-                    <strong className="text-[#1C2C5B] uppercase">{quiz.releasePolicy}</strong>
+                    <strong className="text-[#0B1F4B] uppercase">{quiz.releasePolicy}</strong>
                   </span>
                   <span>•</span>
                   <span>

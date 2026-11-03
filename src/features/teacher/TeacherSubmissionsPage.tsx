@@ -77,7 +77,7 @@ export const TeacherSubmissionsPage: React.FC = () => {
       header: 'Assessment Title',
       accessor: (s) => (
         <div>
-          <span className="font-medium text-xs text-[#1C2C5B] block">{s.quizTitle}</span>
+          <span className="font-medium text-xs text-[#0B1F4B] block">{s.quizTitle}</span>
           <span className="text-[11px] text-[#64748B]">{s.subjectName} • {s.className}</span>
         </div>
       ),
@@ -101,7 +101,7 @@ export const TeacherSubmissionsPage: React.FC = () => {
           );
         }
         return (
-          <span className="inline-flex items-center gap-1 text-[11px] font-medium text-[#1C2C5B] bg-[#E8F3FC] px-2 py-0.5 border border-[#6CABDD]/40">
+          <span className="inline-flex items-center gap-1 text-[11px] font-medium text-[#0B1F4B] bg-[#F7F7F4] px-2 py-0.5 border border-[#D6A21E]/40">
             <Wifi size={11} /> Synced with Server
           </span>
         );
@@ -119,7 +119,7 @@ export const TeacherSubmissionsPage: React.FC = () => {
         return (
           <span className="text-xs font-semibold">
             {isReleased ? (
-              <span className="text-[#1C2C5B]">Visible to Learner ({s.percentage}%)</span>
+              <span className="text-[#0B1F4B]">Visible to Learner ({s.percentage}%)</span>
             ) : (
               <span className="text-[#64748B]">Hidden (Pending Release)</span>
             )}
@@ -138,7 +138,7 @@ export const TeacherSubmissionsPage: React.FC = () => {
 
       {/* Sync Queue Banner if offline submissions exist */}
       {syncState.pendingCount > 0 && (
-        <div className="bg-[#FEF3C7] border border-[#F59E0B] p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs">
+        <div className="bg-[#FEF3C7] border border-[#F59E0B] p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-sm">
           <div>
             <span className="text-xs font-bold text-[#92400E] uppercase tracking-wider block">
               Offline Tablet Submissions Detected
@@ -159,7 +159,7 @@ export const TeacherSubmissionsPage: React.FC = () => {
       )}
 
       {/* Filters Bar */}
-      <div className="bg-white border border-[#CBD5E1] p-4 flex flex-col md:flex-row gap-3 items-center justify-between shadow-xs">
+      <div className="bg-white border border-[#CBD5E1] p-4 flex flex-col md:flex-row gap-3 items-center justify-between shadow-sm">
         <div className="relative w-full md:w-80">
           <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#64748B]" />
           <InputField

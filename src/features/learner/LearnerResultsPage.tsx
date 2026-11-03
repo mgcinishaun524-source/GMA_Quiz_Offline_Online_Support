@@ -44,9 +44,9 @@ export const LearnerResultsPage: React.FC = () => {
 
       {/* When no results released */}
       {releasedSubmissions.length === 0 && (
-        <div className="bg-white border border-[#CBD5E1] p-12 text-center shadow-xs space-y-3">
-          <Clock size={36} className="text-[#6CABDD] mx-auto" />
-          <h3 className="text-lg font-bold text-[#1C2C5B]">
+        <div className="bg-white border border-[#CBD5E1] p-12 text-center shadow-sm space-y-3">
+          <Clock size={36} className="text-[#D6A21E] mx-auto" />
+          <h3 className="text-lg font-bold text-[#0B1F4B]">
             Your results aren't available yet
           </h3>
           <p className="text-sm text-[#64748B] max-w-md mx-auto leading-relaxed">
@@ -63,26 +63,26 @@ export const LearnerResultsPage: React.FC = () => {
             return (
               <div
                 key={sub.id}
-                className="bg-white border border-[#CBD5E1] p-6 shadow-xs space-y-4"
+                className="bg-white border border-[#CBD5E1] p-6 shadow-sm space-y-4"
               >
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-[#CBD5E1]/60 gap-3">
                   <div>
-                    <span className="text-xs font-bold uppercase tracking-wider text-[#6CABDD] block mb-1">
+                    <span className="text-xs font-bold uppercase tracking-wider text-[#D6A21E] block mb-1">
                       {sub.subjectName} • Formally Released
                     </span>
-                    <h3 className="text-lg font-bold text-[#1C2C5B]">{sub.quizTitle}</h3>
+                    <h3 className="text-lg font-bold text-[#0B1F4B]">{sub.quizTitle}</h3>
                     <span className="text-xs text-[#64748B]">
                       Completed on {sub.submittedAt ? new Date(sub.submittedAt).toLocaleDateString() : 'Term 2'}
                     </span>
                   </div>
 
                   {/* Score Callout */}
-                  <div className="flex items-center gap-4 bg-[#E8F3FC] px-5 py-3 border border-[#6CABDD]/40">
+                  <div className="flex items-center gap-4 bg-[#F7F7F4] px-5 py-3 border border-[#D6A21E]/40">
                     <div>
                       <span className="text-[11px] font-bold uppercase text-[#64748B] block">
                         Raw Score
                       </span>
-                      <span className="text-sm font-bold text-[#1C2C5B]">
+                      <span className="text-sm font-bold text-[#0B1F4B]">
                         {sub.score} / {sub.totalMarks} Marks
                       </span>
                     </div>
@@ -90,7 +90,7 @@ export const LearnerResultsPage: React.FC = () => {
                       <span className="text-[11px] font-bold uppercase text-[#64748B] block">
                         Percentage
                       </span>
-                      <span className="text-2xl font-extrabold text-[#1C2C5B]">
+                      <span className="text-2xl font-extrabold text-[#0B1F4B]">
                         {sub.percentage}%
                       </span>
                     </div>
@@ -99,8 +99,8 @@ export const LearnerResultsPage: React.FC = () => {
 
                 {/* Teacher Feedback Box */}
                 {sub.teacherFeedback && (
-                  <div className="p-4 bg-[#F5F8FC] border border-[#CBD5E1] text-xs">
-                    <span className="font-bold text-[#1C2C5B] uppercase tracking-wider block mb-1">
+                  <div className="p-4 bg-[#F7F7F4] border border-[#CBD5E1] text-xs">
+                    <span className="font-bold text-[#0B1F4B] uppercase tracking-wider block mb-1">
                       Teacher Commentary:
                     </span>
                     <p className="text-[#0F172A] leading-relaxed italic">
@@ -112,14 +112,14 @@ export const LearnerResultsPage: React.FC = () => {
                 {/* Topics to Practise (Gap Identification) */}
                 {sub.topicsToPractise && sub.topicsToPractise.length > 0 && (
                   <div className="p-4 bg-white border border-[#CBD5E1] text-xs">
-                    <span className="font-bold text-[#1C2C5B] uppercase tracking-wider block mb-2">
+                    <span className="font-bold text-[#0B1F4B] uppercase tracking-wider block mb-2">
                       Topics to Practise Next:
                     </span>
                     <div className="flex flex-wrap gap-2">
                       {sub.topicsToPractise.map((topic, i) => (
                         <span
                           key={i}
-                          className="bg-[#E8F3FC] text-[#1C2C5B] px-3 py-1 text-xs font-semibold border border-[#6CABDD]/40"
+                          className="bg-[#F7F7F4] text-[#0B1F4B] px-3 py-1 text-xs font-semibold border border-[#D6A21E]/40"
                         >
                           {topic}
                         </span>
@@ -130,8 +130,8 @@ export const LearnerResultsPage: React.FC = () => {
 
                 {/* If 100% mastery */}
                 {sub.percentage === 100 && (
-                  <div className="p-3 bg-[#E8F3FC] border border-[#6CABDD] text-xs text-[#1C2C5B] font-semibold flex items-center gap-2">
-                    <Award size={16} className="text-[#1C2C5B]" />
+                  <div className="p-3 bg-[#F7F7F4] border border-[#D6A21E] text-xs text-[#0B1F4B] font-semibold flex items-center gap-2">
+                    <Award size={16} className="text-[#0B1F4B]" />
                     <span>Full marks achieved on all objective questions. Outstanding work!</span>
                   </div>
                 )}
@@ -143,8 +143,8 @@ export const LearnerResultsPage: React.FC = () => {
 
       {/* Pending Unreleased Notice if any quizzes are completed but marks withheld */}
       {unreleasedSubmissions.length > 0 && (
-        <div className="p-4 bg-[#F5F8FC] border border-[#CBD5E1] text-xs text-[#64748B]">
-          <span className="font-bold text-[#1C2C5B] block mb-1">
+        <div className="p-4 bg-[#F7F7F4] border border-[#CBD5E1] text-xs text-[#64748B]">
+          <span className="font-bold text-[#0B1F4B] block mb-1">
             Submitted Assessments Currently Being Marked ({unreleasedSubmissions.length})
           </span>
           <p>

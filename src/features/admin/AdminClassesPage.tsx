@@ -112,19 +112,19 @@ export const AdminClassesPage: React.FC = () => {
           return (
             <div
               key={cls.id}
-              className="bg-white border border-[#CBD5E1] p-5 shadow-xs flex flex-col justify-between"
+              className="bg-white border border-[#CBD5E1] p-5 shadow-sm flex flex-col justify-between"
             >
               <div>
                 <div className="flex items-center justify-between pb-3 mb-3 border-b border-[#CBD5E1]/70">
                   <div>
-                    <span className="text-xs font-bold uppercase tracking-wider text-[#6CABDD] block">
+                    <span className="text-xs font-bold uppercase tracking-wider text-[#D6A21E] block">
                       {cls.grade}
                     </span>
-                    <h3 className="text-lg font-bold text-[#1C2C5B]">{cls.name}</h3>
+                    <h3 className="text-lg font-bold text-[#0B1F4B]">{cls.name}</h3>
                   </div>
                   <button
                     onClick={() => openEditModal(cls)}
-                    className="p-1.5 text-[#64748B] hover:text-[#1C2C5B] hover:bg-[#E8F3FC] transition-colors"
+                    className="p-1.5 text-[#64748B] hover:text-[#0B1F4B] hover:bg-[#F7F7F4] transition-colors"
                     title="Edit Class"
                   >
                     <Edit2 size={15} />
@@ -140,7 +140,7 @@ export const AdminClassesPage: React.FC = () => {
                   <div className="flex items-center justify-between">
                     <span className="text-[#64748B]">Assigned Room:</span>
                     <span className="text-[#0F172A] font-medium flex items-center gap-1">
-                      <MapPin size={12} className="text-[#6CABDD]" />
+                      <MapPin size={12} className="text-[#D6A21E]" />
                       {cls.room || 'General Classroom'}
                     </span>
                   </div>
@@ -154,7 +154,7 @@ export const AdminClassesPage: React.FC = () => {
 
                   <div className="flex items-center justify-between pt-2 border-t border-[#CBD5E1]/50">
                     <span className="text-[#64748B]">Enrolled Learners:</span>
-                    <span className="font-bold text-[#1C2C5B] bg-[#E8F3FC] px-2 py-0.5 border border-[#6CABDD]/30">
+                    <span className="font-bold text-[#0B1F4B] bg-[#F7F7F4] px-2 py-0.5 border border-[#D6A21E]/30">
                       {enrolled.length} Learners
                     </span>
                   </div>
@@ -181,7 +181,7 @@ export const AdminClassesPage: React.FC = () => {
           <div className="bg-white border border-[#CBD5E1] shadow-lg max-w-lg w-full p-6">
             <div className="flex items-center justify-between pb-3 mb-4 border-b border-[#CBD5E1]">
               <div>
-                <h3 className="text-base font-bold text-[#1C2C5B]">
+                <h3 className="text-base font-bold text-[#0B1F4B]">
                   Roster: {viewingClassLearners.name} ({viewingClassLearners.grade})
                 </h3>
                 <p className="text-xs text-[#64748B]">
@@ -190,14 +190,14 @@ export const AdminClassesPage: React.FC = () => {
               </div>
               <button
                 onClick={() => setViewingClassLearners(null)}
-                className="text-[#64748B] hover:text-[#1C2C5B]"
+                className="text-[#64748B] hover:text-[#0B1F4B]"
               >
                 <X size={18} />
               </button>
             </div>
 
             {learners.filter((l) => l.classId === viewingClassLearners.id).length === 0 ? (
-              <div className="py-8 text-center text-xs text-[#64748B] bg-[#F5F8FC] border border-dashed border-[#CBD5E1]">
+              <div className="py-8 text-center text-xs text-[#64748B] bg-[#F7F7F4] border border-dashed border-[#CBD5E1]">
                 No learners currently enrolled in this class. Use Learner Registration to assign.
               </div>
             ) : (
@@ -213,12 +213,12 @@ export const AdminClassesPage: React.FC = () => {
                         <span className="font-mono text-[11px] text-[#64748B]">{l.id}</span>
                       </div>
                       <div className="flex items-center gap-3">
-                        <span className="font-mono text-xs text-[#1C2C5B] bg-[#F5F8FC] px-1.5 py-0.5 border border-[#CBD5E1]">
+                        <span className="font-mono text-xs text-[#0B1F4B] bg-[#F7F7F4] px-1.5 py-0.5 border border-[#CBD5E1]">
                           PIN: {l.pin}
                         </span>
                         <span
                           className={`w-2 h-2 ${
-                            l.isActive ? 'bg-[#1C2C5B]' : 'bg-[#CBD5E1]'
+                            l.isActive ? 'bg-[#0B1F4B]' : 'bg-[#CBD5E1]'
                           }`}
                         />
                       </div>
@@ -239,10 +239,10 @@ export const AdminClassesPage: React.FC = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0F172A]/40 backdrop-blur-xs">
           <div className="bg-white border border-[#CBD5E1] shadow-lg max-w-lg w-full p-6">
             <div className="flex items-center justify-between pb-3 mb-4 border-b border-[#CBD5E1]">
-              <h3 className="text-base font-bold uppercase tracking-wider text-[#1C2C5B]">
+              <h3 className="text-base font-bold uppercase tracking-wider text-[#0B1F4B]">
                 {editingClass ? `Edit Class: ${editingClass.name}` : 'Create New Class Group'}
               </h3>
-              <button onClick={() => setIsModalOpen(false)} className="text-[#64748B] hover:text-[#1C2C5B]">
+              <button onClick={() => setIsModalOpen(false)} className="text-[#64748B] hover:text-[#0B1F4B]">
                 <X size={18} />
               </button>
             </div>
@@ -300,10 +300,10 @@ export const AdminClassesPage: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-[#1C2C5B] mb-2">
+                <label className="block text-xs font-semibold uppercase tracking-wider text-[#0B1F4B] mb-2">
                   Curriculum Subjects Taught
                 </label>
-                <div className="grid grid-cols-2 gap-2 p-3 bg-[#F5F8FC] border border-[#CBD5E1] max-h-36 overflow-y-auto">
+                <div className="grid grid-cols-2 gap-2 p-3 bg-[#F7F7F4] border border-[#CBD5E1] max-h-36 overflow-y-auto">
                   {subjects.map((s) => {
                     const isChecked = selectedSubjects.includes(s.id);
                     return (
@@ -318,7 +318,7 @@ export const AdminClassesPage: React.FC = () => {
                               setSelectedSubjects(selectedSubjects.filter((id) => id !== s.id));
                             }
                           }}
-                          className="accent-[#1C2C5B]"
+                          className="accent-[#0B1F4B]"
                         />
                         <span>{s.name}</span>
                       </label>

@@ -183,41 +183,41 @@ export const AdminAnalyticsPage: React.FC = () => {
 
       {/* Top Level Benchmark Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white border border-[#CBD5E1] p-5 shadow-xs">
+        <div className="bg-white border border-[#CBD5E1] p-5 shadow-sm">
           <span className="text-xs font-semibold uppercase tracking-wider text-[#64748B] block mb-1">
             School Mean Score
           </span>
-          <div className="text-3xl font-extrabold text-[#1C2C5B]">
+          <div className="text-3xl font-extrabold text-[#0B1F4B]">
             {schoolMean === null ? '—' : `${schoolMean}%`}
           </div>
           <p className="text-xs text-[#64748B] mt-1">Across all recorded submissions</p>
         </div>
 
-        <div className="bg-white border border-[#CBD5E1] p-5 shadow-xs">
+        <div className="bg-white border border-[#CBD5E1] p-5 shadow-sm">
           <span className="text-xs font-semibold uppercase tracking-wider text-[#64748B] block mb-1">
             Assessment Completion
           </span>
-          <div className="text-3xl font-extrabold text-[#1C2C5B]">
+          <div className="text-3xl font-extrabold text-[#0B1F4B]">
             {completionRate === null ? '—' : `${completionRate}%`}
           </div>
           <p className="text-xs text-[#64748B] mt-1">Submitted results against enrolled learners</p>
         </div>
 
-        <div className="bg-white border border-[#CBD5E1] p-5 shadow-xs">
+        <div className="bg-white border border-[#CBD5E1] p-5 shadow-sm">
           <span className="text-xs font-semibold uppercase tracking-wider text-[#64748B] block mb-1">
             Offline Assessment Share
           </span>
-          <div className="text-3xl font-extrabold text-[#1C2C5B]">
+          <div className="text-3xl font-extrabold text-[#0B1F4B]">
             {offlineShare === null ? '—' : `${offlineShare}%`}
           </div>
           <p className="text-xs text-[#64748B] mt-1">Queued and synced from tablets</p>
         </div>
 
-        <div className="bg-white border border-[#CBD5E1] p-5 shadow-xs">
+        <div className="bg-white border border-[#CBD5E1] p-5 shadow-sm">
           <span className="text-xs font-semibold uppercase tracking-wider text-[#64748B] block mb-1">
             Identified Revision Topics
           </span>
-          <div className="text-3xl font-extrabold text-[#1C2C5B]">
+          <div className="text-3xl font-extrabold text-[#0B1F4B]">
             {topicsNeedingRevision.length} Focus {topicsNeedingRevision.length === 1 ? 'Area' : 'Areas'}
           </div>
           <p className="text-xs text-[#64748B] mt-1">Topics below the {settings.defaultPassMark}% mastery threshold</p>
@@ -227,9 +227,9 @@ export const AdminAnalyticsPage: React.FC = () => {
       {/* Charts Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Cohort Averages by Grade */}
-        <div className="bg-white border border-[#CBD5E1] p-5 shadow-xs">
+        <div className="bg-white border border-[#CBD5E1] p-5 shadow-sm">
           <div className="pb-3 mb-4 border-b border-[#CBD5E1]">
-            <h3 className="text-sm font-bold uppercase tracking-wider text-[#1C2C5B]">
+            <h3 className="text-sm font-bold uppercase tracking-wider text-[#0B1F4B]">
               Average Assessment Score by Grade Cohort
             </h3>
             <p className="text-xs text-[#64748B]">
@@ -246,20 +246,20 @@ export const AdminAnalyticsPage: React.FC = () => {
                   <YAxis stroke="#64748B" fontSize={11} domain={[0, 100]} tickLine={false} />
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: '#1C2C5B',
-                      borderColor: '#1C2C5B',
+                      backgroundColor: '#0B1F4B',
+                      borderColor: '#0B1F4B',
                       color: '#fff',
                       fontSize: 12,
                     }}
                   />
                   <Legend wrapperStyle={{ fontSize: 11, paddingTop: 10 }} />
-                  <Bar dataKey="averageScore" name="Average Score (%)" fill="#1C2C5B" radius={[0, 0, 0, 0]} />
-                  <Bar dataKey="completionRate" name="Completion Rate (%)" fill="#6CABDD" radius={[0, 0, 0, 0]} />
+                  <Bar dataKey="averageScore" name="Average Score (%)" fill="#0B1F4B" radius={[0, 0, 0, 0]} />
+                  <Bar dataKey="completionRate" name="Completion Rate (%)" fill="#D6A21E" radius={[0, 0, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
           ) : (
-            <div className="h-64 w-full flex flex-col items-center justify-center text-center border border-dashed border-[#CBD5E1] bg-[#F5F8FC]">
+            <div className="h-64 w-full flex flex-col items-center justify-center text-center border border-dashed border-[#CBD5E1] bg-[#F7F7F4]">
               <AlertCircle size={20} className="text-[#94A3B8] mb-2" />
               <p className="text-xs font-semibold text-[#64748B]">No grade-level results recorded yet.</p>
               <p className="text-[11px] text-[#94A3B8] mt-1">
@@ -270,9 +270,9 @@ export const AdminAnalyticsPage: React.FC = () => {
         </div>
 
         {/* Subject Comparison */}
-        <div className="bg-white border border-[#CBD5E1] p-5 shadow-xs">
+        <div className="bg-white border border-[#CBD5E1] p-5 shadow-sm">
           <div className="pb-3 mb-4 border-b border-[#CBD5E1]">
-            <h3 className="text-sm font-bold uppercase tracking-wider text-[#1C2C5B]">
+            <h3 className="text-sm font-bold uppercase tracking-wider text-[#0B1F4B]">
               Subject Performance vs School Benchmark
             </h3>
             <p className="text-xs text-[#64748B]">
@@ -293,20 +293,20 @@ export const AdminAnalyticsPage: React.FC = () => {
                   <YAxis dataKey="subject" type="category" stroke="#64748B" fontSize={11} tickLine={false} />
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: '#1C2C5B',
-                      borderColor: '#1C2C5B',
+                      backgroundColor: '#0B1F4B',
+                      borderColor: '#0B1F4B',
                       color: '#fff',
                       fontSize: 12,
                     }}
                   />
                   <Legend wrapperStyle={{ fontSize: 11, paddingTop: 10 }} />
-                  <Bar dataKey="average" name="Cohort Average (%)" fill="#6CABDD" />
+                  <Bar dataKey="average" name="Cohort Average (%)" fill="#D6A21E" />
                   <Bar dataKey="target" name="School Target (%)" fill="#CBD5E1" />
                 </BarChart>
               </ResponsiveContainer>
             </div>
           ) : (
-            <div className="h-64 w-full flex flex-col items-center justify-center text-center border border-dashed border-[#CBD5E1] bg-[#F5F8FC]">
+            <div className="h-64 w-full flex flex-col items-center justify-center text-center border border-dashed border-[#CBD5E1] bg-[#F7F7F4]">
               <AlertCircle size={20} className="text-[#94A3B8] mb-2" />
               <p className="text-xs font-semibold text-[#64748B]">No subject results recorded yet.</p>
               <p className="text-[11px] text-[#94A3B8] mt-1">
@@ -318,9 +318,9 @@ export const AdminAnalyticsPage: React.FC = () => {
       </div>
 
       {/* Assessment Activity Over Time Line Chart */}
-      <div className="bg-white border border-[#CBD5E1] p-5 shadow-xs">
+      <div className="bg-white border border-[#CBD5E1] p-5 shadow-sm">
         <div className="pb-3 mb-4 border-b border-[#CBD5E1]">
-          <h3 className="text-sm font-bold uppercase tracking-wider text-[#1C2C5B]">
+          <h3 className="text-sm font-bold uppercase tracking-wider text-[#0B1F4B]">
             Assessment Volume & Tablet Offline Sync Activity
           </h3>
           <p className="text-xs text-[#64748B]">Weekly quiz submissions from recorded results</p>
@@ -335,8 +335,8 @@ export const AdminAnalyticsPage: React.FC = () => {
                 <YAxis stroke="#64748B" fontSize={11} tickLine={false} />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: '#1C2C5B',
-                    borderColor: '#1C2C5B',
+                    backgroundColor: '#0B1F4B',
+                    borderColor: '#0B1F4B',
                     color: '#fff',
                     fontSize: 12,
                   }}
@@ -346,23 +346,23 @@ export const AdminAnalyticsPage: React.FC = () => {
                   type="monotone"
                   dataKey="submissions"
                   name="Total Submissions"
-                  stroke="#1C2C5B"
+                  stroke="#0B1F4B"
                   strokeWidth={2}
-                  dot={{ r: 4, fill: '#1C2C5B' }}
+                  dot={{ r: 4, fill: '#0B1F4B' }}
                 />
                 <Line
                   type="monotone"
                   dataKey="offlineSynced"
                   name="Queued Tablet Syncs"
-                  stroke="#6CABDD"
+                  stroke="#D6A21E"
                   strokeWidth={2}
-                  dot={{ r: 4, fill: '#6CABDD' }}
+                  dot={{ r: 4, fill: '#D6A21E' }}
                 />
               </LineChart>
             </ResponsiveContainer>
           </div>
         ) : (
-          <div className="h-56 w-full flex flex-col items-center justify-center text-center border border-dashed border-[#CBD5E1] bg-[#F5F8FC]">
+          <div className="h-56 w-full flex flex-col items-center justify-center text-center border border-dashed border-[#CBD5E1] bg-[#F7F7F4]">
             <AlertCircle size={20} className="text-[#94A3B8] mb-2" />
             <p className="text-xs font-semibold text-[#64748B]">No submission activity recorded yet.</p>
             <p className="text-[11px] text-[#94A3B8] mt-1">
@@ -373,10 +373,10 @@ export const AdminAnalyticsPage: React.FC = () => {
       </div>
 
       {/* Diagnostic Signals: Topics Requiring Revision */}
-      <div className="bg-white border border-[#CBD5E1] p-5 shadow-xs">
+      <div className="bg-white border border-[#CBD5E1] p-5 shadow-sm">
         <div className="pb-3 mb-4 border-b border-[#CBD5E1]">
-          <h3 className="text-sm font-bold uppercase tracking-wider text-[#1C2C5B] flex items-center gap-2">
-            <AlertCircle size={16} className="text-[#1C2C5B]" />
+          <h3 className="text-sm font-bold uppercase tracking-wider text-[#0B1F4B] flex items-center gap-2">
+            <AlertCircle size={16} className="text-[#0B1F4B]" />
             <span>Curriculum Topics Requiring Faculty Review</span>
           </h3>
           <p className="text-xs text-[#64748B]">
@@ -385,7 +385,7 @@ export const AdminAnalyticsPage: React.FC = () => {
         </div>
 
         {topicsNeedingRevision.length === 0 ? (
-          <div className="p-6 text-center border border-dashed border-[#CBD5E1] bg-[#F5F8FC]">
+          <div className="p-6 text-center border border-dashed border-[#CBD5E1] bg-[#F7F7F4]">
             <p className="text-xs font-semibold text-[#64748B]">
               No topics currently below the mastery threshold.
             </p>
@@ -397,7 +397,7 @@ export const AdminAnalyticsPage: React.FC = () => {
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs border-collapse">
               <thead>
-                <tr className="bg-[#1C2C5B] text-white">
+                <tr className="bg-[#0B1F4B] text-white">
                   <th className="p-2.5 font-semibold uppercase">Topic Domain</th>
                   <th className="p-2.5 font-semibold uppercase">Subject & Grade</th>
                   <th className="p-2.5 font-semibold uppercase">Cohort Accuracy</th>
@@ -407,15 +407,15 @@ export const AdminAnalyticsPage: React.FC = () => {
               </thead>
               <tbody className="divide-y divide-[#CBD5E1]/60">
                 {topicsNeedingRevision.map((item, idx) => (
-                  <tr key={idx} className="hover:bg-[#F5F8FC]">
+                  <tr key={idx} className="hover:bg-[#F7F7F4]">
                     <td className="p-2.5 font-semibold text-[#0F172A]">{item.topic}</td>
                     <td className="p-2.5 text-[#64748B]">
                       {item.subject} — {item.grade}
                     </td>
-                    <td className="p-2.5 font-bold text-[#1C2C5B]">{item.accuracy}</td>
+                    <td className="p-2.5 font-bold text-[#0B1F4B]">{item.accuracy}</td>
                     <td className="p-2.5 text-[#0F172A]">{item.affectedCount} learners</td>
-                    <td className="p-2.5 text-right font-medium text-[#1C2C5B]">
-                      <span className="bg-[#E8F3FC] px-2 py-0.5 border border-[#6CABDD]/40">
+                    <td className="p-2.5 text-right font-medium text-[#0B1F4B]">
+                      <span className="bg-[#F7F7F4] px-2 py-0.5 border border-[#D6A21E]/40">
                         {item.status}
                       </span>
                     </td>
