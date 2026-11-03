@@ -88,43 +88,94 @@ export const AppShell: React.FC = () => {
       <NetworkSimulatorBar />
 
       {/* ── Header ─────────────────────────────────────────────────────── */}
-      {/*
-        The header is h-16 tall. Nav links use h-full + bottom border trick:
-        we give each link the full header height so the bottom border sits at
-        the very bottom edge of the header, flush with the content divider.
-      */}
-      <header className="bg-[#0B1F4B] text-white sticky top-0 z-40 shadow-md border-b border-white/[0.07]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-stretch h-16">
+      <header className="bg-[#0B1F4B] text-white sticky top-0 z-40 shadow-md">
 
-            {/* ── Brand ──────────────────────────────────────────────── */}
-            <div className="flex items-center gap-3 shrink-0 mr-6">
-              <img
-                src="/assets/Logo.png"
-                alt="Growing Minds Academy"
-                className="h-8 w-auto object-contain"
-              />
-              <div className="hidden lg:block">
-                <span className="text-sm font-extrabold tracking-tight text-white leading-tight block">
-                  Growing Minds Academy
-                </span>
-                <span className="text-[10px] font-medium text-[#D6A21E]/70 tracking-widest uppercase">
-                  AI Quiz & Analytics
-                </span>
+        {/* ── Top row: brand + profile ─────────────────────────────────── */}
+        <div className="border-b border-white/[0.08]">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center justify-between h-14">
+
+              {/* Brand */}
+              <div className="flex items-center gap-3 shrink-0">
+                <img
+                  src="/assets/Logo.png"
+                  alt="Growing Minds Academy"
+                  className="h-8 w-auto object-contain"
+                  onError={(e) => {
+                    const el = e.currentTarget;
+                    el.style.display = 'none';
+                    const fallback = el.nextElementSibling as HTMLElement | null;
+                    if (fallback) fallback.style.display = 'flex';
+                  }}
+                />
+                {/* Fallback text badge if logo fails to load */}
+                <div
+                  className="w-8 h-8 border-2 border-[#D6A21E] rounded flex items-center justify-center text-[#D6A21E] font-extrabold text-xs tracking-widest"
+                  style={{ display: 'none' }}
+                  aria-hidden="true"
+                >
+                  GMA
+                </div>
+                <div>
+                  <span className="text-sm font-extrabold tracking-tight text-white leading-tight block">
+                    Growing Minds Academy
+                  </span>
+                  <span className="text-[10px] font-medium text-[#D6A21E]/70 tracking-widest uppercase leading-none">
+                    AI Quiz & Analytics
+                  </span>
+                </div>
+              </div>
+
+              {/* Right: role pill + profile */}
+              <div className="flex items-center gap-2 sm:gap-3">
+                {/* Role pill */}
+                <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-white/[0.07] border border-white/[0.12] text-slate-300">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#D6A21E]" aria-hidden="true" />
+                  {role?.toUpperCase()}
+                </div>
+
+                {/* Profile */}
+                <div className="hidden sm:flex items-center gap-2 pl-3 border-l border-white/[0.12]">
+                  <div className="w-8 h-8 rounded-full bg-[#D6A21E] text-[#0B1F4B] font-bold text-xs flex items-center justify-center shrink-0 ring-2 ring-[#D6A21E]/20">
+                    {user?.avatarInitial || 'GM'}
+                  </div>
+                  <div className="hidden md:block text-left min-w-0">
+                    <span className="text-xs font-semibold text-white block leading-tight truncate max-w-[180px]" title={user?.name || ''}>
+                      {user?.name || 'Authorized User'}
+                    </span>
+                    <span className="text-[10px] text-slate-400 block truncate max-w-[180px]" title={user?.email || ''}>
+                      {user?.email || 'School Access'}
+                    </span>
+                  </div>
+                  <button
+                    onClick={handleLogout}
+                    className="p-1.5 rounded-md text-slate-400 hover:text-white hover:bg-white/[0.09] active:scale-95 transition-all duration-150 cursor-pointer"
+                    title="Sign out"
+                    aria-label="Sign out"
+                  >
+                    <LogOut size={14} />
+                  </button>
+                </div>
+
+                {/* Mobile hamburger */}
+                <button
+                  type="button"
+                  onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                  className="md:hidden p-2 rounded-md text-white hover:bg-white/[0.09] active:scale-95 transition-all duration-150 cursor-pointer"
+                  aria-label={mobileMenuOpen ? 'Close menu' : 'Open navigation menu'}
+                  aria-expanded={mobileMenuOpen}
+                >
+                  {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+                </button>
               </div>
             </div>
+          </div>
+        </div>
 
-            {/* ── Desktop nav ────────────────────────────────────────── */}
-            {/*
-              Links stretch to full header height so the gold bottom-border
-              indicator lands flush at the bottom of the header bar.
-              Active: gold bottom border + slightly brighter text, no filled bg.
-              Inactive: muted slate-300, gentle white bg on hover.
-            */}
-            <nav
-              className="hidden md:flex items-stretch flex-1 min-w-0"
-              aria-label="Main navigation"
-            >
+        {/* ── Nav row (desktop only) ──────────────────────────────────── */}
+        <div className="hidden md:block">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <nav className="flex items-stretch h-10 overflow-x-auto scrollbar-none" aria-label="Main navigation">
               {navItems.map((item) => {
                 const Icon = item.icon;
                 return (
@@ -134,92 +185,21 @@ export const AppShell: React.FC = () => {
                     title={item.label}
                     className={({ isActive }) =>
                       [
-                        'flex items-center gap-1.5 px-3 text-[11px] font-semibold uppercase tracking-wide',
-                        'border-b-2 transition-all duration-150 whitespace-nowrap',
-                        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D6A21E]/60 focus-visible:ring-inset',
+                        'flex items-center gap-1.5 px-4 text-[11px] font-semibold uppercase tracking-wide whitespace-nowrap',
+                        'border-b-2 transition-all duration-150',
+                        'focus-visible:outline-none focus-visible:ring-inset focus-visible:ring-2 focus-visible:ring-[#D6A21E]/50',
                         isActive
                           ? 'border-[#D6A21E] text-white'
-                          : 'border-transparent text-slate-400 hover:text-slate-100 hover:bg-white/[0.06] hover:border-white/20',
+                          : 'border-transparent text-slate-400 hover:text-slate-100 hover:bg-white/[0.05]',
                       ].join(' ')
                     }
                   >
-                    <Icon size={13} className="shrink-0 translate-y-px" aria-hidden="true" />
+                    <Icon size={12} className="shrink-0" aria-hidden="true" />
                     <span>{item.label}</span>
                   </NavLink>
                 );
               })}
             </nav>
-
-            {/* ── Right side ─────────────────────────────────────────── */}
-            <div className="flex items-center gap-2 sm:gap-3 ml-4 shrink-0">
-
-              {/* Role pill — visible sm+ */}
-              <div
-                className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full
-                  text-[10px] font-bold uppercase tracking-widest
-                  bg-white/[0.07] border border-white/[0.12] text-slate-300"
-              >
-                <span className="w-1.5 h-1.5 rounded-full bg-[#D6A21E]" aria-hidden="true" />
-                {role?.toUpperCase()}
-              </div>
-
-              {/* Profile section — visible sm+ */}
-              <div className="hidden sm:flex items-center gap-2.5 pl-3 border-l border-white/[0.12]">
-                {/* Avatar */}
-                <div
-                  className="w-8 h-8 rounded-full bg-[#D6A21E] text-[#0B1F4B]
-                    font-bold text-xs flex items-center justify-center shrink-0
-                    ring-2 ring-[#D6A21E]/20"
-                  aria-hidden="true"
-                >
-                  {user?.avatarInitial || 'GM'}
-                </div>
-
-                {/* Name + email — visible lg+, wider truncation */}
-                <div className="hidden lg:block text-left min-w-0">
-                  <span
-                    className="text-xs font-semibold text-white block leading-tight
-                      truncate max-w-[160px]"
-                    title={user?.name || 'Authorized User'}
-                  >
-                    {user?.name || 'Authorized User'}
-                  </span>
-                  <span
-                    className="text-[10px] text-slate-400 block truncate max-w-[160px]"
-                    title={user?.email || ''}
-                  >
-                    {user?.className || user?.email || 'School Access'}
-                  </span>
-                </div>
-
-                {/* Logout */}
-                <button
-                  onClick={handleLogout}
-                  className="p-1.5 rounded-md text-slate-400
-                    hover:text-white hover:bg-white/[0.09]
-                    active:bg-white/[0.14] active:scale-[0.96]
-                    transition-all duration-150 cursor-pointer"
-                  title="Sign out"
-                  aria-label="Sign out"
-                >
-                  <LogOut size={14} />
-                </button>
-              </div>
-
-              {/* Mobile hamburger */}
-              <button
-                type="button"
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="md:hidden p-2 rounded-md text-white
-                  hover:bg-white/[0.09] active:bg-white/[0.14] active:scale-[0.96]
-                  transition-all duration-150 cursor-pointer"
-                aria-label={mobileMenuOpen ? 'Close menu' : 'Open navigation menu'}
-                aria-expanded={mobileMenuOpen}
-              >
-                {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
-              </button>
-            </div>
-
           </div>
         </div>
 
@@ -236,10 +216,10 @@ export const AppShell: React.FC = () => {
                   className={({ isActive }) =>
                     [
                       'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold',
-                      'transition-all duration-150',
+                      'border-l-2 transition-all duration-150',
                       isActive
-                        ? 'bg-white/[0.08] text-white border-l-2 border-[#D6A21E] pl-[10px]'
-                        : 'text-slate-400 hover:bg-white/[0.06] hover:text-slate-100 border-l-2 border-transparent',
+                        ? 'bg-white/[0.08] text-white border-[#D6A21E] pl-[10px]'
+                        : 'text-slate-400 border-transparent hover:bg-white/[0.06] hover:text-slate-100',
                     ].join(' ')
                   }
                 >
@@ -248,28 +228,17 @@ export const AppShell: React.FC = () => {
                 </NavLink>
               );
             })}
-
-            {/* Mobile profile + logout */}
             <div className="pt-3 mt-2 border-t border-white/[0.08] flex items-center justify-between">
               <div className="flex items-center gap-2.5 min-w-0">
-                <div className="w-7 h-7 rounded-full bg-[#D6A21E] text-[#0B1F4B]
-                  font-bold text-xs flex items-center justify-center shrink-0">
+                <div className="w-7 h-7 rounded-full bg-[#D6A21E] text-[#0B1F4B] font-bold text-xs flex items-center justify-center shrink-0">
                   {user?.avatarInitial || 'GM'}
                 </div>
                 <div className="min-w-0">
-                  <span className="text-xs font-semibold text-white block truncate max-w-[180px]">
-                    {user?.name || 'User'}
-                  </span>
-                  <span className="text-[10px] text-slate-400 uppercase tracking-wider">
-                    {role}
-                  </span>
+                  <span className="text-xs font-semibold text-white block truncate max-w-[180px]">{user?.name || 'User'}</span>
+                  <span className="text-[10px] text-slate-400 uppercase tracking-wider">{role}</span>
                 </div>
               </div>
-              <button
-                onClick={handleLogout}
-                className="flex items-center gap-1.5 text-xs font-semibold
-                  text-slate-400 hover:text-white transition-colors duration-150 cursor-pointer ml-3 shrink-0"
-              >
+              <button onClick={handleLogout} className="flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-white transition-colors cursor-pointer ml-3 shrink-0">
                 <LogOut size={13} />
                 Sign Out
               </button>
