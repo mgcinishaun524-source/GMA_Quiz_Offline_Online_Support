@@ -99,9 +99,11 @@ export const AppShell: React.FC = () => {
 
             {/* Brand */}
             <div className="flex items-center gap-3 shrink-0">
-              <div className="w-9 h-9 border-2 border-[#D6A21E] flex items-center justify-center rounded-sm">
-                <span className="font-extrabold text-xs tracking-widest text-[#D6A21E]">GMA</span>
-              </div>
+              <img
+                src="/assets/Logo.png"
+                alt="Growing Minds Academy"
+                className="h-9 w-auto"
+              />
               <div className="hidden sm:block">
                 <span className="text-sm font-extrabold tracking-tight text-white block">
                   Growing Minds Academy

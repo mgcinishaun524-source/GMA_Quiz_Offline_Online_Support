@@ -53,12 +53,11 @@ export const LoginPage: React.FC = () => {
     <div className="min-h-screen bg-[#F7F7F4] flex flex-col justify-center items-center py-12 px-4 sm:px-6">
       {/* Brand */}
       <div className="text-center mb-8">
-        <div className="inline-flex items-center justify-center w-16 h-16 bg-[#0B1F4B] border-2 border-[#D6A21E] rounded-xl mb-4 shadow-lg">
-          <span className="text-xl font-extrabold text-[#D6A21E] tracking-widest">GMA</span>
-        </div>
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-[#0B1F4B] tracking-tight">
-          Growing Minds Academy
-        </h1>
+        <img
+          src="/assets/Logo.png"
+          alt="Growing Minds Academy"
+          className="h-32 sm:h-40 w-auto mx-auto mb-4 drop-shadow-lg"
+        />
         <p className="text-xs font-semibold text-[#D6A21E] tracking-widest uppercase mt-1">
           AI-Powered Quiz & Learning Analytics
         </p>
