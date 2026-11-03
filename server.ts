@@ -86,6 +86,25 @@ app.get('/api/health', (_req: Request, res: Response) => {
   });
 });
 
+// Temporary debug: test raw Gemini response (remove after fixing AI generation)
+app.get('/api/debug-gemini', async (_req: Request, res: Response): Promise<void> => {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey || !isGeminiConfigured()) { res.json({ error: 'not configured' }); return; }
+  try {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+    const payload = {
+      systemInstruction: { parts: [{ text: 'You are a quiz generator.' }] },
+      contents: [{ role: 'user', parts: [{ text: 'Generate 1 true/false question about water. Return a JSON array with one object: {type, prompt, correctAnswer, marks, topic}.' }] }],
+      generationConfig: { responseMimeType: 'application/json', temperature: 0.5, maxOutputTokens: 512,
+        responseSchema: { type: 'array', items: { type: 'object', properties: { type: { type: 'string' }, prompt: { type: 'string' }, correctAnswer: { type: 'string' }, marks: { type: 'integer' }, topic: { type: 'string' } }, required: ['type','prompt','correctAnswer','marks','topic'] } } },
+    };
+    const r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+    const data = await r.json();
+    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    res.json({ http_status: r.status, raw_text_length: text.length, raw_text_preview: text.substring(0, 200), full_response_keys: Object.keys(data) });
+  } catch (e: any) { res.json({ error: e.message }); }
+});
+
 // ----------------------------------------------------------------------------
 // AUTHENTICATION ENDPOINTS
 // ----------------------------------------------------------------------------
