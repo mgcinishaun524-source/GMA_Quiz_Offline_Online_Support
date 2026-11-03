@@ -2900,7 +2900,7 @@ ${
       let primarySucceeded = false;
       if (apiKey && isGeminiConfigured()) {
         try {
-          const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+          const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
           const geminiPayload = {
             systemInstruction: { parts: [{ text: systemInstruction }] },
             contents: [{ role: 'user', parts: [{ text: promptText }] }],
@@ -2955,7 +2955,7 @@ ${
             console.warn('[Gemini parse fail]', (pe as Error).message, '| text:', stripped.substring(0, 100));
           }
           if (rawQuestions.length > 0) {
-            parseQuestions(rawQuestions, 'Gemini 2.0 Flash');
+            parseQuestions(rawQuestions, 'Gemini 2.5 Flash');
             primarySucceeded = true;
           } else {
             console.warn('[Gemini] Parsed 0 questions from text length:', stripped.length);
