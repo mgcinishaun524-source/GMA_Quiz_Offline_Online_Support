@@ -249,6 +249,30 @@ export const quizApiService = {
     throw new Error('Invalid response from server.');
   },
 
+  // 12. Fetch All Submissions for Teacher (bulk — fetches per quiz in parallel)
+  async fetchAllTeacherSubmissions(): Promise<void> {
+    try {
+      const quizzes = appDataStore.getQuizzes();
+      if (quizzes.length === 0) return;
+      const chunkSize = 5;
+      for (let i = 0; i < quizzes.length; i += chunkSize) {
+        const chunk = quizzes.slice(i, i + chunkSize);
+        await Promise.all(
+          chunk.map(async (quiz) => {
+            try {
+              const subs = await quizApiService.fetchQuizSubmissions(quiz.id);
+              subs.forEach((s) => appDataStore.saveSubmission(s));
+            } catch {
+              // non-fatal
+            }
+          })
+        );
+      }
+    } catch {
+      // non-fatal
+    }
+  },
+
   // 11. Fetch Learner Results
   async fetchLearnerResults(): Promise<Submission[]> {
     try {
