@@ -2883,12 +2883,34 @@ ${
         try {
           const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
           const geminiPayload = {
-            system_instruction: { parts: [{ text: systemInstruction }] },
+            systemInstruction: { parts: [{ text: systemInstruction }] },
             contents: [{ role: 'user', parts: [{ text: promptText }] }],
             generationConfig: {
-              response_mime_type: 'application/json',
+              responseMimeType: 'application/json',
               temperature: 0.7,
               maxOutputTokens: 4096,
+              responseSchema: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    type: { type: 'string' },
+                    prompt: { type: 'string' },
+                    options: {
+                      type: 'array',
+                      items: {
+                        type: 'object',
+                        properties: { id: { type: 'string' }, text: { type: 'string' } },
+                      },
+                    },
+                    correctAnswer: { type: 'string' },
+                    marks: { type: 'integer' },
+                    topic: { type: 'string' },
+                    explanation: { type: 'string' },
+                  },
+                  required: ['type', 'prompt', 'correctAnswer', 'marks', 'topic'],
+                },
+              },
             },
           };
           const gRes = await fetch(geminiUrl, {
