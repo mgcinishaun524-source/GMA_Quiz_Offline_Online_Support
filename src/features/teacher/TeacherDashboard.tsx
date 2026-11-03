@@ -18,10 +18,14 @@ import {
   BookOpen,
   WifiOff,
 } from 'lucide-react';
+import { useServerSync } from '../../hooks/useServerSync';
 
 export const TeacherDashboard: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+
+  // Sync quizzes and submissions from server on every mount
+  useServerSync('both');
 
   const [quizzes, setQuizzes] = useState<Quiz[]>(appDataStore.getQuizzes());
   const [classes, setClasses] = useState(appDataStore.getClasses());

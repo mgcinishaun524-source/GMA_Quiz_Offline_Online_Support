@@ -5,11 +5,14 @@ import { DataTable, Column } from '../../components/ui/DataTable';
 import { InputField, SelectField } from '../../components/ui/FormControls';
 import { OutlineButton } from '../../components/ui/Buttons';
 import { appDataStore } from '../../services/storage';
+import { useServerSync } from '../../hooks/useServerSync';
 import { syncQueueService, SyncState } from '../../lib/sync-queue';
 import { Submission } from '../../types/submission';
 import { FileCheck, Search, Filter, RefreshCw, Wifi, WifiOff } from 'lucide-react';
 
 export const TeacherSubmissionsPage: React.FC = () => {
+  // Sync from server on mount so submissions created on other devices appear
+  useServerSync('both');
   const [submissions, setSubmissions] = useState<Submission[]>(appDataStore.getSubmissions());
   const [quizzes, setQuizzes] = useState(appDataStore.getQuizzes());
   const [classes, setClasses] = useState(appDataStore.getClasses());

@@ -3,12 +3,15 @@ import { PageHeader } from '../../components/ui/PageHeader';
 import { OutlineButton } from '../../components/ui/Buttons';
 import { useAuth } from '../../app/AuthContext';
 import { appDataStore } from '../../services/storage';
+import { useServerSync } from '../../hooks/useServerSync';
 import { Quiz } from '../../types/quiz';
 import { Submission } from '../../types/submission';
 import { CheckCircle2, Clock, BookOpen, AlertCircle, Award } from 'lucide-react';
 
 export const LearnerResultsPage: React.FC = () => {
   const { user } = useAuth();
+  // Sync both quizzes (to check release status) and submissions from server
+  useServerSync('both');
   const [quizzes, setQuizzes] = useState<Quiz[]>(appDataStore.getQuizzes());
   const [submissions, setSubmissions] = useState<Submission[]>([]);
 

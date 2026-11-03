@@ -6,6 +6,7 @@ import { PrimaryButton, OutlineButton } from '../../components/ui/Buttons';
 import { SelectField } from '../../components/ui/FormControls';
 import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
 import { appDataStore } from '../../services/storage';
+import { useServerSync } from '../../hooks/useServerSync';
 import { quizApiService } from '../../services/quiz-api';
 import { Quiz } from '../../types/quiz';
 import { Submission } from '../../types/submission';
@@ -23,6 +24,7 @@ import {
 } from 'lucide-react';
 
 export const TeacherResultsPage: React.FC = () => {
+  useServerSync('both');
   const [searchParams] = useSearchParams();
   const initialQuizId = searchParams.get('quizId');
 

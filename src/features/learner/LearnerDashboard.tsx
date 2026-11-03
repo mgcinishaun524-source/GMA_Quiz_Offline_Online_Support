@@ -6,6 +6,7 @@ import { PrimaryButton, OutlineButton } from '../../components/ui/Buttons';
 import { appDataStore } from '../../services/storage';
 import { networkManager } from '../../lib/network';
 import { syncQueueService, SyncState } from '../../lib/sync-queue';
+import { useServerSync } from '../../hooks/useServerSync';
 import { Quiz } from '../../types/quiz';
 import { Submission } from '../../types/submission';
 import {
@@ -23,6 +24,9 @@ import {
 export const LearnerDashboard: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+
+  // Fetch fresh quizzes and results from Supabase on every mount
+  useServerSync('both');
 
   const [quizzes, setQuizzes] = useState<Quiz[]>(appDataStore.getQuizzes());
   const [submissions, setSubmissions] = useState<Submission[]>([]);

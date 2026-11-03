@@ -5,6 +5,8 @@ import { PageHeader } from '../../components/ui/PageHeader';
 import { StatusLabel } from '../../components/ui/StatusLabel';
 import { PrimaryButton, OutlineButton } from '../../components/ui/Buttons';
 import { appDataStore } from '../../services/storage';
+import { quizApiService } from '../../services/quiz-api';
+import { useServerSync } from '../../hooks/useServerSync';
 import { Quiz } from '../../types/quiz';
 import { Submission } from '../../types/submission';
 import { ArrowRight, CheckCircle2, Clock, BookOpen, AlertCircle } from 'lucide-react';
@@ -12,6 +14,9 @@ import { ArrowRight, CheckCircle2, Clock, BookOpen, AlertCircle } from 'lucide-r
 export const LearnerQuizzesPage: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+
+  // Fetch fresh quizzes and submissions from Supabase on every mount
+  const { loading } = useServerSync('both');
 
   const [quizzes, setQuizzes] = useState<Quiz[]>(appDataStore.getQuizzes());
   const [submissions, setSubmissions] = useState<Submission[]>([]);

@@ -7,6 +7,7 @@ import { InputField, SelectField } from '../../components/ui/FormControls';
 import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
 import { appDataStore } from '../../services/storage';
 import { quizApiService } from '../../services/quiz-api';
+import { useServerSync } from '../../hooks/useServerSync';
 import { Quiz, QuizStatus } from '../../types/quiz';
 import {
   Plus,
@@ -28,6 +29,9 @@ export const TeacherQuizzesPage: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const initialTab = searchParams.get('tab') || 'ALL';
+
+  // Sync quizzes from server on mount so teacher sees quizzes created on other devices
+  useServerSync('quizzes');
 
   const [quizzes, setQuizzes] = useState<Quiz[]>(appDataStore.getQuizzes());
   const [subjects, setSubjects] = useState(appDataStore.getSubjects());
