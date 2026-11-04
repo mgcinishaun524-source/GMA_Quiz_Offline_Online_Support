@@ -2885,7 +2885,7 @@ ${
       
       if (ai && apiKey && isGeminiConfigured()) {
         try {
-          console.log(`[Gemini] Batch ${bIndex + 1}: Requesting ${batchSize} questions...`);
+          console.log(`[Gemini] Batch ${bIndex + 1}: Requesting ${currentBatchSize} questions...`);
           const response = await ai.models.generateContent({
             model: 'gemini-3.8-flash',
             contents: promptText,
@@ -3018,6 +3018,7 @@ ${
                 error: `AI generation failed: ${errorMsg}. Please try again or use fewer questions.` 
               });
               return;
+            }
           }
         } catch (groqErr: any) {
           const groqErrorMsg = groqErr?.message || String(groqErr);
