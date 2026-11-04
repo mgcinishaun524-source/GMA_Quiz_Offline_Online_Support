@@ -2767,12 +2767,12 @@ app.post('/api/ai/generate-quiz', requireAuth, requireRole(['admin', 'teacher'])
       }
     }
     const count = Number(questionCount);
-    if (isNaN(count) || count < 1 || count > 50) {
-      res.status(400).json({ error: 'Question count must be between 1 and 50.' });
+    if (isNaN(count) || count < 1 || count > 200) {
+      res.status(400).json({ error: 'Question count must be between 1 and 200.' });
       return;
     }
 
-    const MAX_BATCH_SIZE = 8;
+    const MAX_BATCH_SIZE = 10;
     const batches: number[] = [];
     let rem = count;
     while (rem > 0) {
@@ -2888,7 +2888,7 @@ ${
             generationConfig: {
               responseMimeType: 'application/json',
               temperature: 0.7,
-              maxOutputTokens: 4096,
+              maxOutputTokens: 32768,
               responseSchema: {
                 type: 'array',
                 items: {
@@ -2966,7 +2966,7 @@ ${
               { role: 'user', content: promptText },
             ],
             temperature: 0.7,
-            max_tokens: 4096,
+            max_tokens: 32768,
           });
           const groqRaw = groqResp.choices[0]?.message?.content?.trim() || '';
           console.log('[Groq raw]', groqRaw.substring(0, 200));

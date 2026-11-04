@@ -157,7 +157,7 @@ export const NewQuizPage: React.FC = () => {
     setIsGeneratingAI(true);
     setAiNotice(null);
     try {
-      const targetCount = Math.min(Math.max(1, aiGenCount || 5), 50);
+      const targetCount = Math.min(Math.max(1, aiGenCount || 5), 200);
       const res = await generateAIQuestions({
         grade,
         subject: selectedSubject?.name || 'General',
@@ -791,7 +791,7 @@ export const NewQuizPage: React.FC = () => {
               <div className="flex flex-wrap items-center gap-3">
                 <div className="flex flex-wrap items-center gap-1.5 text-xs">
                   <span className="text-slate-300 uppercase font-semibold mr-1">Count:</span>
-                  {[5, 10, 15, 25, 50].map((preset) => (
+                  {[5, 10, 15, 25, 50, 100].map((preset) => (
                     <button
                       key={preset}
                       type="button"
@@ -815,11 +815,11 @@ export const NewQuizPage: React.FC = () => {
                       onChange={(e) => {
                         const val = parseInt(e.target.value, 10);
                         if (!isNaN(val)) {
-                          setAiGenCount(Math.min(50, Math.max(1, val)));
+                          setAiGenCount(Math.min(200, Math.max(1, val)));
                         }
                       }}
                       className="w-12 bg-transparent text-white text-xs font-mono text-center outline-none border-b border-[#D6A21E]"
-                      title="Enter custom question count (1 to 50)"
+                      title="Enter custom question count (1 to 200)"
                     />
                   </div>
                 </div>

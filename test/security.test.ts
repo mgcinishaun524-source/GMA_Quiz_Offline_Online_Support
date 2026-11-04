@@ -397,10 +397,10 @@ async function runAllTests() {
 
       const tooMany = await post(
         '/api/ai/generate-quiz',
-        { grade: 'Grade 4', subject: 'Mathematics', topics: ['Fractions'], questionCount: 51 },
+        { grade: 'Grade 4', subject: 'Mathematics', topics: ['Fractions'], questionCount: 201 },
         teacherToken
       );
-      assert.equal(tooMany.status, 400, 'A question count above 50 must be rejected');
+      assert.equal(tooMany.status, 400, 'A question count above 200 must be rejected');
 
       const noTopics = await post(
         '/api/ai/generate-quiz',
