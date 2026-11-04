@@ -8,7 +8,7 @@
   },
   "scripts": {
     "dev": "tsx server.ts",
-    "build": "vite build && esbuild server.ts --platform=node --format=esm --bundle --external:vite --external:express --external:dotenv --external:@google/generative-ai --external:groq-sdk --external:@supabase/supabase-js --external:bcryptjs --external:jsonwebtoken --outfile=dist/server.js",
+    "build": "vite build && esbuild server.ts --platform=node --format=esm --bundle --external:vite --external:express --external:dotenv --external:@google/genai --external:groq-sdk --external:@supabase/supabase-js --external:bcryptjs --external:jsonwebtoken --outfile=dist/server.js",
     "start": "node dist/server.js",
     "preview": "vite preview",
     "clean": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\"",
@@ -16,7 +16,7 @@
     "test": "cross-env NODE_ENV=test tsx test/security.test.ts && cross-env NODE_ENV=test tsx test/adapter.test.ts && cross-env NODE_ENV=test tsx test/generation-and-export.test.ts"
   },
   "dependencies": {
-    "@google/generative-ai": "^0.21.0",
+    "@google/genai": "^2.4.0",
     "@supabase/supabase-js": "^2.118.0",
     "@tailwindcss/vite": "^4.3.3",
     "@vitejs/plugin-react": "^6.1.1",
