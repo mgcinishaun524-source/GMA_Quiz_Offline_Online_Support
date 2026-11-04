@@ -2881,8 +2881,11 @@ ${
 
       // ── Attempt 1: Gemini (primary) via SDK with structured schema ─────
       let primarySucceeded = false;
+      let geminiError: string | null = null;
+      
       if (ai && apiKey && isGeminiConfigured()) {
         try {
+          console.log(`[Gemini] Batch ${bIndex + 1}: Requesting ${batchSize} questions...`);
           const response = await ai.models.generateContent({
             model: 'gemini-3.8-flash',
             contents: promptText,
@@ -2916,39 +2919,60 @@ ${
               },
             },
           });
+          
           const outputText = response.text?.trim() || '';
+          console.log(`[Gemini] Batch ${bIndex + 1}: Response length: ${outputText.length} chars`);
+          
           const stripped = outputText.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim();
           let rawQuestions: any[] = [];
+          
           try {
             const parsed = JSON.parse(stripped || '[]');
             rawQuestions = Array.isArray(parsed)
               ? parsed
               : parsed.questions || parsed.items || Object.values(parsed).find((v: any) => Array.isArray(v)) || [];
+            console.log(`[Gemini] Batch ${bIndex + 1}: Parsed ${rawQuestions.length} questions`);
           } catch (pe) {
-            console.warn('[Gemini parse fail]', (pe as Error).message);
+            geminiError = `JSON parse error: ${(pe as Error).message}`;
+            console.error(`[Gemini] Batch ${bIndex + 1}: Parse failed - ${geminiError}`);
+            console.error(`[Gemini] Raw response (first 500 chars):`, stripped.substring(0, 500));
           }
+          
           if (rawQuestions.length > 0) {
             parseQuestions(rawQuestions, 'Gemini 3.8 Flash');
             primarySucceeded = true;
+            console.log(`[Gemini] Batch ${bIndex + 1}: ✓ Success - ${rawQuestions.length} questions added`);
           } else {
-            console.warn('[Gemini] Returned 0 questions, text length:', stripped.length);
+            geminiError = geminiError || `Gemini returned 0 questions (response: ${stripped.length} chars)`;
+            console.warn(`[Gemini] Batch ${bIndex + 1}: ${geminiError}`);
           }
-        } catch (geminiErr) {
-          console.warn(`[AI Fallback] Gemini batch ${bIndex + 1} failed: ${(geminiErr as Error)?.message}. Trying Groq.`);
+        } catch (geminiErr: any) {
+          geminiError = geminiErr?.message || String(geminiErr);
+          console.error(`[Gemini] Batch ${bIndex + 1}: API call failed - ${geminiError}`);
+          if (geminiErr?.status) console.error(`[Gemini] HTTP Status: ${geminiErr.status}`);
         }
+      } else {
+        geminiError = 'Gemini not configured';
+        console.log(`[Gemini] Batch ${bIndex + 1}: Skipped (not configured)`);
       }
 
       // ── Attempt 2: Groq fallback (if Gemini unavailable or failed) ────────
       if (!primarySucceeded) {
+        console.log(`[Groq] Batch ${bIndex + 1}: Gemini failed (${geminiError}), trying Groq fallback...`);
+        
         if (!groqClient) {
+          const errorMsg = `Batch ${bIndex + 1} failed: Gemini error (${geminiError}), Groq not configured`;
+          console.error(`[AI] ${errorMsg}`);
+          
           if (accumulatedQuestions.length > 0) {
             isPartial = true;
-            partialWarning = `Generated ${accumulatedQuestions.length} of ${count} questions before all AI providers failed.`;
+            partialWarning = `Generated ${accumulatedQuestions.length} of ${count} questions. Batch ${bIndex + 1} failed: ${geminiError}. Configure GROQ_API_KEY for automatic fallback.`;
             break;
           } else {
-            throw new Error('All AI providers failed or are unconfigured. Set GEMINI_API_KEY or GROQ_API_KEY.');
+            throw new Error('All AI providers failed: ' + geminiError + '. Set GEMINI_API_KEY or GROQ_API_KEY.');
           }
         }
+        
         try {
           const groqSystemPrompt = systemInstruction + '\nYou MUST respond with ONLY a valid JSON array. Start your response with [ and end with ]. No markdown fences, no extra text.';
           const groqResp = await groqClient.chat.completions.create({
@@ -2960,44 +2984,64 @@ ${
             temperature: 0.7,
             max_tokens: 32768,
           });
+          
           const groqRaw = groqResp.choices[0]?.message?.content?.trim() || '';
-          console.log('[Groq raw]', groqRaw.substring(0, 200));
-          // Strip markdown fences if model wrapped output anyway
+          console.log(`[Groq] Batch ${bIndex + 1}: Response length: ${groqRaw.length} chars`);
+          
           const groqCleaned = groqRaw.replace(/^```(?:json)?\n?/i, '').replace(/\n?```$/i, '').trim();
           let rawQuestions: any[] = [];
+          
           try {
             const parsed = JSON.parse(groqCleaned || '[]');
-            rawQuestions = Array.isArray(parsed) ? parsed : (parsed.questions || parsed.items || Object.values(parsed).find(v => Array.isArray(v)) || []);
+            rawQuestions = Array.isArray(parsed) 
+              ? parsed 
+              : (parsed.questions || parsed.items || Object.values(parsed).find(v => Array.isArray(v)) || []);
+            console.log(`[Groq] Batch ${bIndex + 1}: Parsed ${rawQuestions.length} questions`);
           } catch (parseErr) {
-            console.warn('[Groq parse error]', (parseErr as Error).message, 'raw:', groqCleaned.substring(0, 100));
+            console.error(`[Groq] Batch ${bIndex + 1}: Parse error - ${(parseErr as Error).message}`);
+            console.error(`[Groq] Raw response (first 500 chars):`, groqCleaned.substring(0, 500));
           }
+          
           if (rawQuestions.length > 0) {
             parseQuestions(rawQuestions, 'Groq GPT-OSS-20b');
-          } else if (accumulatedQuestions.length > 0) {
-            isPartial = true;
-            partialWarning = `Generated ${accumulatedQuestions.length} of ${count} questions before all providers failed.`;
-            break;
+            console.log(`[Groq] Batch ${bIndex + 1}: ✓ Success (fallback) - ${rawQuestions.length} questions added`);
           } else {
-            res.status(502).json({ error: 'Model output could not be parsed as valid JSON.' });
-            return;
+            const errorMsg = `Both providers failed for batch ${bIndex + 1}: Gemini (${geminiError}), Groq returned 0 questions`;
+            console.error(`[AI] ${errorMsg}`);
+            
+            if (accumulatedQuestions.length > 0) {
+              isPartial = true;
+              partialWarning = `Generated ${accumulatedQuestions.length} of ${count} questions. ${errorMsg}.`;
+              break;
+            } else {
+              res.status(502).json({ 
+                error: `AI generation failed: ${errorMsg}. Please try again or use fewer questions.` 
+              });
+              return;
           }
-        } catch (groqErr) {
+        } catch (groqErr: any) {
+          const groqErrorMsg = groqErr?.message || String(groqErr);
+          console.error(`[Groq] Batch ${bIndex + 1}: API call failed - ${groqErrorMsg}`);
+          
           if (accumulatedQuestions.length > 0) {
             isPartial = true;
-            partialWarning = `Generated ${accumulatedQuestions.length} of ${count} questions before Groq fallback also failed.`;
+            partialWarning = `Generated ${accumulatedQuestions.length} of ${count} questions. Batch ${bIndex + 1} failed: Gemini (${geminiError}), Groq (${groqErrorMsg}).`;
             break;
           } else {
-            throw groqErr;
+            throw new Error(`All AI providers failed: Gemini (${geminiError}), Groq (${groqErrorMsg}). Please try again.`);
           }
         }
       }
 
       // Throttle: 1200ms between batches to stay under free tier 15 RPM limit
       if (bIndex < batches.length - 1) {
+        console.log(`[AI] Batch ${bIndex + 1} complete. Waiting 1200ms before batch ${bIndex + 2}...`);
         await new Promise((resolve) => setTimeout(resolve, 1200));
       }
     }
 
+    console.log(`[AI] ✓ Generation complete: ${accumulatedQuestions.length} questions generated${isPartial ? ' (partial)' : ''}`);
+    
     res.json({
       questions: accumulatedQuestions,
       isPartial,

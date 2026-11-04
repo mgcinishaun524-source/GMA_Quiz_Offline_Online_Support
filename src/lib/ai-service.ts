@@ -60,15 +60,19 @@ export async function generateAIQuestions(
   const data = await res.json().catch(() => ({} as Record<string, unknown>));
 
   if (!res.ok) {
-    throw new Error(
-      (data as { error?: string }).error ||
-        'AI question generation is unavailable. Please contact your administrator.'
-    );
+    const errorMsg = (data as { error?: string }).error || 'AI generation failed';
+    console.error('[AI Service] Generation failed:', errorMsg, 'Status:', res.status);
+    throw new Error(errorMsg);
   }
 
   if (!Array.isArray(data.questions) || data.questions.length === 0) {
-    throw new Error('The AI service returned no questions. Please try again.');
+    console.error('[AI Service] No questions returned. Response:', data);
+    throw new Error(
+      'The AI service returned no questions. This may be due to: (1) Both Gemini and Groq failing, (2) Rate limits, or (3) Invalid API keys. Check browser console for details and try again.'
+    );
   }
+
+  console.log(`[AI Service] ✓ Success: ${data.questions.length} questions received${data.isPartial ? ' (partial)' : ''}`);
 
   return {
     questions: data.questions as GeneratedQuestionItem[],
