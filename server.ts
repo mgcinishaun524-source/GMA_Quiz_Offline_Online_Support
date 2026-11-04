@@ -2890,26 +2890,32 @@ ${
               temperature: 0.7,
               maxOutputTokens: 32768,
               responseSchema: {
-                type: 'array',
-                items: {
-                  type: 'object',
-                  properties: {
-                    type: { type: 'string' },
-                    prompt: { type: 'string' },
-                    options: {
-                      type: 'array',
-                      items: {
-                        type: 'object',
-                        properties: { id: { type: 'string' }, text: { type: 'string' } },
+                type: 'object',
+                properties: {
+                  questions: {
+                    type: 'array',
+                    items: {
+                      type: 'object',
+                      properties: {
+                        type: { type: 'string' },
+                        prompt: { type: 'string' },
+                        options: {
+                          type: 'array',
+                          items: {
+                            type: 'object',
+                            properties: { id: { type: 'string' }, text: { type: 'string' } },
+                          },
+                        },
+                        correctAnswer: { type: 'string' },
+                        marks: { type: 'integer' },
+                        topic: { type: 'string' },
+                        explanation: { type: 'string' },
                       },
+                      required: ['type', 'prompt', 'correctAnswer', 'marks', 'topic'],
                     },
-                    correctAnswer: { type: 'string' },
-                    marks: { type: 'integer' },
-                    topic: { type: 'string' },
-                    explanation: { type: 'string' },
                   },
-                  required: ['type', 'prompt', 'correctAnswer', 'marks', 'topic'],
                 },
+                required: ['questions'],
               },
             },
           };
