@@ -2825,7 +2825,9 @@ For short_answer questions, correctAnswer must be a concise, standard string (e.
       const currentBatchSize = batches[bIndex];
       const existingPrompts = accumulatedQuestions.map((q) => q.prompt);
 
-      const promptText = `Generate ${currentBatchSize} unique curriculum assessment questions for:
+      const promptText = `CRITICAL COUNT REQUIREMENT: You MUST generate EXACTLY ${currentBatchSize} complete question items. Do not stop at 4 or 5.
+
+Generate ${currentBatchSize} unique curriculum assessment questions for:
 Grade: ${grade}
 Subject: ${subject}
 Topics: ${topics.join(', ')}
@@ -2877,75 +2879,59 @@ ${
         }
       };
 
-      // ── Attempt 1: Gemini (primary) — plain fetch, no SDK ───────────────
+      // ── Attempt 1: Gemini (primary) via SDK ─────────────────────────────
       let primarySucceeded = false;
-      if (apiKey && isGeminiConfigured()) {
+      if (ai && isGeminiConfigured()) {
         try {
-          const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${apiKey}`;
-          const geminiPayload = {
-            systemInstruction: { parts: [{ text: systemInstruction }] },
-            contents: [{ role: 'user', parts: [{ text: promptText }] }],
-            generationConfig: {
+          const response = await ai.models.generateContent({
+            model: 'gemini-3.8-flash',
+            contents: promptText,
+            config: {
+              systemInstruction,
               responseMimeType: 'application/json',
+              maxOutputTokens: 8192,
               temperature: 0.7,
-              maxOutputTokens: 32768,
               responseSchema: {
-                type: 'object',
-                properties: {
-                  questions: {
-                    type: 'array',
-                    items: {
-                      type: 'object',
-                      properties: {
-                        type: { type: 'string' },
-                        prompt: { type: 'string' },
-                        options: {
-                          type: 'array',
-                          items: {
-                            type: 'object',
-                            properties: { id: { type: 'string' }, text: { type: 'string' } },
-                          },
-                        },
-                        correctAnswer: { type: 'string' },
-                        marks: { type: 'integer' },
-                        topic: { type: 'string' },
-                        explanation: { type: 'string' },
+                type: Type.ARRAY,
+                items: {
+                  type: Type.OBJECT,
+                  properties: {
+                    type: { type: Type.STRING },
+                    prompt: { type: Type.STRING },
+                    options: {
+                      type: Type.ARRAY,
+                      items: {
+                        type: Type.OBJECT,
+                        properties: { id: { type: Type.STRING }, text: { type: Type.STRING } },
+                        required: ['id', 'text'],
                       },
-                      required: ['type', 'prompt', 'correctAnswer', 'marks', 'topic'],
                     },
+                    correctAnswer: { type: Type.STRING },
+                    marks: { type: Type.INTEGER },
+                    topic: { type: Type.STRING },
+                    explanation: { type: Type.STRING },
                   },
+                  required: ['type', 'prompt', 'correctAnswer', 'marks', 'topic'],
                 },
-                required: ['questions'],
               },
             },
-          };
-          const gRes = await fetch(geminiUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(geminiPayload),
           });
-          if (!gRes.ok) {
-            const errBody = await gRes.json().catch(() => ({}));
-            throw new Error(`Gemini ${gRes.status}: ${errBody?.error?.message || gRes.statusText}`);
-          }
-          const gData = await gRes.json();
-          const rawText = gData?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
-          // Strip any markdown fences if the model added them
-          const stripped = rawText.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim();
+          const outputText = response.text?.trim() || '';
+          const stripped = outputText.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim();
           let rawQuestions: any[] = [];
           try {
             const parsed = JSON.parse(stripped || '[]');
             rawQuestions = Array.isArray(parsed)
               ? parsed
-              : parsed.questions || parsed.items || parsed.data || Object.values(parsed).find((v: any) => Array.isArray(v)) || [];
+              : parsed.questions || parsed.items || Object.values(parsed).find((v: any) => Array.isArray(v)) || [];
           } catch (pe) {
-            console.warn('[Gemini parse fail]', (pe as Error).message, '| text:', stripped.substring(0, 100));
+            console.warn('[Gemini parse fail]', (pe as Error).message);
           }
           if (rawQuestions.length > 0) {
-            parseQuestions(rawQuestions, 'Gemini 2.5 Flash');
+            parseQuestions(rawQuestions, 'Gemini 3.8 Flash');
             primarySucceeded = true;
           } else {
-            console.warn('[Gemini] Parsed 0 questions from text length:', stripped.length);
+            console.warn('[Gemini] Returned 0 questions, text length:', stripped.length);
           }
         } catch (geminiErr) {
           console.warn(`[AI Fallback] Gemini batch ${bIndex + 1} failed: ${(geminiErr as Error)?.message}. Trying Groq.`);
@@ -3004,6 +2990,11 @@ ${
             throw groqErr;
           }
         }
+      }
+
+      // Throttle: 1200ms between batches to stay under free tier 15 RPM limit
+      if (bIndex < batches.length - 1) {
+        await new Promise((resolve) => setTimeout(resolve, 1200));
       }
     }
 
