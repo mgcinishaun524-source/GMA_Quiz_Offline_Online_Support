@@ -3,7 +3,7 @@ import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
-import { GoogleGenAI, Type } from '@google/genai';
+import { GoogleGenerativeAI, SchemaType } from '@google/generative-ai';
 import Groq from 'groq-sdk';
 
 // Load environment variables
@@ -2803,12 +2803,7 @@ app.post('/api/ai/generate-quiz', requireAuth, requireRole(['admin', 'teacher'])
     }
 
     // Gemini client (primary)
-    const ai = isGeminiConfigured()
-      ? new GoogleGenAI({
-          apiKey,
-          httpOptions: { headers: { 'User-Agent': 'aistudio-build' } },
-        })
-      : null;
+    const ai = isGeminiConfigured() && apiKey ? new GoogleGenerativeAI(apiKey) : null;
 
     // Groq client (fallback — free, fast, kicks in if Gemini rate-limits or fails)
     const groqClient = isGroqConfigured() ? new Groq({ apiKey: process.env.GROQ_API_KEY }) : null;
@@ -2879,44 +2874,47 @@ ${
         }
       };
 
-      // ── Attempt 1: Gemini (primary) via SDK ─────────────────────────────
+      // ── Attempt 1: Gemini (primary) via stable SDK ──────────────────────
       let primarySucceeded = false;
       if (ai && isGeminiConfigured()) {
         try {
-          const response = await ai.models.generateContent({
+          const model = ai.getGenerativeModel({
             model: 'gemini-3.8-flash',
-            contents: promptText,
-            config: {
-              systemInstruction,
+            systemInstruction,
+            generationConfig: {
               responseMimeType: 'application/json',
               maxOutputTokens: 8192,
               temperature: 0.7,
               responseSchema: {
-                type: Type.ARRAY,
+                type: SchemaType.ARRAY,
                 items: {
-                  type: Type.OBJECT,
+                  type: SchemaType.OBJECT,
                   properties: {
-                    type: { type: Type.STRING },
-                    prompt: { type: Type.STRING },
+                    type: { type: SchemaType.STRING },
+                    prompt: { type: SchemaType.STRING },
                     options: {
-                      type: Type.ARRAY,
+                      type: SchemaType.ARRAY,
                       items: {
-                        type: Type.OBJECT,
-                        properties: { id: { type: Type.STRING }, text: { type: Type.STRING } },
+                        type: SchemaType.OBJECT,
+                        properties: {
+                          id: { type: SchemaType.STRING },
+                          text: { type: SchemaType.STRING },
+                        },
                         required: ['id', 'text'],
                       },
                     },
-                    correctAnswer: { type: Type.STRING },
-                    marks: { type: Type.INTEGER },
-                    topic: { type: Type.STRING },
-                    explanation: { type: Type.STRING },
+                    correctAnswer: { type: SchemaType.STRING },
+                    marks: { type: SchemaType.INTEGER },
+                    topic: { type: SchemaType.STRING },
+                    explanation: { type: SchemaType.STRING },
                   },
                   required: ['type', 'prompt', 'correctAnswer', 'marks', 'topic'],
                 },
               },
             },
           });
-          const outputText = response.text?.trim() || '';
+          const result = await model.generateContent(promptText);
+          const outputText = result.response.text().trim();
           const stripped = outputText.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim();
           let rawQuestions: any[] = [];
           try {
