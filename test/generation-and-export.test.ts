@@ -14,6 +14,7 @@ process.env.NODE_ENV = 'test';
 process.env.SUPABASE_URL = '';
 process.env.SUPABASE_SERVICE_ROLE_KEY = '';
 process.env.GEMINI_API_KEY = '';
+process.env.GROQ_API_KEY = '';
 process.env.SUPABASE_JWT_SECRET = 'generation-suite-ephemeral-secret-not-a-real-credential';
 
 import { Server } from 'http';

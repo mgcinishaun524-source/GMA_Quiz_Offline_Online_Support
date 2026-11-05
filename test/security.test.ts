@@ -29,6 +29,7 @@ process.env.SUPABASE_URL = '';
 process.env.SUPABASE_SERVICE_ROLE_KEY = '';
 process.env.INITIAL_ADMIN_PASSWORD = '';
 process.env.GEMINI_API_KEY = '';
+process.env.GROQ_API_KEY = '';
 process.env.SUPABASE_JWT_SECRET = 'strict-suite-ephemeral-secret-not-a-real-credential';
 
 import { Server } from 'http';

@@ -7,7 +7,7 @@ import { FormField, InputField, SelectField, TextareaField } from '../../../comp
 import { ConfirmDialog } from '../../../components/ui/ConfirmDialog';
 import { appDataStore } from '../../../services/storage';
 import { quizApiService } from '../../../services/quiz-api';
-import { generateAIQuestions, GeneratedQuestionItem } from '../../../lib/ai-service';
+import { generateAIQuestions, GeneratedQuestionItem, AIProgressInfo } from '../../../lib/ai-service';
 import { Quiz, Question, QuestionType, QuizDifficulty, ReleasePolicy } from '../../../types/quiz';
 import {
   Sparkles,
@@ -84,6 +84,7 @@ export const NewQuizPage: React.FC = () => {
   const [aiGeneratedItems, setAiGeneratedItems] = useState<GeneratedQuestionItem[]>([]);
   const [aiGenCount, setAiGenCount] = useState(5);
   const [aiNotice, setAiNotice] = useState<string | null>(null);
+  const [aiProgress, setAiProgress] = useState<AIProgressInfo | null>(null);
   const [incompleteInfo, setIncompleteInfo] = useState<{ requested: number; generated: number; missing: number } | null>(null);
 
   // Step 5: Publication Settings
@@ -158,13 +159,17 @@ export const NewQuizPage: React.FC = () => {
     setAiNotice(null);
     try {
       const targetCount = Math.min(Math.max(1, aiGenCount || 5), 200);
-      const res = await generateAIQuestions({
-        grade,
-        subject: selectedSubject?.name || 'General',
-        topics: topicsCovered.length > 0 ? topicsCovered : ['Fractions'],
-        difficulty,
-        questionCount: targetCount,
-      });
+      setAiProgress({ completed: 0, total: targetCount, provider: 'Starting…' });
+      const res = await generateAIQuestions(
+        {
+          grade,
+          subject: selectedSubject?.name || 'General',
+          topics: topicsCovered.length > 0 ? topicsCovered : ['Fractions'],
+          difficulty,
+          questionCount: targetCount,
+        },
+        (info) => setAiProgress(info)
+      );
 
       setAiGeneratedItems(res.questions);
       if (res.isPartial) {
@@ -188,6 +193,7 @@ export const NewQuizPage: React.FC = () => {
       setAiNotice(err instanceof Error ? err.message : 'Failed to generate draft questions.');
     } finally {
       setIsGeneratingAI(false);
+      setAiProgress(null);
     }
   };
 
@@ -196,13 +202,17 @@ export const NewQuizPage: React.FC = () => {
     setIsGeneratingAI(true);
     setAiNotice(null);
     try {
-      const res = await generateAIQuestions({
-        grade,
-        subject: selectedSubject?.name || 'General',
-        topics: topicsCovered.length > 0 ? topicsCovered : ['Fractions'],
-        difficulty,
-        questionCount: incompleteInfo.missing,
-      });
+      setAiProgress({ completed: 0, total: incompleteInfo.missing, provider: 'Starting…' });
+      const res = await generateAIQuestions(
+        {
+          grade,
+          subject: selectedSubject?.name || 'General',
+          topics: topicsCovered.length > 0 ? topicsCovered : ['Fractions'],
+          difficulty,
+          questionCount: incompleteInfo.missing,
+        },
+        (info) => setAiProgress(info)
+      );
 
       setAiGeneratedItems((prev) => [...prev, ...res.questions]);
       if (res.isPartial) {
@@ -222,6 +232,7 @@ export const NewQuizPage: React.FC = () => {
       setAiNotice(err instanceof Error ? err.message : 'Failed to generate remaining questions.');
     } finally {
       setIsGeneratingAI(false);
+      setAiProgress(null);
     }
   };
 
@@ -810,7 +821,7 @@ export const NewQuizPage: React.FC = () => {
                     <input
                       type="number"
                       min={1}
-                      max={50}
+                      max={200}
                       value={aiGenCount}
                       onChange={(e) => {
                         const val = parseInt(e.target.value, 10);
@@ -835,12 +846,31 @@ export const NewQuizPage: React.FC = () => {
             </div>
 
             {/* AI generation status */}
-            <div className="mt-4 text-[11px] text-slate-300 flex items-center justify-between">
+            <div className="mt-4 text-[11px] text-slate-300 flex items-center justify-between gap-4">
               <span>
-                Questions are generated live by the Gemini API. If AI generation is unavailable, an explicit error is shown. Every item requires teacher verification.
+                Questions are drafted live from your browser via Gemini, with automatic Groq
+                fallback. If AI generation is unavailable, an explicit error is shown. Every item
+                requires teacher verification.
               </span>
-              <span className="text-[#D6A21E] font-semibold">Ready to generate</span>
+              <span className="text-[#D6A21E] font-semibold whitespace-nowrap">
+                {isGeneratingAI && aiProgress
+                  ? `Generating ${aiProgress.completed}/${aiProgress.total} • ${aiProgress.provider}`
+                  : 'Ready to generate'}
+              </span>
             </div>
+            {isGeneratingAI && aiProgress && (
+              <div className="mt-2 h-1.5 w-full bg-[#0F172A] border border-white/10 overflow-hidden">
+                <div
+                  className="h-full bg-[#D6A21E] transition-all duration-300"
+                  style={{
+                    width: `${Math.min(
+                      100,
+                      Math.round((aiProgress.completed / aiProgress.total) * 100)
+                    )}%`,
+                  }}
+                />
+              </div>
+            )}
           </div>
 
           {aiNotice && (
