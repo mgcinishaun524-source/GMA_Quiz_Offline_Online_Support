@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../app/AuthContext';
 import { FormField, InputField } from '../../components/ui/FormControls';
 import { PrimaryButton } from '../../components/ui/Buttons';
+import { GmaLogo } from '../../components/brand/GmaLogo';
 import { Eye, EyeOff } from 'lucide-react';
 
 export const LoginPage: React.FC = () => {
@@ -52,14 +53,10 @@ export const LoginPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#F7F7F4] flex flex-col justify-center items-center py-12 px-4 sm:px-6">
       {/* Brand */}
-      <div className="text-center mb-8">
-        <img
-          src="/assets/Logo.png"
-          alt="Growing Minds Academy"
-          className="h-32 sm:h-40 w-auto mx-auto mb-4 drop-shadow-lg"
-        />
+      <div className="text-center mb-6">
+        <GmaLogo size={150} animated className="mx-auto drop-shadow-[0_14px_32px_rgba(214,162,30,0.28)]" />
         <p className="text-xs font-semibold text-[#D6A21E] tracking-widest uppercase mt-1">
-          AI-Powered Quiz & Learning Analytics
+          AI-Powered Quiz &amp; Learning Analytics
         </p>
       </div>
 

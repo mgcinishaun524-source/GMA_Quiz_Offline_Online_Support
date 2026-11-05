@@ -3,6 +3,7 @@ import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../app/AuthContext';
 import { directoryApiService } from '../../services/directory-api';
 import { NetworkSimulatorBar } from '../feedback/NetworkSimulatorBar';
+import { GmaLogo } from '../brand/GmaLogo';
 import {
   LayoutDashboard,
   Users,
@@ -97,31 +98,13 @@ export const AppShell: React.FC = () => {
 
               {/* Brand */}
               <div className="flex items-center gap-3 shrink-0">
-                <img
-                  src="/assets/Logo.png"
-                  alt="Growing Minds Academy"
-                  className="h-8 w-auto object-contain"
-                  onError={(e) => {
-                    const el = e.currentTarget;
-                    el.style.display = 'none';
-                    const fallback = el.nextElementSibling as HTMLElement | null;
-                    if (fallback) fallback.style.display = 'flex';
-                  }}
-                />
-                {/* Fallback text badge if logo fails to load */}
-                <div
-                  className="w-9 h-9 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center text-[#D6A21E] font-black text-[10px] tracking-tight shadow-inner"
-                  style={{ display: 'none' }}
-                  aria-hidden="true"
-                >
-                  GMA
-                </div>
+                <GmaLogo size={36} className="shrink-0" />
                 <div>
                   <span className="text-sm font-extrabold tracking-tight text-white leading-tight block">
                     Growing Minds Academy
                   </span>
                   <span className="text-[9px] font-bold text-[#D6A21E]/80 tracking-[0.2em] uppercase leading-none">
-                    AI Quiz & Analytics
+                    AI Quiz &amp; Analytics
                   </span>
                 </div>
               </div>
