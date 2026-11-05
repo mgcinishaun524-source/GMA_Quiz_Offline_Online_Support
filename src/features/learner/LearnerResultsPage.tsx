@@ -19,14 +19,14 @@ export const LearnerResultsPage: React.FC = () => {
     return appDataStore.subscribe(() => {
       setQuizzes(appDataStore.getQuizzes());
       if (user?.learnerId) {
-        setSubmissions(appDataStore.getSubmissionsByLearner(user.learnerId));
+        setSubmissions(appDataStore.getSubmissionsByLearner(user.learnerId, user.id));
       }
     });
   }, [user]);
 
   useEffect(() => {
     if (user?.learnerId) {
-      setSubmissions(appDataStore.getSubmissionsByLearner(user.learnerId));
+      setSubmissions(appDataStore.getSubmissionsByLearner(user.learnerId, user.id));
     }
   }, [user]);
 

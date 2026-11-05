@@ -311,7 +311,7 @@ export const quizApiService = {
     }
     const user = authService.getCurrentUser();
     if (user?.learnerId) {
-      return appDataStore.getSubmissionsByLearner(user.learnerId);
+      return appDataStore.getSubmissionsByLearner(user.learnerId, user.id);
     }
     return [];
   },

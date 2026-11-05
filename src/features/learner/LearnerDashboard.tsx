@@ -39,12 +39,12 @@ export const LearnerDashboard: React.FC = () => {
     const unsubStore = appDataStore.subscribe(() => {
       setQuizzes(appDataStore.getQuizzes());
       if (user?.learnerId) {
-        setSubmissions(appDataStore.getSubmissionsByLearner(user.learnerId));
+        setSubmissions(appDataStore.getSubmissionsByLearner(user.learnerId, user.id));
       }
     });
 
     if (user?.learnerId) {
-      setSubmissions(appDataStore.getSubmissionsByLearner(user.learnerId));
+      setSubmissions(appDataStore.getSubmissionsByLearner(user.learnerId, user.id));
     }
 
     return () => {

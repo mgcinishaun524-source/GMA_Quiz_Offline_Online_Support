@@ -364,8 +364,16 @@ class DataStore {
     return this.submissions.filter((s) => s.quizId === quizId);
   }
 
-  public getSubmissionsByLearner(learnerId: string): Submission[] {
-    return this.submissions.filter((s) => s.learnerId === learnerId);
+  /**
+   * Returns the submissions that belong to a learner, matched against any of the
+   * supplied identifiers. Learner records are keyed inconsistently across the app:
+   * the server stores the learner UUID (`req.user.id`) while offline/IndexedDB
+   * flows use the student number. Callers pass both so a match can never be missed.
+   */
+  public getSubmissionsByLearner(...learnerIds: (string | undefined | null)[]): Submission[] {
+    const ids = new Set(learnerIds.filter((id): id is string => Boolean(id)));
+    if (ids.size === 0) return [];
+    return this.submissions.filter((s) => ids.has(s.learnerId));
   }
 
   public saveSubmission(submission: Submission): Submission {

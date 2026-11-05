@@ -2777,7 +2777,26 @@ app.post('/api/submissions/sync', requireAuth, async (req: Request, res: Respons
     );
 
     syncedCount++;
-    results.push({ id, status: 'synced', isDuplicate: false, submissionId: saved.id });
+    // Return the server-authoritative submission so the client store mirrors the
+    // server exactly. Marks stay withheld from learners until the teacher releases
+    // results — the tablet never receives correct answers.
+    const responseSubmission =
+      req.user?.role === 'learner' && !isAutoRelease
+        ? {
+            ...saved,
+            score: 0,
+            percentage: 0,
+            teacherFeedback: 'Assessment recorded. Marks will be released by your class teacher.',
+            answers: {},
+          }
+        : saved;
+    results.push({
+      id,
+      status: 'synced',
+      isDuplicate: false,
+      submissionId: saved.id,
+      submission: responseSubmission,
+    });
   }
 
   await logAuditEvent({

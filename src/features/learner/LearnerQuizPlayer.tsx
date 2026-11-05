@@ -203,12 +203,16 @@ export const LearnerQuizPlayer: React.FC = () => {
     };
 
     if (isOnline) {
-      // Direct live submission to local store & backend API
-      appDataStore.saveSubmission(submissionRecord);
+      // Server-authoritative marking: the backend computes the score against the
+      // author answer key and returns the authoritative submission (with marks
+      // withheld until the teacher releases results). The learner device never
+      // holds the answer key, so a locally-computed score would always be a
+      // fabricated 0% — we must never persist one.
       try {
         await quizApiService.submitQuiz(quiz.id, answers, clientHash, false);
       } catch (err) {
-        console.warn('[Server Live Submission Sync]', err);
+        console.warn('[Server Live Submission Sync] Falling back to offline queue.', err);
+        await queueOfflineSubmission(submissionRecord);
       }
     } else {
       // Durable IndexedDB Queue for Offline Sync!

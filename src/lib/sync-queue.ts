@@ -9,6 +9,7 @@ import {
 } from './offline-db';
 import { networkManager } from './network';
 import { appDataStore } from '../services/storage';
+import { Submission } from '../types/submission';
 
 export interface SyncState {
   isSyncing: boolean;
@@ -135,17 +136,12 @@ class SyncQueueService {
           throw new Error(itemResult.reason || 'Server rejected queued submission');
         }
 
-        // Sync with central store upon verified server recording:
-        const updatedSubmission = {
-          ...item.submission,
-          status: 'marked' as const,
-          syncStatus: 'synced' as const,
-          syncedAt: new Date().toISOString(),
-          isOfflineSubmission: true,
-        };
-
-        // Persist to central client/server store
-        appDataStore.saveSubmission(updatedSubmission);
+        // Persist the server-authoritative submission (server-side marking, with
+        // marks withheld until the teacher releases results). The tablet has no
+        // answer key, so any locally-computed score would be a fabricated 0%.
+        if (itemResult?.submission) {
+          appDataStore.saveSubmission(itemResult.submission as Submission);
+        }
 
         // Mark as synced in local queue and clean up from IndexedDB
         await updateQueueItemStatus(item.id, 'synced');
