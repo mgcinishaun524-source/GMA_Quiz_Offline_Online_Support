@@ -80,7 +80,11 @@ export class DatabaseAdapter {
   // QUIZZES
   // ==========================================================================
 
-  public async getQuizzes(schoolId = '00000000-0000-0000-0000-000000000001'): Promise<Quiz[]> {
+  public async getQuizzes(
+    schoolId = '00000000-0000-0000-0000-000000000001',
+    teacherId?: string,
+    assignedClassIds?: string[]
+  ): Promise<Quiz[]> {
     this.assertPersistence();
 
     const supabase = getSupabaseAdmin();
@@ -88,15 +92,25 @@ export class DatabaseAdapter {
       throw new Error('Supabase client is not available in production mode.');
     }
 
-    const { data: quizRows, error: quizError } = await supabase
+    let query = supabase
       .from('quizzes')
       .select(`
         *,
         subjects:subject_id(id, name),
         classes:class_id(id, name)
       `)
-      .eq('school_id', schoolId)
-      .order('created_at', { ascending: false });
+      .eq('school_id', schoolId);
+
+    // Data isolation for teachers: only see their own quizzes or those assigned to their classes
+    if (teacherId) {
+      if (assignedClassIds && assignedClassIds.length > 0) {
+        query = query.or(`author_id.eq.${teacherId},class_id.in.(${assignedClassIds.map(id => `"${id}"`).join(',')})`);
+      } else {
+        query = query.eq('author_id', teacherId);
+      }
+    }
+
+    const { data: quizRows, error: quizError } = await query.order('created_at', { ascending: false });
 
     if (quizError) {
       throw new Error(`Database error fetching quizzes: ${quizError.message}`);
@@ -382,7 +396,11 @@ export class DatabaseAdapter {
   // SUBMISSIONS
   // ==========================================================================
 
-  public async getSubmissions(schoolId = '00000000-0000-0000-0000-000000000001'): Promise<Submission[]> {
+  public async getSubmissions(
+    schoolId = '00000000-0000-0000-0000-000000000001',
+    teacherId?: string,
+    assignedClassIds?: string[]
+  ): Promise<Submission[]> {
     this.assertPersistence();
 
     const supabase = getSupabaseAdmin();
@@ -390,15 +408,37 @@ export class DatabaseAdapter {
       throw new Error('Supabase client is not available in production mode.');
     }
 
-    const { data: rows, error } = await supabase
+    let query = supabase
       .from('submissions')
       .select(`
         *,
-        quizzes:quiz_id(id, title, subjects:subject_id(name)),
+        quizzes:quiz_id(id, title, author_id, subjects:subject_id(name)),
         learners:learner_id(id, student_number, first_name, last_name, class_memberships(classes(id, name))),
         submission_answers(*)
-      `)
-      .order('submitted_at', { ascending: false });
+      `);
+
+    // Data isolation for teachers: only see submissions for their quizzes or their classes
+    if (teacherId) {
+      // This is more complex because it depends on the quiz author or learner class.
+      // We'll fetch and filter in memory if RLS is bypassed, or better, use a join-like filter if possible.
+      // Since we are using service role, we filter explicitly.
+      const { data: rows, error } = await query.order('submitted_at', { ascending: false });
+      
+      if (error) {
+        throw new Error(`Database error fetching submissions: ${error.message}`);
+      }
+
+      return (rows || [])
+        .map((r) => this.mapSubmissionRowToModel(r))
+        .filter((s) => {
+          const quiz = (rows as any[]).find(r => r.id === s.id)?.quizzes;
+          const isAuthor = quiz?.author_id === teacherId;
+          const isInAssignedClass = s.classId && assignedClassIds?.includes(s.classId);
+          return isAuthor || isInAssignedClass;
+        });
+    }
+
+    const { data: rows, error } = await query.order('submitted_at', { ascending: false });
 
     if (error) {
       throw new Error(`Database error fetching submissions: ${error.message}`);

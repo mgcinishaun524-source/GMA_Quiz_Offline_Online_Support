@@ -437,12 +437,42 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
           return;
         }
 
+        // For teachers, fetch their assigned classes and subjects to enable data isolation
+        let assignedClasses: string[] = [];
+        let assignedSubjects: string[] = [];
+
+        if (profile.role === 'teacher') {
+          const { data: assignments } = await supabase
+            .from('teacher_assignments')
+            .select('class_id, subject_id')
+            .eq('teacher_id', user.id);
+
+          if (assignments) {
+            assignedClasses = Array.from(new Set(assignments.map((a) => a.class_id)));
+            assignedSubjects = Array.from(new Set(assignments.map((a) => a.subject_id)));
+          }
+
+          // Also include classes where they are the form teacher
+          const { data: formClasses } = await supabase
+            .from('classes')
+            .select('id')
+            .eq('form_teacher_id', user.id);
+
+          if (formClasses) {
+            formClasses.forEach((c) => {
+              if (!assignedClasses.includes(c.id)) assignedClasses.push(c.id);
+            });
+          }
+        }
+
         req.user = {
           id: user.id,
           role: profile.role,
           email: user.email,
           name: profile.full_name,
           schoolId: profile.school_id,
+          assignedClasses,
+          assignedSubjects,
         };
         next();
         return;

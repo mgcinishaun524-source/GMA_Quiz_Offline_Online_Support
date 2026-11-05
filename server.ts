@@ -541,11 +541,27 @@ app.get('/api/learners', requireAuth, requireRole(['admin', 'teacher']), async (
   const supabase = getSupabaseAdmin();
 
   if (supabase) {
-    const { data, error } = await supabase
+    let query = supabase
       .from('learners')
       .select(LEARNER_SELECT)
-      .eq('school_id', schoolId)
-      .order('student_number', { ascending: true });
+      .eq('school_id', schoolId);
+
+    // Data isolation for teachers: only see learners in their assigned classes
+    if (req.user?.role === 'teacher') {
+      const assignedIds = req.user.assignedClasses || [];
+      if (assignedIds.length > 0) {
+        // We filter through class_memberships. Note that LEARNER_SELECT includes class_memberships
+        // But we need to filter the top-level learners query.
+        // In Supabase, filtering by a joined table property uses 'joined_table.property'
+        query = query.filter('class_memberships.class_id', 'in', `(${assignedIds.map(id => `"${id}"`).join(',')})`);
+      } else {
+        // No assigned classes: see no learners
+        res.json({ learners: [], persisted: true });
+        return;
+      }
+    }
+
+    const { data, error } = await query.order('student_number', { ascending: true });
 
     if (error) {
       res.status(500).json({ error: `Failed to load learners: ${error.message}` });
@@ -1116,19 +1132,45 @@ app.get('/api/classes', requireAuth, requireRole(['admin', 'teacher']), async (r
   let classRows: any[] | null = null;
   let error: { code?: string; message?: string } | null = null;
 
-  ({ data: classRows, error } = await supabase
+  let query = supabase
     .from('classes')
     .select(`${CLASS_BASE_COLUMNS}, subject_ids`)
-    .eq('school_id', schoolId)
-    .order('name', { ascending: true }));
+    .eq('school_id', schoolId);
+
+  // Data isolation: Teachers only see their assigned classes or classes where they are form teacher.
+  // Admins see all classes in the school.
+  if (req.user?.role === 'teacher') {
+    const teacherId = req.user.id;
+    const assignedIds = req.user.assignedClasses || [];
+    
+    // Filter classes where teacher is form teacher OR class is in their assigned list
+    if (assignedIds.length > 0) {
+      query = query.or(`form_teacher_id.eq.${teacherId},id.in.(${assignedIds.map(id => `"${id}"`).join(',')})`);
+    } else {
+      query = query.eq('form_teacher_id', teacherId);
+    }
+  }
+
+  ({ data: classRows, error } = await query.order('name', { ascending: true }));
 
   // Tolerate the association column not being present yet.
   if (error && isMissingSchemaError(error)) {
-    ({ data: classRows, error } = await supabase
+    let fallbackQuery = supabase
       .from('classes')
       .select(CLASS_BASE_COLUMNS)
-      .eq('school_id', schoolId)
-      .order('name', { ascending: true }));
+      .eq('school_id', schoolId);
+
+    if (req.user?.role === 'teacher') {
+      const teacherId = req.user.id;
+      const assignedIds = req.user.assignedClasses || [];
+      if (assignedIds.length > 0) {
+        fallbackQuery = fallbackQuery.or(`form_teacher_id.eq.${teacherId},id.in.(${assignedIds.map(id => `"${id}"`).join(',')})`);
+      } else {
+        fallbackQuery = fallbackQuery.eq('form_teacher_id', teacherId);
+      }
+    }
+    
+    ({ data: classRows, error } = await fallbackQuery.order('name', { ascending: true }));
   }
 
   if (error) {
@@ -1639,7 +1681,11 @@ app.get('/api/quizzes', requireAuth, async (req: Request, res: Response): Promis
     return;
   }
 
-  const allQuizzes = await databaseAdapter.getQuizzes(req.user?.schoolId);
+  const schoolId = req.user?.schoolId || DEFAULT_SCHOOL_ID;
+  const teacherId = req.user?.role === 'teacher' ? req.user.id : undefined;
+  const assignedClasses = req.user?.role === 'teacher' ? req.user.assignedClasses : undefined;
+
+  const allQuizzes = await databaseAdapter.getQuizzes(schoolId, teacherId, assignedClasses);
 
   // If requester is a learner:
   // 1. Filter only published, open, or results_released quizzes (never draft or archived)
@@ -1688,6 +1734,17 @@ app.get('/api/quizzes/:id', requireAuth, async (req: Request, res: Response): Pr
   if (!isAuthorizedSchool(quiz.schoolId, req.user?.schoolId)) {
     res.status(403).json({ error: 'Access denied: assessment belongs to a different school.' });
     return;
+  }
+
+  // Teacher privacy boundary check
+  if (req.user?.role === 'teacher') {
+    const isAuthor = quiz.authorId === req.user.id;
+    const isAssignedToClass = quiz.classId && req.user.assignedClasses?.includes(quiz.classId);
+    
+    if (!isAuthor && !isAssignedToClass) {
+      res.status(403).json({ error: 'Access denied: you are not authorized to view this assessment.' });
+      return;
+    }
   }
 
   // Learner access enforcement
