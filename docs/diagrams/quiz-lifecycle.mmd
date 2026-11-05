@@ -1,0 +1,39 @@
+%%{init: {'theme':'base'}}%%
+%% Growing Minds Academy AI Quiz System — Quiz & Submission Lifecycle
+%% Quiz status CHECK: draft | published | in_progress | closed | results_released
+%% Source: supabase/migrations/20261020000001_initial_schema.sql (CHECK),
+%%         server.ts publish / close / release-results endpoints, databaseAdapter.updateQuizStatus()
+stateDiagram-v2
+    direction LR
+
+    state "Quiz lifecycle (quizzes.status)" as QL {
+        [*] --> draft : teacher/admin creates quiz
+        draft --> published : saved with status='published'
+        published --> in_progress : POST /api/quizzes/:id/publish
+        draft --> in_progress : POST /api/quizzes/:id/publish<br/>(validates cohort + questions)
+        in_progress --> closed : POST /api/quizzes/:id/close
+        published --> closed : POST /api/quizzes/:id/close
+        closed --> results_released : POST /api/quizzes/:id/release-results
+        in_progress --> results_released : POST /api/quizzes/:id/release-results
+    }
+
+    state "Submission lifecycle (submissions.status)" as SL {
+        [*] --> submitted : POST /api/submissions or /api/submissions/sync<br/>(release_policy = manual)
+        [*] --> marked : submit when release_policy = automatic<br/>OR quiz.status = results_released
+        submitted --> pending_sync : offline attempt queued (sync_status)
+        pending_sync --> synced : /api/submissions/sync succeeds
+        synced --> marked : release-results marks all submissions
+        submitted --> marked : release-results marks all submissions
+    }
+
+    note right of QL
+        publish sets in_progress (server-authoritative).
+        "published" remains a valid persisted state.
+        draft and closed reject new submissions.
+    end note
+
+    note right of SL
+        Marking is always server-side against questions.correct_answer.
+        Learner responses withhold score/percentage and answers until released.
+        saveSubmission() is monotonic: retries never revert "marked".
+    end note

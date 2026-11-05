@@ -1,0 +1,49 @@
+%%{init: {'theme':'base'}}%%
+%% Growing Minds Academy AI Quiz System — Deployment Architecture
+%% Source: vercel.json, package.json, DEPLOYMENT.md, server.ts (VERCEL guard), api/index.ts
+flowchart TB
+    subgraph Users["Users"]
+        T["Teacher / Admin browser"]
+        L["Learner tablet browser"]
+    end
+
+    subgraph Vercel["Vercel Project"]
+        direction TB
+        Static["Static SPA<br/>outputDirectory: dist<br/>(Vite build: index.html + assets)"]
+        Rewrite["Rewrite:<br/>/api/:path* → /api/index"]
+        Fn["Serverless Function<br/>api/index.ts<br/>memory 1024 MB · maxDuration 30 s<br/>re-exports Express app (server.ts)"]
+    end
+
+    subgraph SupabaseCloud["Supabase (managed)"]
+        PG[("PostgreSQL<br/>public schema<br/>14 tables + view<br/>RLS enabled")]
+        Auth["Supabase Auth<br/>auth.users"]
+    end
+
+    subgraph AIProviders["AI Providers (browser-direct)"]
+        Gemini["Google Gemini API"]
+        Groq["Groq API (fallback)"]
+    end
+
+    Env["Environment variables (Vercel project settings)<br/>server-only: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY,<br/>SUPABASE_JWT_SECRET, GEMINI_API_KEY, GROQ_API_KEY, INITIAL_ADMIN_PASSWORD<br/>build-time (VITE_): VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY"]
+
+    T -->|"HTTPS: SPA routes"| Static
+    L -->|"HTTPS: SPA routes"| Static
+    T -->|"HTTPS /api/*"| Rewrite
+    L -->|"HTTPS /api/*"| Rewrite
+    Rewrite --> Fn
+
+    Fn -->|"service-role key (bypasses RLS)"| PG
+    Fn -->|"getUser / signInWithPassword"| Auth
+    PG --- Auth
+
+    Static -->|"GET /api/ai/client-config<br/>(authenticated, returns provider keys)"| Rewrite
+    Static -->|"direct chunked generate (< 30 s per chunk)"| Gemini
+    Static -->|"direct generate fallback"| Groq
+    Fn -->|"/api/ai/generate-quiz server fallback"| Gemini
+    Fn --> Groq
+
+    Env -.-> Fn
+    Env -.->|"VITE_ vars inlined at build"| Static
+
+    Note["No local server fallback: if Supabase is unconfigured the API returns 503.<br/>app.listen() is guarded by VERCEL != '1' so no port binds on Vercel."]
+    Fn -.-> Note

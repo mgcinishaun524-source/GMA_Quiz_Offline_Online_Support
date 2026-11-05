@@ -1,0 +1,63 @@
+%%{init: {'theme':'base'}}%%
+%% Growing Minds Academy AI Quiz System — System Architecture
+%% Source of truth: server.ts, api/index.ts, server/db/*, src/lib/*, vercel.json
+flowchart TB
+    subgraph Client["Browser (SPA — React 19 + Vite)"]
+        UI["React Pages / Router<br/>src/app/router.tsx, src/features/*"]
+        AuthCtx["AuthContext<br/>src/app/AuthContext.tsx"]
+        AuthSvc["authService<br/>src/services/auth-service.ts"]
+        AISvc["AI Service (browser-direct)<br/>src/lib/ai-service.ts"]
+        NetMgr["Network Manager<br/>src/lib/network.ts"]
+        SyncQ["Sync Queue<br/>src/lib/sync-queue.ts"]
+        IDB[("IndexedDB GMA_Offline_DB<br/>src/lib/offline-db.ts<br/>cached_quizzes · active_answers · submission_queue · sync_logs")]
+        SW["Service Worker<br/>public/sw.js"]
+        Storage["appDataStore<br/>src/services/storage.ts"]
+    end
+
+    subgraph Vercel["Vercel"]
+        Rewrite["Rewrite /api/:path* → /api/index<br/>vercel.json"]
+        Fn["Serverless Function<br/>api/index.ts (exports Express app)"]
+    end
+
+    subgraph Backend["Express Backend (server.ts)"]
+        Routes["REST routes<br/>/api/auth · /api/learners · /api/classes · /api/subjects<br/>/api/quizzes · /api/submissions · /api/ai"]
+        AuthMw["Auth middleware<br/>server/auth.ts (requireAuth, requireRole, JWT, bcrypt)"]
+        Adapter["DatabaseAdapter<br/>server/db/databaseAdapter.ts"]
+        DbClient["Supabase admin client (service role)<br/>server/db.ts getSupabaseAdmin()"]
+    end
+
+    subgraph Supabase["Supabase (managed)"]
+        Pg[("PostgreSQL — public schema<br/>14 tables + learner_active_quiz_questions view<br/>RLS enabled")]
+        SbAuth["Supabase Auth<br/>auth.users"]
+    end
+
+    Gemini["Google Gemini API<br/>@google/genai"]
+    Groq["Groq API<br/>groq-sdk"]
+
+    UI --> AuthCtx
+    AuthCtx --> AuthSvc
+    AuthSvc -->|"POST /api/auth/*"| Rewrite
+    UI --> AISvc
+    UI --> NetMgr
+    NetMgr --> SyncQ
+    SyncQ --> IDB
+    UI --> IDB
+    UI --> Storage
+    SW -.->|"offline asset cache"| UI
+
+    Rewrite --> Fn --> Routes
+    Routes --> AuthMw
+    Routes --> Adapter
+    Routes --> DbClient
+    Adapter --> DbClient
+    DbClient -->|"service-role key (bypasses RLS)"| Pg
+    DbClient -->|"getUser / signInWithPassword"| SbAuth
+    Pg --- SbAuth
+
+    AISvc -->|"GET /api/ai/client-config (keys)"| Rewrite
+    AISvc -->|"direct generate (chunked < 30s)"| Gemini
+    AISvc -->|"fallback generate"| Groq
+    Routes -->|"/api/ai/generate-quiz fallback"| Gemini
+    Routes --> Groq
+
+    SyncQ -->|"POST /api/submissions/sync"| Rewrite

@@ -1,0 +1,40 @@
+%%{init: {'theme':'base'}}%%
+%% Growing Minds Academy AI Quiz System — Data Flow (request + offline paths)
+%% Online path: SPA → Vercel /api/index → Express server.ts → Supabase
+%% Offline path: SPA ↔ IndexedDB GMA_Offline_DB ↔ sync queue → /api/submissions/sync
+flowchart LR
+    subgraph Online["ONLINE REQUEST FLOW"]
+        direction LR
+        B1["Browser SPA<br/>fetch('/api/...') + Bearer token"]
+        V1["Vercel rewrite<br/>/api/:path* → /api/index"]
+        S1["Express server.ts<br/>route + requireAuth/requireRole"]
+        D1["databaseAdapter<br/>row ⇄ model mapping"]
+        P1[("Supabase PostgreSQL<br/>RLS / service role")]
+        B1 --> V1 --> S1 --> D1 --> P1
+        P1 --> D1 --> S1 -->|"JSON response"| V1 --> B1
+    end
+
+    subgraph Offline["OFFLINE PATH (learner tablet, no network)"]
+        direction LR
+        L1["LearnerQuizPlayer<br/>src/features/learner/LearnerQuizPlayer.tsx"]
+        L2["cacheQuizOffline()<br/>read cached quiz"]
+        L3["saveActiveAnswers()<br/>in-progress answers"]
+        L4["queueOfflineSubmission()<br/>submission_queue"]
+        L5[("IndexedDB GMA_Offline_DB")]
+        L6["SyncQueueService<br/>processQueue() on reconnect / 25 s poll"]
+        L7["POST /api/submissions/sync<br/>Authorization: Bearer token"]
+        L8["Express /api/submissions/sync<br/>idempotent by client_submission_hash<br/>server-side marking"]
+        P2[("Supabase PostgreSQL")]
+
+        L1 --> L2 --> L5
+        L1 --> L3 --> L5
+        L1 --> L4 --> L5
+        L5 --> L6 --> L7 --> L8 --> P2
+        L8 -->|"server-authoritative submission (marks withheld pre-release)"| L6
+        L6 -->|"updateQueueItemStatus(synced) + removeQueueItem"| L5
+        L6 -->|"appDataStore.saveSubmission()"| L1
+    end
+
+    N1["networkManager.isOnline()"]
+    N1 -.->|"triggers"| L6
+    L2 -.->|"if offline: fall back to cached_quizzes"| B1

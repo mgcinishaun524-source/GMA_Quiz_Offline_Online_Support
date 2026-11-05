@@ -1,0 +1,753 @@
+{
+  "info": {
+    "_postman_id": "b7f1c2a4-0d3e-4f5b-9a6c-growingminds01",
+    "name": "Growing Minds Academy API",
+    "description": "REST API for the Growing Minds Academy assessment platform (Express backend in server.ts / api/index.ts).\n\nAuthentication: staff sign in via POST /api/auth/staff-login (Supabase JWT); learners via POST /api/auth/learner-login (locally-signed JWT). Send the returned token as a Bearer token via the {{authToken}} collection variable.\n\nEvery data route fails closed with 503 when Supabase is not configured.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      { "key": "token", "value": "{{authToken}}", "type": "string" }
+    ]
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000", "type": "string" },
+    { "key": "authToken", "value": "", "type": "string" },
+    { "key": "adminToken", "value": "", "type": "string" },
+    { "key": "learnerToken", "value": "", "type": "string" },
+    { "key": "quizId", "value": "quiz-1730000000000-ab12", "type": "string" },
+    { "key": "learnerId", "value": "GMA-2026-0301", "type": "string" },
+    { "key": "submissionId", "value": "sub-1730000000001-xy99", "type": "string" },
+    { "key": "teacherId", "value": "30000000-0000-0000-0000-0000000000aa", "type": "string" },
+    { "key": "classId", "value": "cls-3a", "type": "string" },
+    { "key": "subjectId", "value": "subj-math", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "GET Health",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "health"]
+            },
+            "description": "Public liveness and configuration probe. Reports geminiConfigured, groqConfigured, aiConfigured, supabaseConfigured and authMode ('supabase' or 'strict-production')."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "POST Staff Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const data = pm.response.json();",
+                  "if (data && data.token) { pm.collectionVariables.set('authToken', data.token); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"darksyntax\",\n  \"password\": \"<admin-password>\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/staff-login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "staff-login"]
+            },
+            "description": "Admin/teacher sign-in by email or username. Returns a Supabase JWT. Rate limited (20/60s per IP); account locks for 15 minutes after 5 failed attempts. Returns 503 when Supabase is not configured."
+          },
+          "response": []
+        },
+        {
+          "name": "POST Learner Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const data = pm.response.json();",
+                  "if (data && data.token) { pm.collectionVariables.set('learnerToken', data.token); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"studentNumber\": \"GMA-2026-0301\",\n  \"pin\": \"0000\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/learner-login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "learner-login"]
+            },
+            "description": "Learner sign-in with student number and 4-digit PIN. Returns a locally-signed JWT (12h). Rate limited (10/60s per IP); account locks for 15 minutes after 5 failed attempts."
+          },
+          "response": []
+        },
+        {
+          "name": "GET Current User",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{authToken}}", "type": "string" }] },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "me"]
+            },
+            "description": "Returns the authenticated principal ({ id, role, email?, studentNumber?, name?, schoolId?, classId?, grade?, assignedClasses?, assignedSubjects? }). Requires a Bearer token."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Staff / Directory",
+      "item": [
+        {
+          "name": "POST Create Staff (Admin)",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{adminToken}}", "type": "string" }] },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"new.teacher@gma.edu\",\n  \"password\": \"<teacher-password>\",\n  \"name\": \"Jane Dlamini\",\n  \"role\": \"teacher\",\n  \"assignedClasses\": [],\n  \"assignedSubjects\": []\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/staff",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "staff"]
+            },
+            "description": "Admin-only staff provisioning. Email must contain '@', name non-empty, password >= 8 chars, role 'teacher' or 'admin'. 201 on success."
+          },
+          "response": []
+        },
+        {
+          "name": "GET Learners",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{authToken}}", "type": "string" }] },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/learners",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "learners"]
+            },
+            "description": "List learner directory (admin) or class-scoped learners (teacher). Returns { learners: Learner[], persisted: true }. PINs are never returned."
+          },
+          "response": []
+        },
+        {
+          "name": "POST Create Learner (Admin)",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{adminToken}}", "type": "string" }] },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Lerato\",\n  \"lastName\": \"Mokoena\",\n  \"grade\": \"Grade 4\",\n  \"classId\": \"cls-4a\",\n  \"pin\": \"1234\",\n  \"guardianContact\": \"+27 82 111 2222\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/learners",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "learners"]
+            },
+            "description": "Admin-only learner enrolment. firstName/lastName required; pin must be exactly 4 digits. Student number is auto-generated. 201 on success."
+          },
+          "response": []
+        },
+        {
+          "name": "PUT Update Learner (Admin)",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{adminToken}}", "type": "string" }] },
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Lerato\",\n  \"lastName\": \"Mokoena\",\n  \"classId\": \"cls-4a\",\n  \"isActive\": true\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/learners/{{learnerId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "learners", "{{learnerId}}"]
+            },
+            "description": "Admin-only learner update. :id is the student number. Optional: firstName, lastName, grade, classId, className, pin (4 digits, resets lockout), guardianContact, isActive. 404 when not found."
+          },
+          "response": []
+        },
+        {
+          "name": "DELETE Delete Learner (Admin)",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{adminToken}}", "type": "string" }] },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/learners/{{learnerId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "learners", "{{learnerId}}"]
+            },
+            "description": "Admin-only learner deletion by student number. Returns 409 if the learner has linked submissions (deactivate instead)."
+          },
+          "response": []
+        },
+        {
+          "name": "GET Subjects",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{authToken}}", "type": "string" }] },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/subjects",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "subjects"]
+            },
+            "description": "List subjects for the school. Returns { subjects: Subject[], persisted: true }."
+          },
+          "response": []
+        },
+        {
+          "name": "POST Create Subject (Admin)",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{adminToken}}", "type": "string" }] },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Integrated Science\",\n  \"code\": \"SCI-PRI\",\n  \"topicCount\": 12,\n  \"gradeLevels\": [\"Grade 3\", \"Grade 4\"],\n  \"description\": \"Primary science\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/subjects",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "subjects"]
+            },
+            "description": "Admin-only subject creation. name and code required; code upper-cased and unique per school (409 on duplicate). 201 on success."
+          },
+          "response": []
+        },
+        {
+          "name": "PUT Update Subject (Admin)",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{adminToken}}", "type": "string" }] },
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Mathematics\",\n  \"code\": \"MATH-PRI\",\n  \"topicCount\": 10,\n  \"description\": \"Updated\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/subjects/{{subjectId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "subjects", "{{subjectId}}"]
+            },
+            "description": "Admin-only subject update. 400 when no changes are provided; 404 when no matching subject; 409 on code collision."
+          },
+          "response": []
+        },
+        {
+          "name": "GET Classes",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{authToken}}", "type": "string" }] },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/classes",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "classes"]
+            },
+            "description": "List classes/grades (teachers are scoped to their form/assigned classes). Returns { classes: ClassGroup[], persisted: true }."
+          },
+          "response": []
+        },
+        {
+          "name": "POST Create Class (Admin)",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{adminToken}}", "type": "string" }] },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Grade 3C\",\n  \"grade\": \"Grade 3\",\n  \"classTeacherId\": \"\",\n  \"room\": \"Room 5\",\n  \"subjectIds\": [\"subj-math\"]\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/classes",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "classes"]
+            },
+            "description": "Admin-only class creation. name and grade required; 409 on duplicate class name. 201 on success."
+          },
+          "response": []
+        },
+        {
+          "name": "PUT Update Class (Admin)",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{adminToken}}", "type": "string" }] },
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Grade 3C\",\n  \"grade\": \"Grade 3\",\n  \"room\": \"Room 6\",\n  \"subjectIds\": [\"subj-math\", \"subj-sci\"]\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/classes/{{classId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "classes", "{{classId}}"]
+            },
+            "description": "Admin-only class update. 400 when no changes; 404 when no matching class; 409 on name collision."
+          },
+          "response": []
+        },
+        {
+          "name": "GET Teachers",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{authToken}}", "type": "string" }] },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/teachers",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "teachers"]
+            },
+            "description": "List faculty for the school. Returns { teachers: Teacher[], persisted: true }."
+          },
+          "response": []
+        },
+        {
+          "name": "POST Create Teacher (Admin)",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{adminToken}}", "type": "string" }] },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Jane Dlamini\",\n  \"email\": \"jane.dlamini@gma.edu\",\n  \"password\": \"<teacher-password>\",\n  \"role\": \"Lead Teacher\",\n  \"assignedClasses\": [\"cls-3a\"],\n  \"assignedSubjects\": [\"subj-math\"]\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/teachers",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "teachers"]
+            },
+            "description": "Admin-only teacher provisioning (Supabase Auth user + profiles + teachers rows). name/email required, password >= 8. 201 on success."
+          },
+          "response": []
+        },
+        {
+          "name": "PUT Update Teacher (Admin)",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{adminToken}}", "type": "string" }] },
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Jane Dlamini\",\n  \"role\": \"Subject Teacher\",\n  \"assignedClasses\": [\"cls-3a\"],\n  \"assignedSubjects\": [\"subj-math\"],\n  \"isActive\": true\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/teachers/{{teacherId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "teachers", "{{teacherId}}"]
+            },
+            "description": "Admin-only teacher update. Optional password (>=8). 404 when no matching faculty. 200 on success."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Quizzes",
+      "item": [
+        {
+          "name": "GET Quizzes",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{authToken}}", "type": "string" }] },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/quizzes",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "quizzes"]
+            },
+            "description": "Role-aware quiz list. Learners receive published/closed/released quizzes that are class-eligible, with correctAnswer and explanation stripped. Returns { quizzes: Quiz[] }."
+          },
+          "response": []
+        },
+        {
+          "name": "GET Quiz by ID",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{authToken}}", "type": "string" }] },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/quizzes/{{quizId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "quizzes", "{{quizId}}"]
+            },
+            "description": "Single quiz. Enforces school boundary, teacher ownership/allocation, and learner visibility (draft or class-ineligible => 403). Answers stripped for learners unless results are released and they have a submission. Returns { quiz }."
+          },
+          "response": []
+        },
+        {
+          "name": "POST Create Quiz (Admin/Teacher)",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{authToken}}", "type": "string" }] },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Grade 3 Fractions\",\n  \"grade\": \"Grade 3\",\n  \"classId\": \"cls-3a\",\n  \"className\": \"Grade 3A\",\n  \"subjectId\": \"subj-math\",\n  \"subjectName\": \"Mathematics\",\n  \"topicsCovered\": [\"Fractions\"],\n  \"learningObjectives\": \"Understand halves and quarters.\",\n  \"difficulty\": \"medium\",\n  \"durationMinutes\": 15,\n  \"instructions\": \"Answer all questions carefully.\",\n  \"status\": \"draft\",\n  \"releasePolicy\": \"manual\",\n  \"allowOffline\": true,\n  \"maxAttempts\": 1,\n  \"questions\": [\n    {\n      \"id\": \"q1\",\n      \"type\": \"multiple_choice\",\n      \"prompt\": \"What is 1/2 of 4?\",\n      \"options\": [\n        { \"id\": \"a\", \"text\": \"2\" },\n        { \"id\": \"b\", \"text\": \"3\" }\n      ],\n      \"correctAnswer\": \"a\",\n      \"marks\": 2,\n      \"topic\": \"Fractions\",\n      \"explanation\": \"Half of 4 is 2.\"\n    }\n  ]\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/quizzes",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "quizzes"]
+            },
+            "description": "Create an assessment (title/grade/classId required). Questions are strictly validated when status is published/in_progress. 201 returns { quiz }."
+          },
+          "response": []
+        },
+        {
+          "name": "PUT Update Quiz (Admin/Teacher)",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{authToken}}", "type": "string" }] },
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Grade 3 Fractions (revised)\",\n  \"durationMinutes\": 20,\n  \"difficulty\": \"hard\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/quizzes/{{quizId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "quizzes", "{{quizId}}"]
+            },
+            "description": "Update a quiz. Questions are locked once submissions exist. Teachers may only edit their own assessments. 200 returns { quiz }."
+          },
+          "response": []
+        },
+        {
+          "name": "POST Publish Quiz (Admin/Teacher)",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{authToken}}", "type": "string" }] },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/quizzes/{{quizId}}/publish",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "quizzes", "{{quizId}}", "publish"]
+            },
+            "description": "Publish a quiz to its cohort (status -> in_progress). Validates questions and requires a classId. 200 returns { quiz, message }."
+          },
+          "response": []
+        },
+        {
+          "name": "POST Close Quiz (Admin/Teacher)",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{authToken}}", "type": "string" }] },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/quizzes/{{quizId}}/close",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "quizzes", "{{quizId}}", "close"]
+            },
+            "description": "Close a quiz (status -> closed) so learners cannot submit new attempts. 200 returns { quiz, message }."
+          },
+          "response": []
+        },
+        {
+          "name": "POST Assign Quiz (Admin/Teacher)",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{authToken}}", "type": "string" }] },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"classId\": \"cls-3b\",\n  \"className\": \"Grade 3B\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/quizzes/{{quizId}}/assign",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "quizzes", "{{quizId}}", "assign"]
+            },
+            "description": "Assign a quiz to a class cohort (classId required). 200 returns { quiz, message }."
+          },
+          "response": []
+        },
+        {
+          "name": "DELETE Delete Quiz (Admin/Teacher)",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{authToken}}", "type": "string" }] },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/quizzes/{{quizId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "quizzes", "{{quizId}}"]
+            },
+            "description": "Delete a quiz. Blocked with 400 when learner submissions exist. Teachers may only delete their own. 200 returns { success, message }."
+          },
+          "response": []
+        },
+        {
+          "name": "GET Quiz Submissions (Admin/Teacher)",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{authToken}}", "type": "string" }] },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/quizzes/{{quizId}}/submissions",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "quizzes", "{{quizId}}", "submissions"]
+            },
+            "description": "List all submissions for a quiz. Returns { quizId, quizTitle, totalSubmissions, submissions }."
+          },
+          "response": []
+        },
+        {
+          "name": "POST Release Results (Admin/Teacher)",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{authToken}}", "type": "string" }] },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/quizzes/{{quizId}}/release-results",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "quizzes", "{{quizId}}", "release-results"]
+            },
+            "description": "Release results (status -> results_released) and mark all associated submissions as 'marked'. 200 returns { quiz, message }."
+          },
+          "response": []
+        },
+        {
+          "name": "GET Quiz Paper",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{authToken}}", "type": "string" }] },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/quizzes/{{quizId}}/paper",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "quizzes", "{{quizId}}", "paper"]
+            },
+            "description": "Printable examination paper with answers/explanations stripped. Learners get 403 for draft or class-ineligible quizzes. Returns { paper }."
+          },
+          "response": []
+        },
+        {
+          "name": "GET Quiz Answer Key (Admin/Teacher)",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{authToken}}", "type": "string" }] },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/quizzes/{{quizId}}/answer-key",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "quizzes", "{{quizId}}", "answer-key"]
+            },
+            "description": "Confidential teacher answer key & mark scheme (includes correctAnswer and explanation). Forbidden to learners by role gate. Returns { answerKey }."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Submissions",
+      "item": [
+        {
+          "name": "POST Submit Attempt",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{learnerToken}}", "type": "string" }] },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quizId\": \"{{quizId}}\",\n  \"answers\": {\n    \"q1\": \"a\"\n  },\n  \"clientSubmissionHash\": \"hash-abc123\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/submissions",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "submissions"]
+            },
+            "description": "Record an attempt. Server-side auto-marking is authoritative. Idempotent via clientSubmissionHash. Learner responses are masked (score 0) until results are released. 200 returns { submission, isDuplicate }."
+          },
+          "response": []
+        },
+        {
+          "name": "POST Sync Offline Submissions",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{learnerToken}}", "type": "string" }] },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"items\": [\n    {\n      \"id\": \"queue-1\",\n      \"clientSubmissionHash\": \"hash-abc123\",\n      \"submission\": {\n        \"quizId\": \"{{quizId}}\",\n        \"learnerId\": \"{{learnerId}}\",\n        \"answers\": {\n          \"q1\": \"a\"\n        },\n        \"submittedAt\": \"2026-11-05T08:30:00.000Z\"\n      }\n    }\n  ]\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/submissions/sync",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "submissions", "sync"]
+            },
+            "description": "Batch-sync queued offline submissions with per-item validation and idempotency. Returns { syncedCount, skippedDuplicates, rejectedCount, totalReceived, results }."
+          },
+          "response": []
+        },
+        {
+          "name": "PUT Submission Feedback (Admin/Teacher)",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{authToken}}", "type": "string" }] },
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"teacherFeedback\": \"Great work on fractions!\",\n  \"adjustedScore\": 2\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/submissions/{{submissionId}}/feedback",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "submissions", "{{submissionId}}", "feedback"]
+            },
+            "description": "Record teacher feedback and/or adjust a score (0..totalMarks). 400 on out-of-range score; 404 when submission not found. 200 returns { submission, message }."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Learner Results",
+      "item": [
+        {
+          "name": "GET My Results",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{learnerToken}}", "type": "string" }] },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/learners/results",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "learners", "results"]
+            },
+            "description": "Learner-only. Returns the caller's submissions ({ submissions: Submission[] }); unreleased assessments are masked (score 0, answers {})."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "AI",
+      "item": [
+        {
+          "name": "GET AI Client Config (Admin/Teacher)",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{authToken}}", "type": "string" }] },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/ai/client-config",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ai", "client-config"]
+            },
+            "description": "Returns browser-usable provider credentials for configured providers only: { gemini: { apiKey, model } | null, groq: { apiKey, model } | null }."
+          },
+          "response": []
+        },
+        {
+          "name": "POST Generate Quiz (Admin/Teacher)",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{authToken}}", "type": "string" }] },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"grade\": \"Grade 3\",\n  \"subject\": \"Mathematics\",\n  \"topics\": [\"Fractions\"],\n  \"learningObjectives\": \"Understand halves and quarters.\",\n  \"difficulty\": \"medium\",\n  \"questionCount\": 5,\n  \"questionType\": \"multiple_choice\",\n  \"excludePrompts\": []\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/ai/generate-quiz",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ai", "generate-quiz"]
+            },
+            "description": "Server-side AI question generation (Gemini primary, Groq fallback). questionCount 1-200; topics 1-10 items. Returns { questions, isPartial, actualCount, requestedCount, warning }. 503 when no AI provider is configured."
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

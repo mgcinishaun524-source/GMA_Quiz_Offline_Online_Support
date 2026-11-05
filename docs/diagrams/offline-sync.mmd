@@ -1,0 +1,33 @@
+%%{init: {'theme':'base'}}%%
+%% Growing Minds Academy AI Quiz System — Offline Synchronisation Workflow
+%% Source: src/lib/offline-db.ts, src/lib/sync-queue.ts, src/lib/network.ts,
+%%         server.ts POST /api/submissions/sync, src/hooks/useServerSync.ts
+flowchart TD
+    A["Learner opens a cached quiz (offline)"] --> B["getCachedQuizById()<br/>IndexedDB store: cached_quizzes"]
+    B --> C["LearnerQuizPlayer renders questions<br/>(answer key absent on device)"]
+    C --> D["saveActiveAnswers() on every change<br/>IndexedDB store: active_answers<br/>(localStorage fallback GMA_DRAFT_*)"]
+    D --> E{"Learner submits?"}
+    E -->|not yet| C
+    E -->|yes| F["Build Submission with<br/>clientSubmissionHash (idempotency key)<br/>id = idempotent UUID"]
+    F --> G["queueOfflineSubmission()<br/>IndexedDB store: submission_queue<br/>status='pending', retryCount=0"]
+
+    G --> H{"networkManager.isOnline()?"}
+    H -->|offline| I["Stay queued; NetworkSimulatorBar shows pending"]
+    H -->|reconnect event| J["SyncQueueService.processQueue()"]
+    H -->|every 25 s poll| J
+
+    J --> K["For each item (status != 'synced'):<br/>updateQueueItemStatus('syncing')"]
+    K --> L["POST /api/submissions/sync<br/>{ items:[{ id, submission, clientSubmissionHash }] }<br/>Authorization: Bearer <token>"]
+    L --> M{"Server per-item outcome"}
+    M -->|"duplicate hash"| N["status 'synced', isDuplicate=true<br/>(idempotent, no new row)"]
+    M -->|"rejected (missing quiz / draft / deadline /<br/>impersonation / class / attempt limit)"| O["status 'rejected' -> client throws -> mark 'failed'"]
+    M -->|"accepted"| P["Server-side marking vs questions.correct_answer<br/>INSERT submissions + upsert submission_answers<br/>idempotent via client_submission_hash UNIQUE"]
+    P --> Q["Return server-authoritative submission<br/>(marks withheld while unreleased)"]
+
+    N --> R["updateQueueItemStatus('synced') + removeQueueItem()<br/>appDataStore.saveSubmission()"]
+    Q --> R
+    O --> S["updateQueueItemStatus('failed', error)<br/>retryCount += 1; retryItem() on next cycle"]
+    R --> T[("IndexedDB GMA_Offline_DB<br/>queue drained")]
+    S --> J
+
+    T --> U["Sync state broadcast to UI<br/>pendingCount / lastSyncTime / lastError"]

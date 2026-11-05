@@ -1,0 +1,59 @@
+%%{init: {'theme':'base'}}%%
+%% Growing Minds Academy AI Quiz System — Authentication & Authorisation Flow
+%% Staff: Supabase Auth (email/username + password). Learners: bcrypt PIN -> locally signed JWT.
+%% Source: server.ts (/api/auth/*), server/auth.ts, src/services/auth-service.ts, src/lib/supabase.ts
+flowchart TD
+    Start([User opens app]) --> Choice{Who is signing in?}
+
+    Choice -->|Staff: admin / teacher| StaffLogin["POST /api/auth/staff-login<br/>{ email or username, password }"]
+    Choice -->|Learner| LearnLogin["POST /api/auth/learner-login<br/>{ studentNumber, 4-digit PIN }"]
+
+    subgraph StaffPath["STAFF — Supabase Auth"]
+        StaffLogin --> IP1{"IP rate limit<br/>(20 / 60 s)?"}
+        IP1 -->|exceeded| R429a["429 Too many requests"]
+        IP1 -->|ok| Lock1{"Account locked<br/>(5 fails -> 15 min)?"}
+        Lock1 -->|locked| R429b["429 Account locked"]
+        Lock1 -->|ok| Username{"Identifier contains<br/>'@'?"}
+        Username -->|no| MapU["Lookup user_profiles.username -> email"]
+        MapU --> SignIn
+        Username -->|yes| SignIn["Supabase Auth signInWithPassword()<br/>(dedicated auth client)"]
+        SignIn -->|fail| FailStaff["recordFailedAttempt + audit AUTH_STAFF_FAILED/LOCKED"] --> R401a["401 Invalid credentials"]
+        SignIn -->|ok| Profile["Fetch user_profiles (id, role, school_id)"]
+        Profile --> StaffToken["Return Supabase access_token (7 d)"]
+    end
+
+    subgraph LearnerPath["LEARNER — bcrypt PIN + local JWT"]
+        LearnLogin --> IP2{"IP rate limit<br/>(10 / 60 s)?"}
+        IP2 -->|exceeded| R429c["429 Too many requests"]
+        IP2 -->|ok| PinFmt{"PIN is exactly<br/>4 digits?"}
+        PinFmt -->|no| R400["400 Invalid PIN format"]
+        PinFmt -->|yes| Lock2{"Locked (in-memory<br/>or pin_locked_until)?"}
+        Lock2 -->|locked| R429d["429 Account locked"]
+        Lock2 -->|ok| Lookup["Lookup learners by student_number<br/>+ class_memberships"]
+        Lookup --> Verify["bcrypt.compare(PIN, pin_hash)"]
+        Verify -->|fail| FailLearner["recordFailedAttempt; on lock set pin_locked_until; audit AUTH_PIN_FAILED/LOCKED"] --> R401b["401 Invalid credentials"]
+        Verify -->|ok| Reset["Clear lockout; reset pin_failed_attempts; set last_active; audit AUTH_LEARNER_LOGIN"]
+        Reset --> LearnerToken["generateLearnerToken() -> locally signed JWT (12 h)<br/>secret = SUPABASE_JWT_SECRET"]
+    end
+
+    StaffToken --> Store["authService stores user + token in localStorage<br/>(GMA_AUTH_SESSION, GMA_AUTH_TOKEN)"]
+    LearnerToken --> Store
+    Store --> Guard["Router ProtectedRoute<br/>src/app/router.tsx (role-based) page access"]
+
+    Guard --> Req["Subsequent API calls:<br/>Authorization: Bearer <token>"]
+    Req --> MW["requireAuth (server/auth.ts)"]
+    MW --> V1{"verifyLearnerToken()<br/>(local JWT, role=learner)?"}
+    V1 -->|yes| SetUser["req.user = learner"]
+    V1 -->|no| V2{"Supabase auth.getUser(token)?"}
+    V2 -->|valid staff| RoleCheck["Load user_profiles role/school_id + teacher_assignments/classes"]
+    V2 -->|no| V3{"verifyStaffToken()<br/>(fallback/test)?"}
+    V3 -->|yes| SetStaff["req.user = staff"]
+    V3 -->|no| R401c["401 Unrecognized token"]
+    SetUser --> RoleMw["requireRole([...]) per route"]
+    SetStaff --> RoleMw
+    RoleCheck --> RoleMw
+    RoleMw -->|allowed| Handler["Route handler (scoped to schoolId / role)"]
+    RoleMw -->|denied| R403["403 Forbidden"]
+
+    note1["Service role bypasses RLS; server applies explicit school + teacher scoping in code."]
+    Handler -.-> note1
