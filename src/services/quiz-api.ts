@@ -88,6 +88,29 @@ export const quizApiService = {
     throw new Error(err.error || 'Failed to publish assessment.');
   },
 
+  // 3b. Close Quiz (server-authoritative — stops new learner attempts school-wide)
+  async closeQuiz(id: string): Promise<Quiz> {
+    const res = await fetch(`/api/quizzes/${id}/close`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...getAuthHeader(),
+      },
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      if (data.quiz) {
+        appDataStore.saveQuiz(data.quiz);
+        return data.quiz;
+      }
+      throw new Error('Invalid response from server.');
+    }
+
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || 'Failed to close assessment.');
+  },
+
   // 4. Assign Quiz to Class
   async assignQuiz(id: string, classId: string, className?: string): Promise<Quiz> {
     const res = await fetch(`/api/quizzes/${id}/assign`, {

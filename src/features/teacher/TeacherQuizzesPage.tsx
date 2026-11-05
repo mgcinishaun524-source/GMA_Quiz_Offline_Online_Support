@@ -43,6 +43,7 @@ export const TeacherQuizzesPage: React.FC = () => {
   // Dialogs
   const [publishingQuiz, setPublishingQuiz] = useState<Quiz | null>(null);
   const [closingQuiz, setClosingQuiz] = useState<Quiz | null>(null);
+  const [closeError, setCloseError] = useState<string | null>(null);
   const [deletingQuiz, setDeletingQuiz] = useState<Quiz | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
@@ -60,10 +61,14 @@ export const TeacherQuizzesPage: React.FC = () => {
     }
   };
 
-  const handleClose = () => {
-    if (closingQuiz) {
-      appDataStore.updateQuizStatus(closingQuiz.id, 'closed');
+  const handleClose = async () => {
+    if (!closingQuiz) return;
+    try {
+      await quizApiService.closeQuiz(closingQuiz.id);
       setClosingQuiz(null);
+      setCloseError(null);
+    } catch (err) {
+      setCloseError(err instanceof Error ? err.message : 'Failed to close the assessment.');
     }
   };
 
@@ -320,7 +325,10 @@ export const TeacherQuizzesPage: React.FC = () => {
 
                   {(quiz.status === 'published' || quiz.status === 'in_progress') && (
                     <OutlineButton
-                      onClick={() => setClosingQuiz(quiz)}
+                      onClick={() => {
+                        setCloseError(null);
+                        setClosingQuiz(quiz);
+                      }}
                       className="text-xs py-1 px-2.5 text-[#B45309] border-[#B45309]/30 hover:border-[#B45309]"
                       icon={<Lock size={13} />}
                     >
@@ -371,11 +379,16 @@ export const TeacherQuizzesPage: React.FC = () => {
       {/* Close Assessment Confirmation */}
       <ConfirmDialog
         isOpen={!!closingQuiz}
-        title="Close Assessment"
-        message={`Close "${closingQuiz?.title}"? Learners will no longer be able to submit new attempts. You will then be able to review submissions and release marksheets.`}
-        confirmLabel="Close Assessment"
-        onConfirm={handleClose}
-        onCancel={() => setClosingQuiz(null)}
+        title={closeError ? 'Cannot Close Assessment' : 'Close Assessment'}
+        message={
+          closeError
+            ? closeError
+            : `Close "${closingQuiz?.title}"? Learners will no longer be able to submit new attempts. You will then be able to review submissions and release marksheets.`
+        }
+        confirmLabel={closeError ? 'Close' : 'Close Assessment'}
+        isDestructive={!closeError}
+        onConfirm={closeError ? () => { setClosingQuiz(null); setCloseError(null); } : handleClose}
+        onCancel={() => { setClosingQuiz(null); setCloseError(null); }}
       />
 
       {/* Delete Confirmation */}

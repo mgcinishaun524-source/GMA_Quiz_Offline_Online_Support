@@ -36,6 +36,7 @@ export const TeacherQuizDetailPage: React.FC = () => {
   );
 
   const [isCloseModalOpen, setIsCloseModalOpen] = useState(false);
+  const [closeError, setCloseError] = useState<string | null>(null);
   const [isPublishModalOpen, setIsPublishModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
@@ -61,9 +62,14 @@ export const TeacherQuizDetailPage: React.FC = () => {
     );
   }
 
-  const handleCloseAssessment = () => {
-    appDataStore.updateQuizStatus(quiz.id, 'closed');
-    setIsCloseModalOpen(false);
+  const handleCloseAssessment = async () => {
+    try {
+      await quizApiService.closeQuiz(quiz.id);
+      setIsCloseModalOpen(false);
+      setCloseError(null);
+    } catch (err) {
+      setCloseError(err instanceof Error ? err.message : 'Failed to close the assessment.');
+    }
   };
 
   const handlePublishAssessment = async () => {
@@ -146,7 +152,10 @@ export const TeacherQuizDetailPage: React.FC = () => {
             )}
             {(quiz.status === 'published' || quiz.status === 'in_progress') && (
               <OutlineButton
-                onClick={() => setIsCloseModalOpen(true)}
+                onClick={() => {
+                  setCloseError(null);
+                  setIsCloseModalOpen(true);
+                }}
                 icon={<Lock size={13} />}
                 className="text-[#B45309] border-[#B45309]/30"
               >
@@ -293,11 +302,16 @@ export const TeacherQuizDetailPage: React.FC = () => {
       {/* Confirm Close */}
       <ConfirmDialog
         isOpen={isCloseModalOpen}
-        title="Close Active Assessment"
-        message="Closing this quiz will stop learners from submitting new attempts. You will then be able to review the submissions and release marksheets."
-        confirmLabel="Close Assessment"
-        onConfirm={handleCloseAssessment}
-        onCancel={() => setIsCloseModalOpen(false)}
+        title={closeError ? 'Cannot Close Assessment' : 'Close Active Assessment'}
+        message={
+          closeError
+            ? closeError
+            : 'Closing this quiz will stop learners from submitting new attempts. You will then be able to review the submissions and release marksheets.'
+        }
+        confirmLabel={closeError ? 'Close' : 'Close Assessment'}
+        isDestructive={!closeError}
+        onConfirm={closeError ? () => { setIsCloseModalOpen(false); setCloseError(null); } : handleCloseAssessment}
+        onCancel={() => { setIsCloseModalOpen(false); setCloseError(null); }}
       />
 
       {/* Confirm Publish */}

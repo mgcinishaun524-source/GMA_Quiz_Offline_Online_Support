@@ -2046,6 +2046,45 @@ app.post('/api/quizzes/:id/publish', requireAuth, requireRole(['admin', 'teacher
   res.json({ quiz: updated, message: 'Assessment published successfully to class cohort.' });
 });
 
+// 8b. Close Quiz — persists the closed state so learners can no longer see or
+// submit new attempts (server-authoritative, unlike a local-only status change)
+app.post('/api/quizzes/:id/close', requireAuth, requireRole(['admin', 'teacher']), async (req: Request, res: Response): Promise<void> => {
+  if (!isSupabaseConfigured()) {
+    res.status(503).json({ error: 'Production storage is unavailable. Database connection required.' });
+    return;
+  }
+
+  const quiz = await databaseAdapter.getQuizById(req.params.id);
+  if (!quiz) {
+    res.status(404).json({ error: 'Quiz not found.' });
+    return;
+  }
+
+  // School boundary check
+  if (!isAuthorizedSchool(quiz.schoolId, req.user?.schoolId)) {
+    res.status(403).json({ error: 'Access denied: assessment belongs to a different school.' });
+    return;
+  }
+
+  // Teacher ownership check: only admin or the authoring teacher may close
+  if (req.user?.role === 'teacher' && quiz.authorId && quiz.authorId !== req.user.id) {
+    res.status(403).json({ error: 'Teachers may only close their own assessments.' });
+    return;
+  }
+
+  const updated = await databaseAdapter.updateQuizStatus(quiz.id, 'closed');
+
+  await logAuditEvent({
+    action: 'QUIZ_CLOSED',
+    actorId: req.user!.id,
+    actorRole: req.user!.role,
+    targetEntity: 'quizzes',
+    targetId: quiz.id,
+  });
+
+  res.json({ quiz: updated, message: 'Assessment closed. Learners can no longer submit new attempts.' });
+});
+
 // 9. Assign Quiz to Class Cohort
 app.post('/api/quizzes/:id/assign', requireAuth, requireRole(['admin', 'teacher']), async (req: Request, res: Response): Promise<void> => {
   if (!isSupabaseConfigured()) {
