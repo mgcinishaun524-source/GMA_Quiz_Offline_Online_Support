@@ -110,7 +110,7 @@ export const AppShell: React.FC = () => {
                 />
                 {/* Fallback text badge if logo fails to load */}
                 <div
-                  className="w-8 h-8 border-2 border-[#D6A21E] rounded flex items-center justify-center text-[#D6A21E] font-extrabold text-xs tracking-widest"
+                  className="w-9 h-9 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center text-[#D6A21E] font-black text-[10px] tracking-tight shadow-inner"
                   style={{ display: 'none' }}
                   aria-hidden="true"
                 >
@@ -120,7 +120,7 @@ export const AppShell: React.FC = () => {
                   <span className="text-sm font-extrabold tracking-tight text-white leading-tight block">
                     Growing Minds Academy
                   </span>
-                  <span className="text-[10px] font-medium text-[#D6A21E]/70 tracking-widest uppercase leading-none">
+                  <span className="text-[9px] font-bold text-[#D6A21E]/80 tracking-[0.2em] uppercase leading-none">
                     AI Quiz & Analytics
                   </span>
                 </div>
@@ -129,9 +129,17 @@ export const AppShell: React.FC = () => {
               {/* Right: role pill + profile */}
               <div className="flex items-center gap-2 sm:gap-3">
                 {/* Role pill */}
-                <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-white/[0.07] border border-white/[0.12] text-slate-300">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#D6A21E]" aria-hidden="true" />
-                  {role?.toUpperCase()}
+                <div className={`
+                  hidden sm:flex items-center gap-2 px-3 py-1 
+                  rounded-full text-[10px] font-black uppercase tracking-[0.15em] 
+                  ${role === 'admin' 
+                    ? 'bg-[#D6A21E]/10 border-[#D6A21E]/20 text-[#D6A21E]' 
+                    : 'bg-[#6CABDD]/10 border-[#6CABDD]/20 text-[#6CABDD]'
+                  } 
+                  border backdrop-blur-sm transition-all duration-300 hover:bg-white/5
+                `}>
+                  {role === 'admin' ? <Settings size={12} /> : <GraduationCap size={12} />}
+                  <span>{role?.toUpperCase()}</span>
                 </div>
 
                 {/* Profile */}
