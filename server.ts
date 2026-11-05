@@ -3034,10 +3034,10 @@ ${
         }
       }
 
-      // Throttle: 1200ms between batches to stay under free tier 15 RPM limit
+      // Throttle: 200ms between batches to stay under rate limits while avoiding timeout
       if (bIndex < batches.length - 1) {
-        console.log(`[AI] Batch ${bIndex + 1} complete. Waiting 1200ms before batch ${bIndex + 2}...`);
-        await new Promise((resolve) => setTimeout(resolve, 1200));
+        console.log(`[AI] Batch ${bIndex + 1} complete. Waiting 200ms before batch ${bIndex + 2}...`);
+        await new Promise((resolve) => setTimeout(resolve, 200));
       }
     }
 
