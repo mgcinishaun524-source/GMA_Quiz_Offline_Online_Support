@@ -1,5 +1,5 @@
 // Service Worker for Growing Minds Academy AI Quiz System
-const CACHE_NAME = 'gma-quiz-v1';
+const CACHE_NAME = 'gma-quiz-v2-no-api-cache';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
@@ -30,6 +30,8 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
+  // Never cache API requests
+  if (event.request.url.includes('/api/')) return;
   if (event.request.method !== 'GET') return;
   // Network first with cache fallback
   event.respondWith(
