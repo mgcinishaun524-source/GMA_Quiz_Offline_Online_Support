@@ -393,6 +393,29 @@ class DataStore {
     this.save(STORAGE_KEYS.SETTINGS, this.settings);
     return this.settings;
   }
+
+  /**
+   * Clears all session-specific operational data from the store and localStorage.
+   * Crucial for privacy: prevents cross-account leakage when a different user logs
+   * in on the same browser/device.
+   */
+  public clearSessionData(): void {
+    this.learners = [];
+    this.teachers = [];
+    this.classes = [];
+    this.subjects = [];
+    this.quizzes = [];
+    this.submissions = [];
+    
+    // Wipe from localStorage
+    Object.values(STORAGE_KEYS).forEach((key) => {
+      if (key !== STORAGE_KEYS.SETTINGS) {
+        localStorage.removeItem(key);
+      }
+    });
+    
+    this.notify();
+  }
 }
 
 export const appDataStore = new DataStore();

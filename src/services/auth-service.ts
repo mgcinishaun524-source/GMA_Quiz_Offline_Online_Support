@@ -4,6 +4,7 @@
 // credential verification performed by the backend.
 
 import { UserProfile } from '../types/auth';
+import { appDataStore } from './storage';
 
 const AUTH_STORAGE_KEY = 'GMA_AUTH_SESSION';
 const AUTH_TOKEN_KEY = 'GMA_AUTH_TOKEN';
@@ -74,6 +75,11 @@ class AuthService {
       throw new Error(data.error || 'Authentication failed. Please verify credentials.');
     }
 
+    // Clear any data from a previous session on this device before populating the new one.
+    // This prevents Grade 5 data from a previous admin/teacher session leaking into
+    // a Grade 3 teacher's session on the same browser.
+    appDataStore.clearSessionData();
+
     this.currentUser = data.user;
     this.currentToken = data.token;
     localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(this.currentUser));
@@ -107,6 +113,9 @@ class AuthService {
       if (!response.ok) {
         throw new Error(data.error || 'Authentication failed. Please verify credentials.');
       }
+
+      // Clear previous session data
+      appDataStore.clearSessionData();
 
       this.currentUser = data.user;
       this.currentToken = data.token;
@@ -146,6 +155,10 @@ class AuthService {
     this.currentToken = null;
     localStorage.removeItem(AUTH_STORAGE_KEY);
     localStorage.removeItem(AUTH_TOKEN_KEY);
+    
+    // Clear operational data on logout as well
+    appDataStore.clearSessionData();
+    
     this.notify();
   }
 }
