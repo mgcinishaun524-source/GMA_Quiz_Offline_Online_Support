@@ -7,7 +7,7 @@ export interface BootSplashProps {
 }
 
 /** How long the splash stays on screen before it begins to fade out. */
-const HOLD_MS = 2500;
+const HOLD_MS = 2800;
 /** Must match the `gma-splash-out` animation duration in index.css. */
 const EXIT_MS = 500;
 
@@ -97,14 +97,14 @@ export const BootSplash: React.FC<BootSplashProps> = ({ onFinish }) => {
 
         <h1
           className="gma-shimmer-text mt-8 text-2xl sm:text-3xl font-black tracking-[0.14em] uppercase"
-          style={{ animation: 'gma-rise 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) 1.15s both' }}
+          style={{ animation: 'gma-rise 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) 1.40s both' }}
         >
           Growing Minds Academy
         </h1>
 
         <p
           className="mt-3 text-[10px] sm:text-xs font-bold uppercase tracking-[0.34em] text-[#D6A21E]"
-          style={{ animation: 'gma-fade-in 0.6s ease 1.55s both' }}
+          style={{ animation: 'gma-fade-in 0.6s ease 1.80s both' }}
         >
           AI-Powered Quiz &amp; Learning Analytics
         </p>
@@ -115,7 +115,7 @@ export const BootSplash: React.FC<BootSplashProps> = ({ onFinish }) => {
 
         <p
           className="mt-4 text-[10px] font-medium tracking-[0.22em] uppercase text-white/45"
-          style={{ animation: 'gma-fade-in 0.6s ease 1.85s both' }}
+          style={{ animation: 'gma-fade-in 0.6s ease 2.05s both' }}
         >
           Growing your learning environment
         </p>
@@ -123,7 +123,7 @@ export const BootSplash: React.FC<BootSplashProps> = ({ onFinish }) => {
 
       <p
         className="absolute bottom-7 left-1/2 -translate-x-1/2 text-[10px] font-semibold uppercase tracking-[0.28em] text-white/30"
-        style={{ animation: 'gma-fade-in 0.8s ease 1.9s both' }}
+        style={{ animation: 'gma-fade-in 0.8s ease 2.10s both' }}
       >
         Click anywhere to skip
       </p>
