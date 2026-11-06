@@ -39,7 +39,7 @@ This is an honest inventory of every known defect, limitation and caveat in the 
 | ID | Sev | Area | Issue | Impact | Reference |
 |---|---|---|---|---|---|
 | P-01 | 🟠 | API | **No pagination** on list endpoints (`/api/quizzes`, `/api/learners`, `/api/submissions`, …). | Large datasets return in one response; may degrade at scale. | [docs/API.md](API.md) |
-| P-02 | 🟡 | Frontend bundle | Single JS chunk is **977.66 kB (gzip 269.36 kB)**; build warns about chunks > 500 kB. | Slower first load on poor connections (a target environment). | `npm run build` |
+| P-02 | ✅ | Frontend bundle | **Resolved.** Was a single 977.66 kB chunk (gzip 269.36 kB) warning above 500 kB. Every portal page now sits behind `React.lazy` + Suspense in [src/app/router.tsx](file:///c:/Users/thula/Downloads/growing-minds-academy-ai-quiz-system%20(1)/src/app/router.tsx). | Entry chunk is now **352 kB (gzip 110 kB)**; largest remaining chunk is Recharts at 371 kB. Budget: entry < 400 kB and no chunk > 500 kB — both met. | `npm run build` |
 | P-03 | 🟡 | Caching | No server-side caching layer; every request hits Supabase. | Extra DB load under concurrency. | [docs/ASSESSMENT_CRITERIA_AUDIT.md](ASSESSMENT_CRITERIA_AUDIT.md) |
 | P-04 | ℹ️ | Cold starts | Serverless functions cold-start; AI generation was moved browser-direct to avoid the 10 s function timeout. | First request after idle may be slow. | [DEPLOYMENT.md](file:///c:/Users/thula/Downloads/growing-minds-academy-ai-quiz-system%20(1)/DEPLOYMENT.md) |
 

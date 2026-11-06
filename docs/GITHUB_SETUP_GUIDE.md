@@ -358,12 +358,12 @@ Create/replace these so the issues below can be labelled consistently:
 - [ ] Backfill strategy for existing rows (if required)
 
 ### ISSUE-40 — Reduce frontend bundle size
-**Labels:** `frontend` `technical-debt` · **State: Backlog**
-**Description:** Main JS chunk is 977 kB (gzip 269 kB); build warns > 500 kB.
+**Labels:** `frontend` `technical-debt` · **State: Done**
+**Description:** The main JS chunk was 977 kB (gzip 269 kB) and tripped the >500 kB build warning. Recharts and the quiz wizard accounted for most of it, and neither is needed on most routes.
 **Acceptance criteria:**
-- [ ] Route-level code splitting
-- [ ] No chunk > 500 kB (or warning addressed)
-- [ ] Bundle budget documented
+- [x] Route-level code splitting — every portal page behind `React.lazy` + Suspense in `src/app/router.tsx`
+- [x] No chunk > 500 kB — entry chunk 984 kB → 352 kB (gzip 271 kB → 110 kB); largest remaining chunk is Recharts at 371 kB
+- [x] Bundle budget documented — entry < 400 kB, no chunk > 500 kB (see [KNOWN_ISSUES.md](KNOWN_ISSUES.md) P-02)
 
 ### ISSUE-41 — Move lockout/rate-limit state to a shared store
 **Labels:** `backend` `security` `technical-debt` · **State: Backlog**

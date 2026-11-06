@@ -174,7 +174,6 @@ Strong on schema, security and access control. Weaker on the non-functional item
 | 3 | Capture screenshots | UI/UX + Functionality | 15% + 40% |
 | 4 | Add CI (lint/test/build on PR) | Code quality | 20% |
 | 5 | Add pagination + caching | Tech implementation | 10% |
-| 6 | Split the frontend bundle | Code quality + UX | ≤ 20% |
 
 ---
 

@@ -24,7 +24,7 @@ Every Uncommon requirement is evaluated below. Statuses used:
 | # | Requirement | Status | Evidence | Remaining work | Who | Priority |
 |---|---|---|---|---|---|---|
 | 1 | Working full-stack application | **VERIFIED COMPLETE** | 36 API routes; 20 feature pages; 14-table schema | — | — | — |
-| 2 | Frontend implementation | **VERIFIED COMPLETE** | `src/` builds clean; 977.66 kB bundle | Consider code-splitting | Dev | Low |
+| 2 | Frontend implementation | **VERIFIED COMPLETE** | `src/` builds clean; entry chunk 352 kB (gzip 110 kB) across 22 code-split routes | — | — | — |
 | 3 | Backend implementation | **VERIFIED COMPLETE** | `server.ts` + `server/*` | Consider splitting `server.ts` | Dev | Low |
 | 4 | Database + migrations | **VERIFIED COMPLETE** | 5 migrations; RLS on 14 tables | — | — | — |
 | 5 | Automated tests | **VERIFIED COMPLETE** | 45/45 pass; lint clean; build clean | Add coverage; wire offline-sync into `npm test` | Dev | Medium |

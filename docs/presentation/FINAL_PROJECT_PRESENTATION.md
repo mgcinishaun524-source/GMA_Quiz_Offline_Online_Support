@@ -265,6 +265,7 @@
 | Learners saw 0% for released marks | Identity-matching fix: match on student number **or** UUID |
 | Closing a quiz didn't persist | Dedicated `POST /api/quizzes/:id/close` endpoint + audit event |
 | supabase-js downgrading the service-role client | Split into two clients: `getSupabaseAdmin` vs `getSupabaseAuth` |
+| 977 kB entry chunk flagged by the build | Route-level code splitting: 22 portal pages behind `React.lazy` + Suspense — entry chunk now 352 kB |
 
 **Speaker notes:** "Most of these came from the AI integration. The most instructive was the service-role downgrade bug — signing in on the data client silently dropped it to the user's permissions."
 
@@ -312,7 +313,6 @@
 **Bullets:**
 - Pagination and server-side caching on list endpoints.
 - Move lockout/rate-limit state to a shared store (Redis/Upstash).
-- Split the frontend bundle (currently one 977 kB chunk).
 - Persist per-question correctness for richer analytics.
 - Add a CI pipeline and code coverage.
 - Formal schema validation and an accessibility audit.
