@@ -2,6 +2,7 @@ import React, { Suspense } from 'react';
 import { createBrowserRouter, Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from './AuthContext';
 import { AppShell } from '../components/layout/AppShell';
+import { LearnerSubmittedPage } from '../features/learner/LearnerSubmittedPage';
 
 // Auth pages stay in the entry bundle: they are the first screen an
 // unauthenticated visitor sees, so code-splitting them would only add a
@@ -40,7 +41,6 @@ const TeacherSettingsPage = React.lazy(() => import('../features/teacher/Teacher
 const LearnerDashboard = React.lazy(() => import('../features/learner/LearnerDashboard').then((m) => ({ default: m.LearnerDashboard })));
 const LearnerQuizzesPage = React.lazy(() => import('../features/learner/LearnerQuizzesPage').then((m) => ({ default: m.LearnerQuizzesPage })));
 const LearnerQuizPlayer = React.lazy(() => import('../features/learner/LearnerQuizPlayer').then((m) => ({ default: m.LearnerQuizPlayer })));
-const LearnerSubmittedPage = React.lazy(() => import('../features/learner/LearnerSubmittedPage').then((m) => ({ default: m.LearnerSubmittedPage })));
 const LearnerResultsPage = React.lazy(() => import('../features/learner/LearnerResultsPage').then((m) => ({ default: m.LearnerResultsPage })));
 
 // Shared by the teacher and learner portals, so it is declared once and both
@@ -172,7 +172,7 @@ export const router = createBrowserRouter([
           { path: 'quizzes', element: page(LearnerQuizzesPage) },
           { path: 'quizzes/:id/print', element: page(PrintableQuizPage) },
           { path: 'take/:id', element: page(LearnerQuizPlayer) },
-          { path: 'submitted', element: page(LearnerSubmittedPage) },
+          { path: 'submitted', element: <LearnerSubmittedPage /> },
           { path: 'results', element: page(LearnerResultsPage) },
         ],
       },
