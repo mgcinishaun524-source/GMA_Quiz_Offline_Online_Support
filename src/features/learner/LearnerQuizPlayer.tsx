@@ -16,7 +16,7 @@ import {
   getCachedQuizById,
 } from '../../lib/offline-db';
 import { Quiz, Question } from '../../types/quiz';
-import { Submission, AnswerRecord } from '../../types/submission';
+import { Submission } from '../../types/submission';
 import {
   Wifi,
   WifiOff,
@@ -131,45 +131,6 @@ export const LearnerQuizPlayer: React.FC = () => {
     }
   };
 
-  // Automated objective scoring
-  const calculateMarks = () => {
-    let earned = 0;
-    let total = 0;
-    const answerDetails: AnswerRecord[] = [];
-    const topicsFailed: Set<string> = new Set();
-
-    quiz.questions.forEach((q) => {
-      total += q.marks;
-      const resp = answers[q.id]?.trim() || '';
-      let isCorrect = false;
-
-      if (q.type === 'multiple_choice') {
-        isCorrect = resp === q.correctAnswer;
-      } else if (q.type === 'true_false') {
-        isCorrect = resp.toLowerCase() === q.correctAnswer.toLowerCase();
-      } else if (q.type === 'short_answer') {
-        isCorrect = resp.toLowerCase() === q.correctAnswer.trim().toLowerCase();
-      }
-
-      if (isCorrect) {
-        earned += q.marks;
-      } else if (q.topic) {
-        topicsFailed.add(q.topic);
-      }
-
-      answerDetails.push({
-        questionId: q.id,
-        response: resp,
-        isCorrect,
-        marksAwarded: isCorrect ? q.marks : 0,
-        maxMarks: q.marks,
-      });
-    });
-
-    const percentage = total > 0 ? Math.round((earned / total) * 100) : 0;
-    return { earned, total, percentage, answerDetails, topicsToPractise: Array.from(topicsFailed) };
-  };
-
   // Submit assessment (handles online vs offline queue).
   //
   // The learner is sent to the receipt screen the instant they confirm, and the
@@ -180,32 +141,8 @@ export const LearnerQuizPlayer: React.FC = () => {
     if (isSubmitting) return; // A second click while the first is in flight.
     setIsSubmitting(true);
 
-    const { earned, total, percentage, answerDetails, topicsToPractise } = calculateMarks();
     const submissionId = `sub-${Date.now()}-${user?.learnerId || 'anon'}`;
     const clientHash = `hash-${quiz.id}-${user?.learnerId || 'anon'}-${Date.now()}`;
-
-    // Payload used only if the attempt ends up in the durable offline queue.
-    const queuedRecord: Submission = {
-      id: submissionId,
-      quizId: quiz.id,
-      quizTitle: quiz.title,
-      subjectName: quiz.subjectName,
-      learnerId: user?.learnerId || '',
-      learnerName: user?.name || '',
-      classId: quiz.classId,
-      className: quiz.className,
-      answers,
-      answerDetails,
-      score: earned,
-      totalMarks: total,
-      percentage,
-      status: 'saved_offline',
-      syncStatus: 'offline_queued',
-      isOfflineSubmission: true,
-      submittedAt: new Date().toISOString(),
-      topicsToPractise,
-      clientSubmissionHash: clientHash,
-    };
 
     const setReceipt = (status: ReceiptStatus, error?: string) =>
       submissionReceiptStore.set({
@@ -226,6 +163,26 @@ export const LearnerQuizPlayer: React.FC = () => {
 
     let queuedOffline = !isOnline;
 
+    const createQueuedRecord = (): Submission => ({
+      id: submissionId,
+      quizId: quiz.id,
+      quizTitle: quiz.title,
+      subjectName: quiz.subjectName,
+      learnerId: user?.learnerId || '',
+      learnerName: user?.name || '',
+      classId: quiz.classId,
+      className: quiz.className,
+      answers,
+      score: 0,
+      totalMarks: quiz.questions.reduce((sum, question) => sum + (Number(question.marks) || 0), 0),
+      percentage: 0,
+      status: 'saved_offline',
+      syncStatus: 'offline_queued',
+      isOfflineSubmission: true,
+      submittedAt: new Date().toISOString(),
+      clientSubmissionHash: clientHash,
+    });
+
     try {
       if (isOnline) {
         // Server-authoritative marking: the backend computes the score against
@@ -235,7 +192,7 @@ export const LearnerQuizPlayer: React.FC = () => {
         // a fabricated 0% — we must never persist one.
         await quizApiService.submitQuiz(quiz.id, answers, clientHash, false);
       } else {
-        await queueOfflineSubmission(queuedRecord);
+        await queueOfflineSubmission(createQueuedRecord());
       }
     } catch (err) {
       if (err instanceof SubmissionRejectedError) {
@@ -250,7 +207,7 @@ export const LearnerQuizPlayer: React.FC = () => {
       // Otherwise the server could not be reached (offline, timeout, gateway
       // failure). Keep the answers in the durable queue and retry later.
       try {
-        await queueOfflineSubmission(queuedRecord);
+        await queueOfflineSubmission(createQueuedRecord());
         queuedOffline = true;
       } catch (queueErr) {
         console.error('[Offline Queue] Failed to persist the attempt.', queueErr);
@@ -264,11 +221,12 @@ export const LearnerQuizPlayer: React.FC = () => {
 
     // Reached only when the attempt was accepted or durably queued: the draft is
     // no longer needed.
-    if (user?.learnerId && id) {
-      await clearActiveAnswers(id, user.learnerId);
-    }
-
     setReceipt(queuedOffline ? 'offline' : 'saved');
+    if (user?.learnerId && id) {
+      void clearActiveAnswers(id, user.learnerId).catch((err) => {
+        console.warn('[Quiz Draft] Could not clear the submitted draft.', err);
+      });
+    }
   };
 
   return (
