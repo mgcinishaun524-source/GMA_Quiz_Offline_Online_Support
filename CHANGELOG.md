@@ -2,7 +2,7 @@
 
 All notable changes to the Growing Minds Academy AI Quiz System are documented here.
 
-This changelog is **derived from the actual Git history** of the repository (52 commits, 2026-10-28 → 2026-11-05, single branch `main`). Commit prefixes follow Conventional Commits. Entries are grouped by date because the project has no tagged releases yet.
+This changelog is **derived from the actual Git history** of the repository (from 2026-10-28, single branch `main`). Commit prefixes follow Conventional Commits. Entries are grouped by date because the project has no tagged releases yet.
 
 ---
 
@@ -18,7 +18,12 @@ This changelog is **derived from the actual Git history** of the repository (52 
 - `.github/pull_request_template.md`.
 
 ### Added — Continuous integration
-- `.github/workflows/ci.yml` — runs `npm run lint`, `npm test`, the offline-sync suite and `npm run build` on every push to `main` and every pull request. `npm test` covers 34 of the 45 tests, so the offline-sync suite is invoked explicitly; otherwise CI would report green while 11 tests never ran. No repository secrets are required, because each suite pins its own configuration before importing the server.
+- `.github/workflows/ci.yml` — runs `npm run lint`, `npm run test:coverage` and `npm run build` on every push to `main` and every pull request. No repository secrets are required, because each suite pins its own configuration before importing the server.
+- `.github/workflows/ci.yml` — a `Scan Git history for secrets` step that fails the job on any finding, using `scripts/secret-scan.mjs` (the checkout sets `fetch-depth: 0` so the full history is present).
+
+### Changed — Test tooling
+- `npm test` now runs **all four suites (45 tests)**; `test/offline-sync.test.ts` is wired in instead of being run separately, so a plain `npm test` no longer reports a partial 34.
+- Added `c8` and the `npm run test:coverage` script. Coverage is reported but not gated: statements **30.8%**, branches **42.4%**, functions **52.1%** over `server.ts`, `server/` and `src/lib/`.
 
 ### Changed
 - `README.md` rewritten to the full Uncommon submission specification (15 required points).

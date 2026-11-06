@@ -316,7 +316,7 @@ Create/replace these so the issues below can be labelled consistently:
 **Description:** Cover offline DB + sync queue behaviour.
 **Acceptance criteria:**
 - [x] 11 tests passing
-- [ ] **Outstanding:** wire this suite into `npm test` (currently run separately)
+- [x] Wired into `npm test`, which now runs all four suites (45 tests)
 
 ### ISSUE-35 — Add Vercel deployment configuration
 **Labels:** `deployment` · **State: Done**
@@ -339,18 +339,21 @@ Create/replace these so the issues below can be labelled consistently:
 **Description:** Nothing verified a push or a pull request, so a reviewer had to take lint, tests and the build on trust.
 **Acceptance criteria:**
 - [x] GitHub Actions workflow (`.github/workflows/ci.yml`) running `npm run lint`, `npm test`, `npm run build`
-- [x] All 45 tests execute — the offline-sync suite is run explicitly, because `npm test` only covers 34
+- [x] All 45 tests execute in a single `npm test` — the offline-sync suite is now wired into it
 - [x] Runs on push to `main` and on every pull request; no repository secrets required
 - [x] Superseded runs on the same branch are cancelled
+- [x] Git-history secret scan enforced (checkout uses `fetch-depth: 0`)
 - [ ] Status check required on `main` (needs branch protection — owner)
 
 ### ISSUE-38 — Add code coverage reporting
-**Labels:** `testing` `technical-debt` · **State: Backlog**
-**Description:** No coverage tooling is configured.
+**Labels:** `testing` `technical-debt` · **State: Done**
+**Description:** No coverage tooling was configured, so no coverage figure could be reported.
 **Acceptance criteria:**
-- [ ] Coverage provider added
-- [ ] Coverage reported in CI
-- [ ] Threshold agreed
+- [x] Coverage provider added — `c8`, run via `npm run test:coverage`
+- [x] Coverage reported in CI (printed into the job log on every push/PR)
+- [x] Scope documented — `server.ts`, `server/`, `src/lib/`; the React UI is out of scope because there are no component tests
+- [x] Result recorded: statements 30.8% / branches 42.4% / functions 52.1%
+- [ ] Threshold agreed and enforced (deliberately not set yet — no baseline to regress against)
 
 ### ISSUE-39 — Persist per-question correctness on submission_answers
 **Labels:** `backend` `database` `bug` · **State: Backlog**
@@ -400,8 +403,9 @@ Create/replace these so the issues below can be labelled consistently:
 - [x] Every blob in Git history walked and checked against 10 secret rules
 - [x] No findings (`.env` is untracked); detector validated against a synthetic repo containing fake credentials
 - [x] Result recorded in `docs/SECURITY.md` §7.1
+- [x] Enforced in CI — the `Scan Git history for secrets` step fails the job on any finding
 
-> **34 issues are listed above (ISSUE-01 … ISSUE-35 are completed work; ISSUE-36, ISSUE-38, ISSUE-39, ISSUE-41 and ISSUE-42 are outstanding; ISSUE-37, ISSUE-40, ISSUE-43 and ISSUE-44 document work completed since).** That is **44 draft issues**, comfortably above the 30 minimum, and every one corresponds to real work or a genuine gap.
+> **44 issues are listed above (ISSUE-01 … ISSUE-35 are completed work; ISSUE-36, ISSUE-39, ISSUE-41 and ISSUE-42 are outstanding; ISSUE-37, ISSUE-38, ISSUE-40, ISSUE-43 and ISSUE-44 document work completed since).** That is **44 draft issues**, comfortably above the 30 minimum, and every one corresponds to real work or a genuine gap.
 
 ---
 
@@ -411,10 +415,10 @@ Create a board named **"GMA Quiz System — Delivery"** with exactly these four 
 
 | Column | What goes here |
 |---|---|
-| **Backlog** | ISSUE-36, ISSUE-38, ISSUE-39, ISSUE-41 and ISSUE-42 (outstanding) |
+| **Backlog** | ISSUE-36, ISSUE-39, ISSUE-41 and ISSUE-42 (outstanding) |
 | **In Progress** | (currently empty — nothing is actively in progress) |
 | **Review** | (currently empty — nothing is awaiting review) |
-| **Done** | ISSUE-01 … ISSUE-35, ISSUE-37, ISSUE-40, ISSUE-43 and ISSUE-44 (completed work) |
+| **Done** | ISSUE-01 … ISSUE-35, ISSUE-37, ISSUE-38, ISSUE-40, ISSUE-43 and ISSUE-44 (completed work) |
 
 > ⚠️ **Do not move unfinished work into Done.** Outstanding issues must stay in Backlog.
 

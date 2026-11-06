@@ -76,7 +76,7 @@ The Uncommon brief lists five optional extra-credit deliverables. This document 
 | 2 | Passed | **45** |
 | 3 | Failed | **0** |
 | 4 | Skipped | **0** |
-| 5 | Coverage | ⚠️ **not available** — no coverage tooling configured |
+| 5 | Coverage | **statements 30.8% · branches 42.4% · functions 52.1%** (`npm run test:coverage`, `c8`; scope = `server.ts`, `server/`, `src/lib/`) |
 | 6 | Untested critical workflows | multi-device offline→online sync (needs tablets); production Supabase-Auth staff login round-trip |
 
 Suite breakdown:
@@ -86,11 +86,11 @@ Suite breakdown:
 | `test/security.test.ts` | 19 | `npm test` |
 | `test/adapter.test.ts` | 9 | `npm test` |
 | `test/generation-and-export.test.ts` | 6 | `npm test` |
-| `test/offline-sync.test.ts` | 11 | run separately (`npx tsx`) |
+| `test/offline-sync.test.ts` | 11 | `npm test` |
 | **Total** | **45** | |
 
 **Honesty notes:**
-- The prior "43/43" figure in older reports does **not** match the current suite. The accurate figure is **45 tests across 4 files** (34 via `npm test` + 11 separately).
+- The prior "43/43" figure in older reports does **not** match the current suite. The accurate figure is **45 tests across 4 files**, all run by a single `npm test`.
 - Passing unit tests **do not prove** live database or production integration. Live verification is a separate activity (see `TESTING_REPORT.md`).
 
 ---
@@ -121,7 +121,7 @@ Suite breakdown:
 | A. Postman collection | ✅ **Complete** | Not live-executed (needs a staff session) |
 | B. Database ERD | ✅ **Complete** | Not rendered to image (manual step) |
 | C. Storybook | ⚠️ **Assessed — not recommended** | Would add dependencies + risk for limited value |
-| D. Unit tests | ✅ **Complete** | 45/45 pass; no coverage tooling; run independently |
+| D. Unit tests | ✅ **Complete** | 45/45 pass in one `npm test`; `c8` coverage reported; all gated in CI |
 | E. Docker | ⚠️ **Assessed — not recommended** | Does not match the Vercel serverless target |
 
 ---

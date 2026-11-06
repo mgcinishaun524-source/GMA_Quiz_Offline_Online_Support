@@ -116,8 +116,8 @@ npm run dev        # Express API + Vite dev server → http://localhost:3000
 |---|---|
 | `npm run dev` | Run locally (port 3000) |
 | `npm run lint` | Type-check (`tsc --noEmit`) |
-| `npm test` | Run 3 suites (34 tests) |
-| `npx tsx test/offline-sync.test.ts` | Run the 11 offline-sync tests |
+| `npm test` | Run all 4 suites (45 tests) |
+| `npm run test:coverage` | Same suites under `c8`, with a coverage summary |
 | `npm run build` | Production build → `dist/` |
 | `npm start` | Run the built server bundle |
 | `npm run clean` | Remove `dist/` |

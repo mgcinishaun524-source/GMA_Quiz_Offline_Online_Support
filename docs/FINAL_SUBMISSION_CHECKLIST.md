@@ -27,7 +27,7 @@ Every Uncommon requirement is evaluated below. Statuses used:
 | 2 | Frontend implementation | **VERIFIED COMPLETE** | `src/` builds clean; entry chunk 352 kB (gzip 110 kB) across 22 code-split routes | — | — | — |
 | 3 | Backend implementation | **VERIFIED COMPLETE** | `server.ts` + `server/*` | Consider splitting `server.ts` | Dev | Low |
 | 4 | Database + migrations | **VERIFIED COMPLETE** | 5 migrations; RLS on 14 tables | — | — | — |
-| 5 | Automated tests | **VERIFIED COMPLETE** | 45/45 pass; lint clean; build clean; all three gated in CI on every push/PR ([.github/workflows/ci.yml](file:///c:/Users/thula/Downloads/growing-minds-academy-ai-quiz-system%20(1)/.github/workflows/ci.yml)) | Add coverage | Dev | Medium |
+| 5 | Automated tests | **VERIFIED COMPLETE** | 45/45 pass in one `npm test`; `c8` coverage (statements 30.8% / branches 42.4% / functions 52.1%); lint clean; build clean; all four gated in CI on every push/PR | Coverage threshold not yet enforced | Dev | Low |
 
 ### A2. Documentation
 
@@ -61,7 +61,7 @@ Every Uncommon requirement is evaluated below. Statuses used:
 
 | # | Requirement | Status | Evidence | Remaining work | Who | Priority |
 |---|---|---|---|---|---|---|
-| 22 | Clean Git history | **PARTIALLY COMPLETE** | 52 commits, conventional prefixes, some journey/debug commits | Ledger in CHANGELOG; do not rewrite | — | Low |
+| 22 | Clean Git history | **PARTIALLY COMPLETE** | Conventional-Commit prefixes throughout, but a few journey/debug commits (e.g. `chore: trigger Vercel redeploy`) | Ledger in CHANGELOG; do not rewrite | — | Low |
 | 23 | Appropriate branch structure | **MISSING** | `main` only | Create feature branches | Team | High |
 | 24 | Meaningful commit messages | **VERIFIED COMPLETE** | Conventional Commits observed | — | — | — |
 | 25 | Appropriate `.gitignore` | **VERIFIED COMPLETE** | `.env*`, `dist/`, `node_modules/` ignored | — | — | — |

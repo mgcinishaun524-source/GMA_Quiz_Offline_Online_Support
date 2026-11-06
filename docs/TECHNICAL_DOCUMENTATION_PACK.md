@@ -195,10 +195,10 @@ Vercel project serving the SPA from `dist/` and the Express `app` as a serverles
 | `test/offline-sync.test.ts` | 11 | 11 | 0 | 0 |
 | **Total** | **45** | **45** | **0** | **0** |
 
-- `npm test` runs the first three suites (34 tests); `offline-sync.test.ts` is run separately.
+- `npm test` runs all four suites (45 tests); `npm run test:coverage` runs the same suites under `c8`.
 - **Lint:** `npm run lint` (`tsc --noEmit`) — clean.
 - **Build:** `npm run build` — clean.
-- **Coverage:** ⚠️ not available (no coverage tooling configured).
+- **Coverage (`npm run test:coverage`, 2026-11-06):** statements **30.8%** (1501/4875), branches **42.4%**, functions **52.1%**, over `server.ts`, `server/` and `src/lib/`. `server/auth.ts` — the security-critical path — sits at **57.7% lines / 81.0% branches**; `server.ts` is at 25.2% because most of its 36 route handlers are exercised against a live database, which these suites deliberately avoid. The React UI carries no coverage (no component tests). No threshold is enforced yet.
 
 ## 3.2 Test coverage by area
 
@@ -216,9 +216,9 @@ A prior live Supabase probe plus an in-process HTTP test of `GET /api/learners/r
 - Multi-device offline→online sync (requires physical tablets).
 - Full Supabase-Auth staff login round-trip in production.
 - RLS policy behaviour observed at runtime.
-- Test coverage is not measured — no coverage tooling is configured (T-01).
+- Live end-to-end coverage of the workflow route handlers, which is why overall statement coverage sits at 30.8% (T-01).
 
-> CI ([.github/workflows/ci.yml](../.github/workflows/ci.yml)) now runs lint, all 45 tests and the production build on every push and pull request, so these gaps can no longer regress unnoticed.
+> CI ([.github/workflows/ci.yml](../.github/workflows/ci.yml)) now runs lint, all 45 tests with coverage, a full-history secret scan and the production build on every push and pull request, so these gaps can no longer regress unnoticed.
 
 > Unit tests do **not** prove live database or production integration.
 
@@ -309,7 +309,7 @@ Schema, indexes, constraints, RLS and migration order: [docs/DATABASE.md](../DAT
 # 6. Appendices
 
 ## Appendix A — Known limitations
-See [docs/KNOWN_ISSUES.md](../KNOWN_ISSUES.md). Highlights: no pagination, no server-side caching, in-memory rate limiting, no coverage tooling, no screenshots, live URL verified but the authenticated walkthrough not yet exercised.
+See [docs/KNOWN_ISSUES.md](../KNOWN_ISSUES.md). Highlights: no pagination, no server-side caching, in-memory rate limiting, statement coverage 30.8%, no screenshots, live URL verified but the authenticated walkthrough not yet exercised.
 
 ## Appendix B — Source file references
 

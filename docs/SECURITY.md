@@ -116,7 +116,7 @@ Full inventory: [docs/DATABASE.md](DATABASE.md).
 
 ### 7.1 Git history secret scan
 
-Performed on **2026-11-06** across the entire repository history:
+Performed on **2026-11-06** across the entire repository history. The scan is also **enforced in CI** ([.github/workflows/ci.yml](file:///c:/Users/thula/Downloads/growing-minds-academy-ai-quiz-system%20(1)/.github/workflows/ci.yml)) on every push to `main` and every pull request — the checkout uses `fetch-depth: 0` precisely so the full history is present for it — and fails the job if it finds anything:
 
 ```powershell
 node scripts/secret-scan.mjs
@@ -127,10 +127,11 @@ node scripts/secret-scan.mjs
 | Engine | [scripts/secret-scan.mjs](file:///c:/Users/thula/Downloads/growing-minds-academy-ai-quiz-system%20(1)/scripts/secret-scan.mjs) — `gitleaks` is not installed on the build machine |
 | Scope | Every blob reachable from any ref **plus the reflog** — the whole history, not just the working tree |
 | Patterns | Google `AIza…`, Groq `gsk_…`, GitHub `gh[pousr]_…`, AWS `AKIA…`, Slack `xox…`, PEM private-key blocks, JWTs (Supabase keys/session tokens), assignments to known secret variable names, and DB connection strings with inline credentials |
-| **Result** | **CLEAN — 0 findings** (376 revisions at the latest run). One placeholder occurrence (`YOUR_GEMINI_API_KEY` in `.env.example`) was correctly ignored. |
+| **Result** | **CLEAN — 0 findings** (422 revisions at the latest run). One placeholder occurrence (`YOUR_GEMINI_API_KEY` in `.env.example`) was correctly ignored. |
 | `.env` tracked? | **No** — `git ls-files` returns only `.env.example` |
+| CI gate | ✅ `Scan Git history for secrets` step, exit 0 = clean, exit 1 = findings |
 
-The detector was validated against a synthetic repository containing fake Groq, GitHub, JWT and Gemini credentials: it flagged all four and ignored a `<your-key-here>` placeholder. Matches are redacted to a 4-character prefix plus length, so a report can be shared without leaking a value. Re-run before submission and after introducing any new configuration file.
+The detector was validated against a synthetic repository containing fake Groq, GitHub, JWT and Gemini credentials: it flagged all four and ignored a `<your-key-here>` placeholder. Matches are redacted to a 4-character prefix plus length, so a report can be shared without leaking a value.
 
 ---
 
@@ -170,7 +171,7 @@ Source: [server/db.ts](file:///c:/Users/thula/Downloads/growing-minds-academy-ai
 | 4 | No MFA for staff | Password is the sole second factor for admin | — |
 | 5 | No CSRF tokens | Mitigated by bearer-token auth rather than cookies | — |
 | 6 | RLS policies were not exercised end-to-end live in testing | Policy correctness reasoned from SQL, not observed at runtime | [TESTING_REPORT.md](file:///c:/Users/thula/Downloads/growing-minds-academy-ai-quiz-system%20(1)/TESTING_REPORT.md) |
-| 7 | No automated dependency/vulnerability scanning, and the secret scan of §7.1 runs on demand rather than in CI | CI ([.github/workflows/ci.yml](../.github/workflows/ci.yml)) gates lint, tests and the build, but does not yet run `scripts/secret-scan.mjs` or `npm audit` | [docs/SUBMISSION_GAP_ANALYSIS.md](SUBMISSION_GAP_ANALYSIS.md) |
+| 7 | No automated dependency/vulnerability scanning | CI gates lint, tests, coverage and the secret scan, but does not run `npm audit` or a Dependabot-style advisory check | [docs/SUBMISSION_GAP_ANALYSIS.md](SUBMISSION_GAP_ANALYSIS.md) |
 
 These are documented rather than hidden. None expose a stored secret or a bypass of authentication/authorisation.
 

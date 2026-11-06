@@ -253,7 +253,8 @@ Full schema reference, indexes, constraints and RLS inventory: [docs/DATABASE.md
 | `start` | `node dist/server.js` | Run the production server bundle |
 | `preview` | `vite preview` | Preview the built SPA |
 | `lint` | `tsc --noEmit` | Type-check the whole project |
-| `test` | `cross-env NODE_ENV=test tsx …` | Run the security, adapter and AI/export suites (34 tests) |
+| `test` | `cross-env NODE_ENV=test tsx …` | Run all four suites (45 tests) |
+| `test:coverage` | `c8 … npm test` | Run the suites under `c8` and print a coverage summary |
 | `clean` | `node -e "…fs.rmSync('dist'…)"` | Remove the `dist/` build output |
 
 ---
@@ -282,10 +283,10 @@ Postman collection: [docs/api/growing-minds-api.postman_collection.json](docs/ap
 ## 12. Testing
 
 ```bash
-npm run lint     # TypeScript type-check (tsc --noEmit) — clean
-npm test         # 34 tests: security (19), adapter (9), generation & export (6)
-npx tsx test/offline-sync.test.ts   # + 11 offline-sync tests
-npm run build    # production build verification
+npm run lint      # TypeScript type-check (tsc --noEmit) — clean
+npm test          # all 45 tests across 4 suites
+npm run test:coverage   # same suites under c8, with a coverage summary
+npm run build     # production build verification
 ```
 
 **Independently re-run results (2026-11-05):**
@@ -298,10 +299,9 @@ npm run build    # production build verification
 | `test/offline-sync.test.ts` | 11 | ✅ pass |
 | **Total** | **45** | **45 passed · 0 failed · 0 skipped** |
 
-- `npm test` runs the first three suites (34 tests); `offline-sync.test.ts` is run separately.
 - ✅ Lint clean · ✅ Production build clean.
-- ✅ **Continuous integration:** [.github/workflows/ci.yml](.github/workflows/ci.yml) runs lint, all 45 tests and the production build on every push to `main` and every pull request. It needs no repository secrets — each suite pins its own configuration before importing the server.
-- ⚠️ **No coverage tooling is configured**, so no coverage percentage is reported.
+- ✅ **Continuous integration:** [.github/workflows/ci.yml](.github/workflows/ci.yml) runs lint, all 45 tests with coverage, a full Git-history secret scan and the production build on every push to `main` and every pull request. It needs no repository secrets — each suite pins its own configuration before importing the server.
+- **Coverage (`npm run test:coverage`, 2026-11-06):** statements **30.8%** (1501/4875), branches **42.4%**, functions **52.1%**. Scope is the server-side and shared logic the Node harness can reach — `server.ts`, `server/`, `src/lib/`. Coverage is concentrated where it matters most: `server/auth.ts` is at **57.7% lines / 81.0% branches**. `server.ts` sits at 25.2% because its 36 route handlers are largely driven against a live database, which the suites deliberately avoid; the React UI is not covered at all, as there are no component tests.
 - ⚠️ Unit tests do **not** prove live database or production integration; live end-to-end checks are described in [TESTING_REPORT.md](TESTING_REPORT.md).
 - ⚠️ **Untested critical workflows:** true multi-device offline→online sync (requires physical tablets) and the full Supabase-Auth staff login round-trip in production.
 

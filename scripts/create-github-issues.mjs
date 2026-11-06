@@ -4,8 +4,8 @@
  *
  * Creates the submission labels and the 44 issue drafts from
  * docs/GITHUB_SETUP_GUIDE.md, and closes the ones that document work already
- * present in the Git history (ISSUE-01 … ISSUE-35, plus ISSUE-37, ISSUE-40,
- * ISSUE-43 and ISSUE-44). The genuinely outstanding items (ISSUE-36, ISSUE-38,
+ * present in the Git history (ISSUE-01 … ISSUE-35, plus ISSUE-37, ISSUE-38,
+ * ISSUE-40, ISSUE-43 and ISSUE-44). The genuinely outstanding items (ISSUE-36,
  * ISSUE-39, ISSUE-41 and ISSUE-42) are created open.
  *
  * Idempotent: re-running skips any issue that already exists by title and
@@ -449,21 +449,25 @@ const ISSUES = [
       'Nothing verified a push or a pull request, so a reviewer had to take lint, tests and the build on trust.',
     criteria: `
 - [x] GitHub Actions workflow \`.github/workflows/ci.yml\` running \`npm run lint\`, \`npm test\`, \`npm run build\`
-- [x] All 45 tests execute — the offline-sync suite is run explicitly, because \`npm test\` only covers 34
+- [x] All 45 tests execute in a single \`npm test\` — the offline-sync suite is now wired into it
 - [x] Runs on both push to \`main\` and every pull request, with no repository secrets required
 - [x] Superseded runs on the same branch are cancelled
+- [x] Git-history secret scan enforced (checkout uses \`fetch-depth: 0\`)
 - [ ] Status check marked required on \`main\` (needs branch protection — owner)`,
   },
   {
     id: 'ISSUE-38',
     title: 'Add code coverage reporting',
     labels: ['testing', 'technical-debt'],
-    state: 'Backlog',
-    description: 'No coverage tooling is configured.',
+    state: 'Done',
+    description:
+      'No coverage tooling was configured, so no coverage figure could be reported.',
     criteria: `
-- [ ] Coverage provider added
-- [ ] Coverage reported in CI
-- [ ] Threshold agreed`,
+- [x] Coverage provider added — \`c8\`, run via \`npm run test:coverage\`
+- [x] Coverage reported in CI (printed into the job log on every push/PR)
+- [x] Scope documented — \`server.ts\`, \`server/\`, \`src/lib/\`; the React UI is out of scope because there are no component tests
+- [x] Result recorded: statements 30.8% / branches 42.4% / functions 52.1%
+- [ ] Threshold agreed and enforced (deliberately not set yet — no baseline to regress against)`,
   },
   {
     id: 'ISSUE-39',
@@ -535,7 +539,8 @@ const ISSUES = [
 - [x] \`scripts/secret-scan.mjs\` run over the full history — \`gitleaks\` unavailable, substitute documented
 - [x] 0 findings; the single placeholder (\`YOUR_GEMINI_API_KEY\` in \`.env.example\`) correctly ignored
 - [x] Detector validated against a synthetic repository containing fake credentials
-- [x] Result recorded in \`docs/SECURITY.md\` §7.1`,
+- [x] Result recorded in \`docs/SECURITY.md\` §7.1
+- [x] Enforced in CI — the \`Scan Git history for secrets\` step fails the job on any finding`,
   },
 ];
 
@@ -782,8 +787,8 @@ Next steps (owner, still manual):
 
   1. Project board — create a Board project named "GMA Quiz System — Delivery"
      with columns Backlog / In Progress / Review / Done, then add the issues:
-       Backlog     : ISSUE-36, ISSUE-38, ISSUE-39, ISSUE-41 and ISSUE-42 (open)
-       Done        : ISSUE-01 … ISSUE-35, ISSUE-37, ISSUE-40, ISSUE-43 and ISSUE-44 (closed)
+       Backlog     : ISSUE-36, ISSUE-39, ISSUE-41 and ISSUE-42 (open)
+       Done        : ISSUE-01 … ISSUE-35, ISSUE-37, ISSUE-38, ISSUE-40, ISSUE-43 and ISSUE-44 (closed)
      https://github.com/${OWNER_REPO}/projects
 
   2. Branch protection — Settings → Branches → add a rule for "main":

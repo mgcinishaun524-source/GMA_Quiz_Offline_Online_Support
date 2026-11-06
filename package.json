@@ -13,7 +13,8 @@
     "preview": "vite preview",
     "clean": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\"",
     "lint": "tsc --noEmit",
-    "test": "cross-env NODE_ENV=test tsx test/security.test.ts && cross-env NODE_ENV=test tsx test/adapter.test.ts && cross-env NODE_ENV=test tsx test/generation-and-export.test.ts"
+    "test": "cross-env NODE_ENV=test tsx test/security.test.ts && cross-env NODE_ENV=test tsx test/adapter.test.ts && cross-env NODE_ENV=test tsx test/generation-and-export.test.ts && cross-env NODE_ENV=test tsx test/offline-sync.test.ts",
+    "test:coverage": "c8 --reporter=text --reporter=text-summary --reporter=json-summary --include=\"server.ts\" --include=\"server/**\" --include=\"src/lib/**\" npm test"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",
@@ -42,6 +43,7 @@
     "@types/react-dom": "^19.3.0",
     "@vercel/node": "^29.0.0",
     "autoprefixer": "^10.4.21",
+    "c8": "^12.0.0",
     "cross-env": "^7.0.3",
     "esbuild": "^0.28.0",
     "tailwindcss": "^4.3.3",

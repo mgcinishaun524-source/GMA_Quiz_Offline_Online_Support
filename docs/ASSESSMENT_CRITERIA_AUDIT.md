@@ -99,8 +99,8 @@ The implementation looks polished and consistent, and a deliberate redesign remo
 
 | Criterion | Finding |
 |---|---|
-| Contributions by each team member | ❌ **Only one author identity** ("Kiro Agent") across all 52 commits |
-| Commit history | ✅ 52 commits with conventional prefixes (some journey/debug commits) |
+| Contributions by each team member | ❌ **Only one author identity** ("Kiro Agent") across every commit |
+| Commit history | ✅ Conventional-Commit prefixes across the history (some journey/debug commits) |
 | Branch activity | ❌ `main` only — no feature branches |
 | Issues assigned | ❌ **0 issues** exist |
 | Pull requests | ❌ **0 PRs** |
