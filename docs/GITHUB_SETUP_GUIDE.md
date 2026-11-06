@@ -46,9 +46,19 @@ Create/replace these so the issues below can be labelled consistently:
 
 ---
 
-## 2. The issues (create these — 34 provided so you can exceed the 30 minimum)
+## 2. The issues (create these — 44 provided so you can exceed the 30 minimum)
 
-> **How to use:** create each as a new issue, paste the Description into the body, add the labels, and set the state indicated. Issues marked **Done** document work already in the history; issues marked **Backlog** are genuine outstanding work. This gives you a truthful board where completed work sits in *Done*.
+> **Automated option.** `scripts/create-github-issues.mjs` creates every label and all 44 issues below through the GitHub REST API, and closes the ones marked **Done**. It is idempotent — re-running skips anything already present by title and re-aligns its state.
+>
+> ```powershell
+> $env:GITHUB_TOKEN="<classic PAT with the public_repo scope>"
+> node scripts/create-github-issues.mjs --dry-run   # preview first
+> node scripts/create-github-issues.mjs             # apply
+> ```
+>
+> The token is read from the environment only and is never hardcoded, logged, or committed. The Project board, branch protection, collaborators and PR reviews (sections 3–5) remain manual — the GitHub REST API cannot create a Projects v2 board without the `project` scope.
+
+> **Manual alternative — how to use:** create each as a new issue, paste the Description into the body, add the labels, and set the state indicated. Issues marked **Done** document work already in the history; issues marked **Backlog** are genuine outstanding work. This gives you a truthful board where completed work sits in *Done*.
 
 ---
 
