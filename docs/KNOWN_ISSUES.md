@@ -52,7 +52,7 @@ This is an honest inventory of every known defect, limitation and caveat in the 
 | T-01 | 🟠 | **No coverage tooling** is configured; no coverage percentage can be reported. | [README.md §12](../README.md#12-testing) |
 | T-02 | 🟡 | `test/offline-sync.test.ts` (11 tests) is **not wired into `npm test`** — it must be run separately, so the default `npm test` reports only 34 of 45 tests. | `package.json` |
 | T-03 | 🟠 | Untested critical workflows: true **multi-device offline→online sync** (needs physical tablets) and the full **Supabase-Auth staff login** round-trip in production. | [TESTING_REPORT.md](file:///c:/Users/thula/Downloads/growing-minds-academy-ai-quiz-system%20(1)/TESTING_REPORT.md) |
-| T-04 | 🟡 | No CI pipeline — tests/lint/build are not run automatically on push or PR. | [docs/SUBMISSION_GAP_ANALYSIS.md](SUBMISSION_GAP_ANALYSIS.md) |
+| T-04 | ✅ | ~~No CI pipeline~~ — **resolved 2026-11-06**: [.github/workflows/ci.yml](../.github/workflows/ci.yml) runs lint, all 45 tests and the production build on every push to `main` and every PR. Marking the job required on `main` still needs branch protection. | [docs/GITHUB_SETUP_GUIDE.md](GITHUB_SETUP_GUIDE.md) §4 |
 
 ---
 

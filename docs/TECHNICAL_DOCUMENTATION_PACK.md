@@ -216,7 +216,9 @@ A prior live Supabase probe plus an in-process HTTP test of `GET /api/learners/r
 - Multi-device offline→online sync (requires physical tablets).
 - Full Supabase-Auth staff login round-trip in production.
 - RLS policy behaviour observed at runtime.
-- No CI pipeline runs the suite automatically.
+- Test coverage is not measured — no coverage tooling is configured (T-01).
+
+> CI ([.github/workflows/ci.yml](../.github/workflows/ci.yml)) now runs lint, all 45 tests and the production build on every push and pull request, so these gaps can no longer regress unnoticed.
 
 > Unit tests do **not** prove live database or production integration.
 
@@ -307,7 +309,7 @@ Schema, indexes, constraints, RLS and migration order: [docs/DATABASE.md](../DAT
 # 6. Appendices
 
 ## Appendix A — Known limitations
-See [docs/KNOWN_ISSUES.md](../KNOWN_ISSUES.md). Highlights: no pagination, no server-side caching, in-memory rate limiting, no coverage tooling, no CI, no screenshots, live URL unverified.
+See [docs/KNOWN_ISSUES.md](../KNOWN_ISSUES.md). Highlights: no pagination, no server-side caching, in-memory rate limiting, no coverage tooling, no screenshots, live URL verified but the authenticated walkthrough not yet exercised.
 
 ## Appendix B — Source file references
 

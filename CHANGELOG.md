@@ -17,6 +17,9 @@ This changelog is **derived from the actual Git history** of the repository (52 
 - `docs/api/growing-minds-api.postman_collection.json` — Postman collection.
 - `.github/pull_request_template.md`.
 
+### Added — Continuous integration
+- `.github/workflows/ci.yml` — runs `npm run lint`, `npm test`, the offline-sync suite and `npm run build` on every push to `main` and every pull request. `npm test` covers 34 of the 45 tests, so the offline-sync suite is invoked explicitly; otherwise CI would report green while 11 tests never ran. No repository secrets are required, because each suite pins its own configuration before importing the server.
+
 ### Changed
 - `README.md` rewritten to the full Uncommon submission specification (15 required points).
 

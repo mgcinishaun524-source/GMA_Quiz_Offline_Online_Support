@@ -300,6 +300,7 @@ npm run build    # production build verification
 
 - `npm test` runs the first three suites (34 tests); `offline-sync.test.ts` is run separately.
 - ✅ Lint clean · ✅ Production build clean.
+- ✅ **Continuous integration:** [.github/workflows/ci.yml](.github/workflows/ci.yml) runs lint, all 45 tests and the production build on every push to `main` and every pull request. It needs no repository secrets — each suite pins its own configuration before importing the server.
 - ⚠️ **No coverage tooling is configured**, so no coverage percentage is reported.
 - ⚠️ Unit tests do **not** prove live database or production integration; live end-to-end checks are described in [TESTING_REPORT.md](TESTING_REPORT.md).
 - ⚠️ **Untested critical workflows:** true multi-device offline→online sync (requires physical tablets) and the full Supabase-Auth staff login round-trip in production.

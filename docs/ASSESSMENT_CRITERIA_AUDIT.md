@@ -63,7 +63,7 @@ Clear structure, strict typing, a shared AI core, and a real service/adapter sep
 
 ### Evidence gaps
 - 🟡 `server.ts` size — no refactor performed (rule 9: no broad refactors without a verified blocker).
-- 🟠 No CI enforcing lint/build on PRs (ISSUE-37).
+- ✅ ~~No CI enforcing lint/build on PRs~~ — now enforced by [.github/workflows/ci.yml](../.github/workflows/ci.yml): lint, all 45 tests and the production build run on every push and PR. Marking the check *required* on `main` still needs branch protection (owner).
 
 ---
 
@@ -156,7 +156,7 @@ Strong on schema, security and access control. Weaker on the non-functional item
 | Area | Weight | Self-assessment | Primary gap |
 |---|---:|---|---|
 | Functionality | 40% | STRONG (code) / ADEQUATE (live demo) | Authenticated walkthrough + screenshots |
-| Code quality | 20% | STRONG | Monolithic `server.ts`; no CI |
+| Code quality | 20% | STRONG | Monolithic `server.ts` |
 | UI/UX | 15% | ADEQUATE (code) / WEAK (evidence) | Screenshots |
 | Collaboration | 15% | **MISSING / REQUIRES HUMAN ACTION** | No team, issues, PRs or reviews |
 | Technical implementation | 10% | ADEQUATE | Pagination, caching, validation |

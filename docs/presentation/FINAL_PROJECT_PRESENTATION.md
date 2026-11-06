@@ -314,7 +314,7 @@
 - Pagination and server-side caching on list endpoints.
 - Move lockout/rate-limit state to a shared store (Redis/Upstash).
 - Persist per-question correctness for richer analytics.
-- Add a CI pipeline and code coverage.
+- Add code coverage reporting to the CI pipeline.
 - Formal schema validation and an accessibility audit.
 - Parent/guardian reporting and scheduled term reports.
 

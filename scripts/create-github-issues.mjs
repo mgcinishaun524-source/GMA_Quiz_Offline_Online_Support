@@ -4,9 +4,9 @@
  *
  * Creates the submission labels and the 44 issue drafts from
  * docs/GITHUB_SETUP_GUIDE.md, and closes the ones that document work already
- * present in the Git history (ISSUE-01 … ISSUE-35, plus ISSUE-40, ISSUE-43
- * and ISSUE-44). The genuinely outstanding items (ISSUE-36 … ISSUE-39 and
- * ISSUE-41 … ISSUE-42) are created open.
+ * present in the Git history (ISSUE-01 … ISSUE-35, plus ISSUE-37, ISSUE-40,
+ * ISSUE-43 and ISSUE-44). The genuinely outstanding items (ISSUE-36, ISSUE-38,
+ * ISSUE-39, ISSUE-41 and ISSUE-42) are created open.
  *
  * Idempotent: re-running skips any issue that already exists by title and
  * re-aligns its open/closed state, so it is safe to run repeatedly.
@@ -444,11 +444,15 @@ const ISSUES = [
     id: 'ISSUE-37',
     title: 'Add a CI pipeline (lint + tests + build)',
     labels: ['technical-debt', 'deployment'],
-    state: 'Backlog',
-    description: 'No CI currently runs on push/PR.',
+    state: 'Done',
+    description:
+      'Nothing verified a push or a pull request, so a reviewer had to take lint, tests and the build on trust.',
     criteria: `
-- [ ] GitHub Actions workflow running \`npm run lint\`, \`npm test\`, \`npm run build\`
-- [ ] Status check required on \`main\``,
+- [x] GitHub Actions workflow \`.github/workflows/ci.yml\` running \`npm run lint\`, \`npm test\`, \`npm run build\`
+- [x] All 45 tests execute — the offline-sync suite is run explicitly, because \`npm test\` only covers 34
+- [x] Runs on both push to \`main\` and every pull request, with no repository secrets required
+- [x] Superseded runs on the same branch are cancelled
+- [ ] Status check marked required on \`main\` (needs branch protection — owner)`,
   },
   {
     id: 'ISSUE-38',
@@ -778,8 +782,8 @@ Next steps (owner, still manual):
 
   1. Project board — create a Board project named "GMA Quiz System — Delivery"
      with columns Backlog / In Progress / Review / Done, then add the issues:
-       Backlog     : ISSUE-36 … ISSUE-39 and ISSUE-41 … ISSUE-42 (open)
-       Done        : ISSUE-01 … ISSUE-35, ISSUE-40, ISSUE-43 and ISSUE-44 (closed)
+       Backlog     : ISSUE-36, ISSUE-38, ISSUE-39, ISSUE-41 and ISSUE-42 (open)
+       Done        : ISSUE-01 … ISSUE-35, ISSUE-37, ISSUE-40, ISSUE-43 and ISSUE-44 (closed)
      https://github.com/${OWNER_REPO}/projects
 
   2. Branch protection — Settings → Branches → add a rule for "main":

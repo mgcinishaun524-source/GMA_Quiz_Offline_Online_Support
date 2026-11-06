@@ -170,7 +170,7 @@ Source: [server/db.ts](file:///c:/Users/thula/Downloads/growing-minds-academy-ai
 | 4 | No MFA for staff | Password is the sole second factor for admin | — |
 | 5 | No CSRF tokens | Mitigated by bearer-token auth rather than cookies | — |
 | 6 | RLS policies were not exercised end-to-end live in testing | Policy correctness reasoned from SQL, not observed at runtime | [TESTING_REPORT.md](file:///c:/Users/thula/Downloads/growing-minds-academy-ai-quiz-system%20(1)/TESTING_REPORT.md) |
-| 7 | No automated dependency/vulnerability scanning in CI | No CI pipeline exists | [docs/SUBMISSION_GAP_ANALYSIS.md](SUBMISSION_GAP_ANALYSIS.md) |
+| 7 | No automated dependency/vulnerability scanning, and the secret scan of §7.1 runs on demand rather than in CI | CI ([.github/workflows/ci.yml](../.github/workflows/ci.yml)) gates lint, tests and the build, but does not yet run `scripts/secret-scan.mjs` or `npm audit` | [docs/SUBMISSION_GAP_ANALYSIS.md](SUBMISSION_GAP_ANALYSIS.md) |
 
 These are documented rather than hidden. None expose a stored secret or a bypass of authentication/authorisation.
 

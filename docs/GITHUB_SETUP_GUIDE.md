@@ -335,11 +335,14 @@ Create/replace these so the issues below can be labelled consistently:
 - [ ] Documented in `docs/API.md`
 
 ### ISSUE-37 — Add a CI pipeline (lint + tests + build)
-**Labels:** `technical-debt` `deployment` · **State: Backlog**
-**Description:** No CI currently runs on push/PR.
+**Labels:** `technical-debt` `deployment` · **State: Done**
+**Description:** Nothing verified a push or a pull request, so a reviewer had to take lint, tests and the build on trust.
 **Acceptance criteria:**
-- [ ] GitHub Actions workflow running `npm run lint`, `npm test`, `npm run build`
-- [ ] Status check required on `main`
+- [x] GitHub Actions workflow (`.github/workflows/ci.yml`) running `npm run lint`, `npm test`, `npm run build`
+- [x] All 45 tests execute — the offline-sync suite is run explicitly, because `npm test` only covers 34
+- [x] Runs on push to `main` and on every pull request; no repository secrets required
+- [x] Superseded runs on the same branch are cancelled
+- [ ] Status check required on `main` (needs branch protection — owner)
 
 ### ISSUE-38 — Add code coverage reporting
 **Labels:** `testing` `technical-debt` · **State: Backlog**
@@ -398,7 +401,7 @@ Create/replace these so the issues below can be labelled consistently:
 - [x] No findings (`.env` is untracked); detector validated against a synthetic repo containing fake credentials
 - [x] Result recorded in `docs/SECURITY.md` §7.1
 
-> **34 issues are listed above (ISSUE-01 … ISSUE-35 are completed work; ISSUE-36 … ISSUE-39 and ISSUE-41 … ISSUE-42 are outstanding; ISSUE-40, ISSUE-43 and ISSUE-44 document work completed since).** That is **44 draft issues**, comfortably above the 30 minimum, and every one corresponds to real work or a genuine gap.
+> **34 issues are listed above (ISSUE-01 … ISSUE-35 are completed work; ISSUE-36, ISSUE-38, ISSUE-39, ISSUE-41 and ISSUE-42 are outstanding; ISSUE-37, ISSUE-40, ISSUE-43 and ISSUE-44 document work completed since).** That is **44 draft issues**, comfortably above the 30 minimum, and every one corresponds to real work or a genuine gap.
 
 ---
 
@@ -408,10 +411,10 @@ Create a board named **"GMA Quiz System — Delivery"** with exactly these four 
 
 | Column | What goes here |
 |---|---|
-| **Backlog** | ISSUE-36 … ISSUE-39 and ISSUE-41 … ISSUE-42 (outstanding) |
+| **Backlog** | ISSUE-36, ISSUE-38, ISSUE-39, ISSUE-41 and ISSUE-42 (outstanding) |
 | **In Progress** | (currently empty — nothing is actively in progress) |
 | **Review** | (currently empty — nothing is awaiting review) |
-| **Done** | ISSUE-01 … ISSUE-35, ISSUE-40, ISSUE-43 and ISSUE-44 (completed work) |
+| **Done** | ISSUE-01 … ISSUE-35, ISSUE-37, ISSUE-40, ISSUE-43 and ISSUE-44 (completed work) |
 
 > ⚠️ **Do not move unfinished work into Done.** Outstanding issues must stay in Backlog.
 
@@ -425,7 +428,7 @@ Enable:
   - [x] Require approvals: **1**
   - [x] Dismiss stale approvals when new commits are pushed
 - [x] **Require status checks to pass before merging**
-  - Select the CI job once ISSUE-37 adds it
+  - Search for and select the **`Lint, test and build`** job (workflow `CI`, from [.github/workflows/ci.yml](../.github/workflows/ci.yml)). It appears in the picker only after the workflow has run at least once on this repository.
 - [x] **Require conversation resolution before merging**
 - [x] **Do not allow bypassing the above settings**
 - [x] **Restrict force pushes** (protect against accidental force push)

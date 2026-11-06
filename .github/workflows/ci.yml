@@ -1,0 +1,52 @@
+name: CI
+
+# Runs on every push to main and on every pull request, so a reviewer sees a
+# green check instead of having to trust that lint, tests and the build pass.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# A newer push to the same branch makes the previous run irrelevant.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Lint, test and build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      # 20 is the minimum declared in package.json "engines".
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type-check
+        run: npm run lint
+
+      # The suites pin their own configuration (empty Supabase URL/key, empty AI
+      # keys, a throwaway JWT secret) before importing the server, so CI needs no
+      # repository secrets and exercises the fail-closed paths.
+      - name: Run test suites
+        run: npm test
+
+      # `npm test` covers the security, adapter and generation suites only. The
+      # offline-sync suite is deliberately separate, so it has to be run here too
+      # — otherwise CI would report green while 11 tests never execute.
+      - name: Run offline-sync suite
+        run: npx cross-env NODE_ENV=test tsx test/offline-sync.test.ts
+
+      - name: Production build
+        run: npm run build

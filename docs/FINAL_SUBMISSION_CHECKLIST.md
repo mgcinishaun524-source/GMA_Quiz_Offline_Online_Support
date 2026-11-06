@@ -27,7 +27,7 @@ Every Uncommon requirement is evaluated below. Statuses used:
 | 2 | Frontend implementation | **VERIFIED COMPLETE** | `src/` builds clean; entry chunk 352 kB (gzip 110 kB) across 22 code-split routes | — | — | — |
 | 3 | Backend implementation | **VERIFIED COMPLETE** | `server.ts` + `server/*` | Consider splitting `server.ts` | Dev | Low |
 | 4 | Database + migrations | **VERIFIED COMPLETE** | 5 migrations; RLS on 14 tables | — | — | — |
-| 5 | Automated tests | **VERIFIED COMPLETE** | 45/45 pass; lint clean; build clean | Add coverage; wire offline-sync into `npm test` | Dev | Medium |
+| 5 | Automated tests | **VERIFIED COMPLETE** | 45/45 pass; lint clean; build clean; all three gated in CI on every push/PR ([.github/workflows/ci.yml](file:///c:/Users/thula/Downloads/growing-minds-academy-ai-quiz-system%20(1)/.github/workflows/ci.yml)) | Add coverage | Dev | Medium |
 
 ### A2. Documentation
 
