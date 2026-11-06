@@ -4,7 +4,7 @@ import { useAuth } from '../../app/AuthContext';
 import { PrimaryButton, OutlineButton, SecondaryButton } from '../../components/ui/Buttons';
 import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
 import { appDataStore } from '../../services/storage';
-import { quizApiService } from '../../services/quiz-api';
+import { quizApiService, SubmissionRejectedError } from '../../services/quiz-api';
 import { networkManager } from '../../lib/network';
 import {
   saveActiveAnswers,
@@ -41,6 +41,7 @@ export const LearnerQuizPlayer: React.FC = () => {
   const [isReviewOpen, setIsReviewOpen] = useState<boolean>(false);
   const [isConfirmSubmitOpen, setIsConfirmSubmitOpen] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   // Load quiz from store or IndexedDB offline cache
   useEffect(() => {
@@ -170,16 +171,16 @@ export const LearnerQuizPlayer: React.FC = () => {
 
   // Submit assessment (handles online vs offline queue)
   const handleFinalSubmit = async () => {
+    if (isSubmitting) return; // A second click while the first is in flight.
     setIsSubmitting(true);
+    setSubmitError(null);
+
     const { earned, total, percentage, answerDetails, topicsToPractise } = calculateMarks();
     const submissionId = `sub-${Date.now()}-${user?.learnerId || 'anon'}`;
     const clientHash = `hash-${quiz.id}-${user?.learnerId || 'anon'}-${Date.now()}`;
-    const isAutoRelease = quiz.releasePolicy === 'automatic' || quiz.status === 'results_released';
-    const submissionStatus = isOnline
-      ? (isAutoRelease ? 'marked' : 'submitted')
-      : 'saved_offline';
 
-    const submissionRecord: Submission = {
+    // Payload used only if the attempt ends up in the durable offline queue.
+    const queuedRecord: Submission = {
       id: submissionId,
       quizId: quiz.id,
       quizTitle: quiz.title,
@@ -193,44 +194,61 @@ export const LearnerQuizPlayer: React.FC = () => {
       score: earned,
       totalMarks: total,
       percentage,
-      status: submissionStatus,
-      syncStatus: isOnline ? 'synced' : 'offline_queued',
-      isOfflineSubmission: !isOnline,
+      status: 'saved_offline',
+      syncStatus: 'offline_queued',
+      isOfflineSubmission: true,
       submittedAt: new Date().toISOString(),
-      syncedAt: isOnline ? new Date().toISOString() : undefined,
       topicsToPractise,
       clientSubmissionHash: clientHash,
     };
 
-    if (isOnline) {
-      // Server-authoritative marking: the backend computes the score against the
-      // author answer key and returns the authoritative submission (with marks
-      // withheld until the teacher releases results). The learner device never
-      // holds the answer key, so a locally-computed score would always be a
-      // fabricated 0% — we must never persist one.
-      try {
+    let queuedOffline = !isOnline;
+
+    try {
+      if (isOnline) {
+        // Server-authoritative marking: the backend computes the score against
+        // the author answer key and returns the authoritative submission (with
+        // marks withheld until the teacher releases results). The learner device
+        // never holds the answer key, so a locally-computed score would always be
+        // a fabricated 0% — we must never persist one.
         await quizApiService.submitQuiz(quiz.id, answers, clientHash, false);
-      } catch (err) {
-        console.warn('[Server Live Submission Sync] Falling back to offline queue.', err);
-        await queueOfflineSubmission(submissionRecord);
+      } else {
+        await queueOfflineSubmission(queuedRecord);
       }
-    } else {
-      // Durable IndexedDB Queue for Offline Sync!
-      await queueOfflineSubmission(submissionRecord);
+    } catch (err) {
+      if (err instanceof SubmissionRejectedError) {
+        // The server answered and refused the attempt (deadline passed, attempt
+        // limit reached, wrong class…). That is a real result: show it and keep
+        // the learner's draft so nothing is lost. Never queue it as if it had
+        // been accepted, which would make a rejected attempt look submitted.
+        setSubmitError(err.message);
+        return;
+      }
+      // Otherwise the server could not be reached (offline, timeout, gateway
+      // failure). Keep the answers in the durable queue and retry later.
+      try {
+        await queueOfflineSubmission(queuedRecord);
+        queuedOffline = true;
+      } catch (queueErr) {
+        console.error('[Offline Queue] Failed to persist the attempt.', queueErr);
+        setSubmitError('Your answers could not be saved on this device. Please tell your teacher.');
+        return;
+      }
+    } finally {
+      setIsSubmitting(false);
     }
 
-    // Clear active in-progress draft from IndexedDB
+    // Reached only when the attempt was accepted or durably queued.
     if (user?.learnerId && id) {
       await clearActiveAnswers(id, user.learnerId);
     }
 
-    setIsSubmitting(false);
     setIsConfirmSubmitOpen(false);
     setIsReviewOpen(false);
 
     // Redirect to honest confirmation screen
     navigate(
-      `/learner/submitted?quizTitle=${encodeURIComponent(quiz.title)}&offline=${!isOnline}&id=${submissionId}`
+      `/learner/submitted?quizTitle=${encodeURIComponent(quiz.title)}&offline=${queuedOffline}&id=${submissionId}`
     );
   };
 
@@ -469,6 +487,7 @@ export const LearnerQuizPlayer: React.FC = () => {
               <PrimaryButton
                 onClick={() => {
                   setIsReviewOpen(false);
+                  setSubmitError(null);
                   setIsConfirmSubmitOpen(true);
                 }}
               >
@@ -484,11 +503,14 @@ export const LearnerQuizPlayer: React.FC = () => {
         isOpen={isConfirmSubmitOpen}
         title="Finalize Assessment Submission"
         message={
-          isOnline
+          submitError
+            ? `Your answers were not recorded. ${submitError}`
+            : isOnline
             ? "Are you ready to submit your answers? Once submitted, your answers will be recorded on the school server and your teacher will release marks after review."
             : "You are currently offline. Your answers will be safely saved on this tablet and will automatically synchronize with your teacher as soon as Wi-Fi reconnects. Submit now?"
         }
-        confirmLabel="Yes, Submit Assessment"
+        confirmLabel={submitError ? 'Try Again' : 'Yes, Submit Assessment'}
+        isLoading={isSubmitting}
         onConfirm={handleFinalSubmit}
         onCancel={() => setIsConfirmSubmitOpen(false)}
       />

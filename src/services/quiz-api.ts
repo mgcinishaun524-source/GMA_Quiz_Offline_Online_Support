@@ -14,6 +14,26 @@ function getAuthHeader(): Record<string, string> {
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
+// A learner submission must never be able to hang indefinitely. Without an
+// explicit deadline a fetch can stay pending forever on a flaky school network
+// (or behind a captive portal), which is what made the submit button appear to
+// freeze. On expiry the AbortController rejects the promise, so the caller can
+// fall back to the durable offline queue instead of waiting.
+const SUBMIT_TIMEOUT_MS = 20_000;
+
+// Thrown when the server answered and refused the attempt (deadline passed,
+// attempt limit reached, wrong class, …). This is a real result that must be
+// shown to the learner — it must never be silently re-queued offline, which
+// would make a rejected submission look successful.
+export class SubmissionRejectedError extends Error {
+  public readonly status: number;
+  constructor(message: string, status: number) {
+    super(message);
+    this.name = 'SubmissionRejectedError';
+    this.status = status;
+  }
+}
+
 export const quizApiService = {
   // --- TEACHER QUIZ LIFECYCLE ---
 
@@ -246,30 +266,45 @@ export const quizApiService = {
     isOffline = false
   ): Promise<Submission> {
     const token = authService.getAuthToken();
-    const res = await fetch('/api/submissions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
-      body: JSON.stringify({
-        quizId,
-        answers,
-        clientSubmissionHash,
-        isOfflineSubmission: isOffline,
-        submittedAt: new Date().toISOString(),
-      }),
-    });
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), SUBMIT_TIMEOUT_MS);
 
-    const data = await res.json();
+    let res: Response;
+    try {
+      res = await fetch('/api/submissions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({
+          quizId,
+          answers,
+          clientSubmissionHash,
+          isOfflineSubmission: isOffline,
+          submittedAt: new Date().toISOString(),
+        }),
+        signal: controller.signal,
+      });
+    } finally {
+      clearTimeout(timeoutId);
+    }
+
+    // A gateway/proxy failure can return HTML rather than JSON, so parse
+    // defensively instead of letting res.json() throw a confusing SyntaxError.
+    const data = await res.json().catch(() => ({} as Record<string, unknown>));
+
     if (!res.ok) {
-      throw new Error(data.error || 'Assessment submission rejected by server.');
+      throw new SubmissionRejectedError(
+        (data as { error?: string }).error || 'Assessment submission rejected by server.',
+        res.status
+      );
     }
     if (data.submission) {
-      appDataStore.saveSubmission(data.submission);
-      return data.submission;
+      appDataStore.saveSubmission(data.submission as Submission);
+      return data.submission as Submission;
     }
-    throw new Error('Invalid response from server.');
+    throw new SubmissionRejectedError('Invalid response from server.', res.status);
   },
 
   // 12. Fetch All Submissions for Teacher (bulk — fetches per quiz in parallel)

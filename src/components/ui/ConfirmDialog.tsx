@@ -8,6 +8,7 @@ interface ConfirmDialogProps {
   confirmLabel?: string;
   cancelLabel?: string;
   isDestructive?: boolean;
+  isLoading?: boolean;
   onConfirm: () => void;
   onCancel: () => void;
 }
@@ -19,6 +20,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   confirmLabel = 'Confirm',
   cancelLabel = 'Cancel',
   isDestructive = false,
+  isLoading = false,
   onConfirm,
   onCancel,
 }) => {
@@ -28,7 +30,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
     /* Backdrop with subtle blur — glassmorphism only here */
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
-      onClick={onCancel}
+      onClick={isLoading ? undefined : onCancel}
     >
       <div
         className="
@@ -49,11 +51,17 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
         </h3>
         <p className="text-sm text-slate-500 mt-2 mb-6 leading-relaxed">{message}</p>
         <div className="flex items-center justify-end gap-3 flex-wrap">
-          <OutlineButton onClick={onCancel}>{cancelLabel}</OutlineButton>
+          <OutlineButton onClick={onCancel} disabled={isLoading}>
+            {cancelLabel}
+          </OutlineButton>
           {isDestructive ? (
-            <DangerButton onClick={onConfirm}>{confirmLabel}</DangerButton>
+            <DangerButton onClick={onConfirm} isLoading={isLoading}>
+              {confirmLabel}
+            </DangerButton>
           ) : (
-            <PrimaryButton onClick={onConfirm}>{confirmLabel}</PrimaryButton>
+            <PrimaryButton onClick={onConfirm} isLoading={isLoading}>
+              {confirmLabel}
+            </PrimaryButton>
           )}
         </div>
       </div>

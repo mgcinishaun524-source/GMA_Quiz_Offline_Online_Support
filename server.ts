@@ -17,6 +17,18 @@ const PORT = Number(process.env.PORT) || 3000;
 const HOST = '0.0.0.0';
 const isProduction = process.env.NODE_ENV === 'production';
 
+// Express 4 does not forward a rejected promise from an async handler to the
+// error middleware. Without this wrapper a thrown database error would leave
+// the request unanswered, and the browser fetch (which has no default timeout)
+// would hang forever — the learner sees the submit button "freeze". Wrapping
+// the handler routes the failure into the global error handler below, which
+// answers with a 500 so the client can react instead of waiting indefinitely.
+const asyncHandler =
+  (fn: (req: Request, res: Response, next: NextFunction) => Promise<unknown>) =>
+  (req: Request, res: Response, next: NextFunction): void => {
+    Promise.resolve(fn(req, res, next)).catch(next);
+  };
+
 // ----------------------------------------------------------------------------
 // Gemini (AI question generation) configuration probe
 // ----------------------------------------------------------------------------
@@ -2488,7 +2500,7 @@ app.get('/api/quizzes/:id/answer-key', requireAuth, requireRole(['admin', 'teach
 // ----------------------------------------------------------------------------
 
 // 7. Assessment Submission (Server-side Auto-Marking, Attempt Limits & Idempotency)
-app.post('/api/submissions', requireAuth, async (req: Request, res: Response): Promise<void> => {
+app.post('/api/submissions', requireAuth, asyncHandler(async (req: Request, res: Response): Promise<void> => {
   if (!isSupabaseConfigured()) {
     res.status(503).json({ error: 'Production storage is unavailable. Database connection required.' });
     return;
@@ -2629,10 +2641,10 @@ app.post('/api/submissions', requireAuth, async (req: Request, res: Response): P
   }
 
   res.json({ submission: saved, isDuplicate: false });
-});
+}));
 
 // 8. Offline Submissions Batch Sync (Hardened: Idempotent, Per-Item Validation & Trusted Auto-Marking)
-app.post('/api/submissions/sync', requireAuth, async (req: Request, res: Response): Promise<void> => {
+app.post('/api/submissions/sync', requireAuth, asyncHandler(async (req: Request, res: Response): Promise<void> => {
   if (!isSupabaseConfigured()) {
     res.status(503).json({ error: 'Production storage is unavailable. Database connection required.' });
     return;
@@ -2814,7 +2826,7 @@ app.post('/api/submissions/sync', requireAuth, async (req: Request, res: Respons
     totalReceived: items.length,
     results,
   });
-});
+}));
 
 // 9. Learner Results (Withholds Unreleased Assessments & Scoped to Requester)
 app.get('/api/learners/results', requireAuth, requireRole(['learner']), async (req: Request, res: Response): Promise<void> => {
