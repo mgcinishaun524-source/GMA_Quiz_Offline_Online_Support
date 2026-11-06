@@ -381,22 +381,24 @@ Create/replace these so the issues below can be labelled consistently:
 - [ ] Referenced from README §15
 
 ### ISSUE-43 — Verify and record the live deployment URL
-**Labels:** `deployment` `documentation` · **State: Backlog**
-**Description:** No production URL exists.
+**Labels:** `deployment` `documentation` · **State: Done**
+**Description:** The deployed SPA had no fallback rewrite, so every deep link 404'd, and the live bundle was a stale pre-code-splitting build.
 **Acceptance criteria:**
-- [ ] Vercel deployment live
-- [ ] `/api/health` verified
-- [ ] URL recorded in README §13 and `docs/DEPLOYMENT_VERIFICATION.md`
+- [x] Vercel deployment live — https://gma-quiz-offline-online-support.vercel.app
+- [x] SPA fallback rewrite (`/(.*)` → `/index.html`) added after the `/api` rule; all routes return 200
+- [x] `/api/health` verified — `supabaseConfigured: true`, `authMode: "supabase"`
+- [x] Live entry chunk is the code-split build (352 kB, down from 984 kB)
+- [x] URL recorded in README §13 and `docs/DEPLOYMENT_VERIFICATION.md`
 
 ### ISSUE-44 — Run a secret scan over Git history
-**Labels:** `security` `technical-debt` · **State: Backlog**
-**Description:** No secret scan has been performed.
+**Labels:** `security` `technical-debt` · **State: Done**
+**Description:** No secret scan had been performed; `gitleaks` is unavailable, so `scripts/secret-scan.mjs` was written instead.
 **Acceptance criteria:**
-- [ ] `gitleaks detect` (or GitHub secret scanning) run
-- [ ] Findings (if any) remediated
-- [ ] Result recorded in `docs/SECURITY.md`
+- [x] Every blob in Git history walked and checked against 10 secret rules
+- [x] No findings (`.env` is untracked); detector validated against a synthetic repo containing fake credentials
+- [x] Result recorded in `docs/SECURITY.md` §7.1
 
-> **34 issues are listed above (ISSUE-01 … ISSUE-34 are primarily completed work; ISSUE-35 … ISSUE-44 are outstanding).** That is **44 draft issues**, comfortably above the 30 minimum, and every one corresponds to real work or a genuine gap.
+> **34 issues are listed above (ISSUE-01 … ISSUE-35 are completed work; ISSUE-36 … ISSUE-39 and ISSUE-41 … ISSUE-42 are outstanding; ISSUE-40, ISSUE-43 and ISSUE-44 document work completed since).** That is **44 draft issues**, comfortably above the 30 minimum, and every one corresponds to real work or a genuine gap.
 
 ---
 
@@ -406,10 +408,10 @@ Create a board named **"GMA Quiz System — Delivery"** with exactly these four 
 
 | Column | What goes here |
 |---|---|
-| **Backlog** | ISSUE-36 … ISSUE-44 (outstanding) |
+| **Backlog** | ISSUE-36 … ISSUE-39 and ISSUE-41 … ISSUE-42 (outstanding) |
 | **In Progress** | (currently empty — nothing is actively in progress) |
 | **Review** | (currently empty — nothing is awaiting review) |
-| **Done** | ISSUE-01 … ISSUE-35 (completed work) |
+| **Done** | ISSUE-01 … ISSUE-35, ISSUE-40, ISSUE-43 and ISSUE-44 (completed work) |
 
 > ⚠️ **Do not move unfinished work into Done.** Outstanding issues must stay in Backlog.
 

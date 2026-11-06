@@ -29,12 +29,12 @@ Status vocabulary: **STRONG** · **ADEQUATE** · **WEAK** · **MISSING / REQUIRE
 | Synchronisation | ✅ | `src/lib/sync-queue.ts` + `POST /api/submissions/sync`; idempotent via `client_submission_hash` |
 | Error and empty states | ✅ | Honest empty states; 503 fail-closed; AI errors surfaced (no fabricated questions) |
 
-### Self-assessment: **STRONG (code) / WEAK (live evidence)**
+### Self-assessment: **STRONG (code) / ADEQUATE (live evidence)**
 
-All twelve required workflows are implemented in code. Independent tests (45/45) and a prior live Supabase probe support correctness. **However**, the functionality has not been demonstrated on a **live deployment** (none exists), so an assessor cannot exercise it without running it locally.
+All twelve required workflows are implemented in code. Independent tests (45/45) support correctness, and the application is now **live** — every route resolves and `/api/health` reports Supabase, Gemini and Groq configured ([docs/DEPLOYMENT_VERIFICATION.md](DEPLOYMENT_VERIFICATION.md) §4). The remaining live gap is that the **authenticated** flows have not been walked end-to-end with real credentials, so they are documented rather than demonstrated.
 
 ### Evidence gaps (require human action)
-- 🔴 **Live deployment** to demonstrate every workflow (ISSUE-43).
+- 🟠 **Authenticated live walkthrough** (staff login → assign → learner submit → release results) still needs the owner's credentials.
 - 🟠 **Screenshots/recordings** of each workflow (ISSUE-42).
 - 🟠 **Multi-device offline→online sync** unproven without physical tablets.
 - 🟡 Legacy quizzes closed before the close-endpoint fix remain `published` (F-02).
@@ -155,7 +155,7 @@ Strong on schema, security and access control. Weaker on the non-functional item
 
 | Area | Weight | Self-assessment | Primary gap |
 |---|---:|---|---|
-| Functionality | 40% | STRONG (code) / needs live demo | Live deployment + screenshots |
+| Functionality | 40% | STRONG (code) / ADEQUATE (live demo) | Authenticated walkthrough + screenshots |
 | Code quality | 20% | STRONG | Monolithic `server.ts`; no CI |
 | UI/UX | 15% | ADEQUATE (code) / WEAK (evidence) | Screenshots |
 | Collaboration | 15% | **MISSING / REQUIRES HUMAN ACTION** | No team, issues, PRs or reviews |

@@ -27,7 +27,7 @@ The Uncommon brief lists five optional extra-credit deliverables. This document 
 
 **Contents:** 7 folders (Health, Auth, Staff & Directory, Quizzes, Submissions, Learner Results, AI), collection variables (`baseUrl`, `authToken`, `adminToken`, `learnerToken`, `quizId`, `learnerId`, `submissionId`, `teacherId`, `classId`, `subjectId`), and login requests with test scripts that auto-save the returned token.
 
-**Gap:** the collection has not been executed against a live server (no deployment exists). It is structurally valid but **live execution is unverified**.
+**Gap:** the collection has not been executed against the live server (a deployment now exists, but running the authenticated requests needs a staff session). It is structurally valid but **live execution is unverified**.
 
 ---
 
@@ -118,7 +118,7 @@ Suite breakdown:
 
 | Deliverable | Status | Notes |
 |---|---|---|
-| A. Postman collection | ✅ **Complete** | Not live-executed (no deployment) |
+| A. Postman collection | ✅ **Complete** | Not live-executed (needs a staff session) |
 | B. Database ERD | ✅ **Complete** | Not rendered to image (manual step) |
 | C. Storybook | ⚠️ **Assessed — not recommended** | Would add dependencies + risk for limited value |
 | D. Unit tests | ✅ **Complete** | 45/45 pass; no coverage tooling; run independently |

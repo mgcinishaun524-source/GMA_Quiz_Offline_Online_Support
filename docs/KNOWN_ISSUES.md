@@ -60,7 +60,7 @@ This is an honest inventory of every known defect, limitation and caveat in the 
 
 | ID | Sev | Issue | Reference |
 |---|---|---|---|
-| D-01 | 🟠 | **Live deployment URL not verified** — no production URL exists in the repo. | [README.md §13](../README.md#13-deployment-information) |
+| D-01 | ✅ | ~~Live deployment URL not verified~~ — **resolved 2026-11-06**: live at `https://gma-quiz-offline-online-support.vercel.app`; all routes resolve and `/api/health` is configured. Authenticated flows still need the owner's credentials. | [README.md §13](../README.md#13-deployment-information) · [docs/DEPLOYMENT_VERIFICATION.md](DEPLOYMENT_VERIFICATION.md) |
 | D-02 | 🟠 | **No application screenshots** in the repo. | [README.md §15](../README.md#15-screenshots-and-demo-references) |
 | D-03 | 🔴 | **Team collaboration evidence absent** — Git shows a single author, no PRs, no reviews. The brief requires a team of three. | [docs/SUBMISSION_GAP_ANALYSIS.md](SUBMISSION_GAP_ANALYSIS.md) |
 | D-04 | 🟠 | **< 30 GitHub issues**, no Project board, no branch protection. | [docs/GITHUB_SETUP_GUIDE.md](GITHUB_SETUP_GUIDE.md) |

@@ -310,11 +310,16 @@ npm run build    # production build verification
 
 **Frontend + backend:** Vercel (single project — SPA + serverless API). **Database/Auth:** Supabase.
 
-- Build: `npm run build`; Output: `dist/`; API rewrite: `/api/:path*` → `/api/index` ([vercel.json](vercel.json)).
-- Required Vercel environment variables: see section 8 (mark the non-`VITE_` secrets for Production + Preview).
-- Verify after deploy: `https://<your-app>.vercel.app/api/health` should return `{"supabaseConfigured":true,"geminiConfigured":true,"authMode":"supabase"}`.
+| | |
+|---|---|
+| **Live app** | https://gma-quiz-offline-online-support.vercel.app |
+| **Health check** | https://gma-quiz-offline-online-support.vercel.app/api/health |
 
-> ⚠️ **Live deployment URL: NOT YET VERIFIED.** No production URL exists in this repository, and none has been invented here. The owner must deploy and record the real URL before submission. Step-by-step instructions: [DEPLOYMENT.md](DEPLOYMENT.md).
+- Build: `npm run build`; Output: `dist/`; API rewrite: `/api/:path*` → `/api/index`; SPA fallback: `/(.*)` → `/index.html` ([vercel.json](vercel.json)). The SPA fallback must stay **after** the API rewrite.
+- Required Vercel environment variables: see section 8 (mark the non-`VITE_` secrets for Production + Preview).
+- Verified 2026-11-06: `/`, `/login`, `/teacher/dashboard`, `/learner/dashboard`, `/admin/dashboard` all return 200, and `/api/health` returns `{"supabaseConfigured":true,"geminiConfigured":true,"aiConfigured":true,"authMode":"supabase"}`.
+
+> ⚠️ **Authenticated production flows are not yet verified** — the staff login round-trip, the learner flow and browser-console cleanliness still need the owner's credentials. Full record: [docs/DEPLOYMENT_VERIFICATION.md](docs/DEPLOYMENT_VERIFICATION.md).
 
 ---
 

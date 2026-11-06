@@ -2,8 +2,8 @@
 
 **Project:** Growing Minds Academy — AI-Powered Quiz & Learning Analytics System
 **Challenge:** Uncommon Full-Stack Development Challenge
-**Document version:** 1.0
-**Date:** 2026-11-05
+**Document version:** 1.2
+**Date:** 2026-11-06
 
 Every Uncommon requirement is evaluated below. Statuses used:
 
@@ -51,10 +51,10 @@ Every Uncommon requirement is evaluated below. Statuses used:
 
 | # | Requirement | Status | Evidence | Remaining work | Who | Priority |
 |---|---|---|---|---|---|---|
-| 17 | Live frontend deployment | **REQUIRES HUMAN ACTION** | None exists; no URL | Deploy to Vercel | Owner | **Critical** |
-| 18 | Live backend/API | **REQUIRES HUMAN ACTION** | Served from the same Vercel deployment | Verify `/api/health` | Owner | **Critical** |
-| 19 | Verified production URLs recorded | **MISSING** | [docs/DEPLOYMENT_VERIFICATION.md](file:///c:/Users/thula/Downloads/growing-minds-academy-ai-quiz-system%20(1)/docs/DEPLOYMENT_VERIFICATION.md) §2 blank | Fill in after deploy | Owner | **Critical** |
-| 20 | Database connectivity | **COMPLETE BUT NOT INDEPENDENTLY VERIFIED** | Supabase project ref present in source | Re-check via dashboard | Owner | Medium |
+| 17 | Live frontend deployment | **VERIFIED COMPLETE** | `https://gma-quiz-offline-online-support.vercel.app` — `/`, `/login`, `/teacher/dashboard`, `/learner/dashboard`, `/admin/dashboard` all return 200 | Authenticated flows still need the owner's credentials | Owner | **Critical** |
+| 18 | Live backend/API | **VERIFIED COMPLETE** | Same Vercel deployment; `/api/health` returns 200 with `supabaseConfigured: true`, `authMode: "supabase"` | — | — | — |
+| 19 | Verified production URLs recorded | **VERIFIED COMPLETE** | [docs/DEPLOYMENT_VERIFICATION.md](file:///c:/Users/thula/Downloads/growing-minds-academy-ai-quiz-system%20(1)/docs/DEPLOYMENT_VERIFICATION.md) §2 + [README.md](file:///c:/Users/thula/Downloads/growing-minds-academy-ai-quiz-system%20(1)/README.md) §13 | — | — | — |
+| 20 | Database connectivity | **COMPLETE BUT NOT INDEPENDENTLY VERIFIED** | Deployed function reports `supabaseConfigured: true`; no data-touching request made | Re-check via dashboard | Owner | Medium |
 | 21 | Deployment steps documented | **VERIFIED COMPLETE** | [DEPLOYMENT.md](file:///c:/Users/thula/Downloads/growing-minds-academy-ai-quiz-system%20(1)/DEPLOYMENT.md) | — | — | — |
 
 ### A4. GitHub Repository
@@ -97,7 +97,7 @@ Every Uncommon requirement is evaluated below. Statuses used:
 
 | # | Requirement | Status | Evidence | Remaining work | Who | Priority |
 |---|---|---|---|---|---|---|
-| O1 | Postman collection | **VERIFIED COMPLETE** | [docs/api/growing-minds-api.postman_collection.json](file:///c:/Users/thula/Downloads/growing-minds-academy-ai-quiz-system%20(1)/docs/api/growing-minds-api.postman_collection.json) | Not live-executed (no deployment) | — | — |
+| O1 | Postman collection | **VERIFIED COMPLETE** | [docs/api/growing-minds-api.postman_collection.json](file:///c:/Users/thula/Downloads/growing-minds-academy-ai-quiz-system%20(1)/docs/api/growing-minds-api.postman_collection.json) | Not live-executed (needs a staff session) | — | — |
 | O2 | Database ER diagram | **VERIFIED COMPLETE** | [docs/diagrams/database-er.md](file:///c:/Users/thula/Downloads/growing-minds-academy-ai-quiz-system%20(1)/docs/diagrams/database-er.md) | Render to image | Owner | Low |
 | O3 | Unit tests re-run | **VERIFIED COMPLETE** | 45 passed / 0 failed | — | — | — |
 | O4 | Storybook | **MISSING (assessed — not recommended)** | Not installed | Optional; do after submission | — | Low |
@@ -138,11 +138,11 @@ Every Uncommon requirement is evaluated below. Statuses used:
 
 | Status | Count |
 |---|---:|
-| VERIFIED COMPLETE | 23 |
+| VERIFIED COMPLETE | 26 |
 | COMPLETE BUT NOT INDEPENDENTLY VERIFIED | 3 |
 | PARTIALLY COMPLETE | 4 |
-| MISSING | 6 |
-| REQUIRES HUMAN ACTION | 12 |
+| MISSING | 5 |
+| REQUIRES HUMAN ACTION | 10 |
 
 ---
 
@@ -150,17 +150,18 @@ Every Uncommon requirement is evaluated below. Statuses used:
 
 | # | Priority | Action | Reference |
 |---|---|---|---|
-| 1 | **Critical** | Deploy to Vercel; verify `/api/health`; record real URLs | [docs/DEPLOYMENT_VERIFICATION.md](file:///c:/Users/thula/Downloads/growing-minds-academy-ai-quiz-system%20(1)/docs/DEPLOYMENT_VERIFICATION.md) §5 |
-| 2 | **Critical** | Confirm the three-person team; add collaborators | [docs/GITHUB_SETUP_GUIDE.md](file:///c:/Users/thula/Downloads/growing-minds-academy-ai-quiz-system%20(1)/docs/GITHUB_SETUP_GUIDE.md) §5 |
-| 3 | **Critical** | Create ≥ 30 issues (44 drafts ready) | [docs/GITHUB_SETUP_GUIDE.md](file:///c:/Users/thula/Downloads/growing-minds-academy-ai-quiz-system%20(1)/docs/GITHUB_SETUP_GUIDE.md) §2 |
-| 4 | **Critical** | Create the 4-column Project board and organise issues | [docs/GITHUB_SETUP_GUIDE.md](file:///c:/Users/thula/Downloads/growing-minds-academy-ai-quiz-system%20(1)/docs/GITHUB_SETUP_GUIDE.md) §3 |
-| 5 | **Critical** | Enable branch protection on `main` | [docs/GITHUB_SETUP_GUIDE.md](file:///c:/Users/thula/Downloads/growing-minds-academy-ai-quiz-system%20(1)/docs/GITHUB_SETUP_GUIDE.md) §4 |
-| 6 | **Critical** | Open real PRs and obtain independent reviews | [docs/GITHUB_SETUP_GUIDE.md](file:///c:/Users/thula/Downloads/growing-minds-academy-ai-quiz-system%20(1)/docs/GITHUB_SETUP_GUIDE.md) §5 |
+| 1 | **Critical** | Confirm the three-person team; add collaborators | [docs/GITHUB_SETUP_GUIDE.md](file:///c:/Users/thula/Downloads/growing-minds-academy-ai-quiz-system%20(1)/docs/GITHUB_SETUP_GUIDE.md) §5 |
+| 2 | **Critical** | Create ≥ 30 issues (44 drafts ready) | [docs/GITHUB_SETUP_GUIDE.md](file:///c:/Users/thula/Downloads/growing-minds-academy-ai-quiz-system%20(1)/docs/GITHUB_SETUP_GUIDE.md) §2 |
+| 3 | **Critical** | Create the 4-column Project board and organise issues | [docs/GITHUB_SETUP_GUIDE.md](file:///c:/Users/thula/Downloads/growing-minds-academy-ai-quiz-system%20(1)/docs/GITHUB_SETUP_GUIDE.md) §3 |
+| 4 | **Critical** | Enable branch protection on `main` | [docs/GITHUB_SETUP_GUIDE.md](file:///c:/Users/thula/Downloads/growing-minds-academy-ai-quiz-system%20(1)/docs/GITHUB_SETUP_GUIDE.md) §4 |
+| 5 | **Critical** | Open real PRs and obtain independent reviews | [docs/GITHUB_SETUP_GUIDE.md](file:///c:/Users/thula/Downloads/growing-minds-academy-ai-quiz-system%20(1)/docs/GITHUB_SETUP_GUIDE.md) §5 |
+| 6 | **High** | Walk the authenticated production flows (staff login, learner PIN, results release, console clean) | [docs/DEPLOYMENT_VERIFICATION.md](file:///c:/Users/thula/Downloads/growing-minds-academy-ai-quiz-system%20(1)/docs/DEPLOYMENT_VERIFICATION.md) §6.3 |
 | 7 | **High** | Fill README §14 with real team members and contributions | [README.md](file:///c:/Users/thula/Downloads/growing-minds-academy-ai-quiz-system%20(1)/README.md) |
 | 8 | **High** | Capture and add the 8 required screenshots | ISSUE-42 |
 | 9 | **High** | Complete presentation Slide 15 with real team info | [docs/presentation/FINAL_PROJECT_PRESENTATION.md](file:///c:/Users/thula/Downloads/growing-minds-academy-ai-quiz-system%20(1)/docs/presentation/FINAL_PROJECT_PRESENTATION.md) |
-| 10 | **Medium** | Set `GEMINI_API_KEY` / `GROQ_API_KEY` in Vercel | [DEPLOYMENT.md](file:///c:/Users/thula/Downloads/growing-minds-academy-ai-quiz-system%20(1)/DEPLOYMENT.md) §3 |
-| 11 | **Low** | Render diagrams and convert docs to PDF | [docs/DIAGRAM_CREATION_GUIDE.md](file:///c:/Users/thula/Downloads/growing-minds-academy-ai-quiz-system%20(1)/docs/DIAGRAM_CREATION_GUIDE.md) |
+| 10 | **Low** | Render diagrams and convert docs to PDF | [docs/DIAGRAM_CREATION_GUIDE.md](file:///c:/Users/thula/Downloads/growing-minds-academy-ai-quiz-system%20(1)/docs/DIAGRAM_CREATION_GUIDE.md) |
+
+> **Resolved since the previous revision:** deploy to Vercel (live and verified — §A3 items 17–19) and set `GEMINI_API_KEY` / `GROQ_API_KEY` in Vercel (the deployed `/api/health` reports `geminiConfigured: true`, `groqConfigured: true`).
 
 ---
 

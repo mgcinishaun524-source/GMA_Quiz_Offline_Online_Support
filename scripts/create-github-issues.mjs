@@ -4,8 +4,9 @@
  *
  * Creates the submission labels and the 44 issue drafts from
  * docs/GITHUB_SETUP_GUIDE.md, and closes the ones that document work already
- * present in the Git history (ISSUE-01 … ISSUE-35). The genuinely outstanding
- * items (ISSUE-36 … ISSUE-44) are created open.
+ * present in the Git history (ISSUE-01 … ISSUE-35, plus ISSUE-40, ISSUE-43
+ * and ISSUE-44). The genuinely outstanding items (ISSUE-36 … ISSUE-39 and
+ * ISSUE-41 … ISSUE-42) are created open.
  *
  * Idempotent: re-running skips any issue that already exists by title and
  * re-aligns its open/closed state, so it is safe to run repeatedly.
@@ -508,12 +509,16 @@ const ISSUES = [
     id: 'ISSUE-43',
     title: 'Verify and record the live deployment URL',
     labels: ['deployment', 'documentation'],
-    state: 'Backlog',
-    description: 'No production URL exists.',
+    state: 'Done',
+    description:
+      'There was no way to reach the deployed app: the SPA had no fallback rewrite, so every deep link 404\'d, and the live bundle was a stale pre-code-splitting build.',
     criteria: `
-- [ ] Vercel deployment live
-- [ ] \`/api/health\` verified
-- [ ] URL recorded in README §13 and \`docs/DEPLOYMENT_VERIFICATION.md\``,
+- [x] Vercel deployment live — https://gma-quiz-offline-online-support.vercel.app
+- [x] Root, login and all three portal dashboards return 200 (\`/(.*)\` → \`/index.html\` rewrite added after the \`/api\` rule)
+- [x] \`/api/health\` verified — \`supabaseConfigured: true\`, \`authMode: "supabase"\`, Gemini and Groq configured
+- [x] Live entry chunk is the code-split build (352 kB, down from 984 kB)
+- [x] URL recorded in README §13 and \`docs/DEPLOYMENT_VERIFICATION.md\`
+- [ ] Authenticated flows walked with real credentials (owner)`,
   },
   {
     id: 'ISSUE-44',
@@ -773,8 +778,8 @@ Next steps (owner, still manual):
 
   1. Project board — create a Board project named "GMA Quiz System — Delivery"
      with columns Backlog / In Progress / Review / Done, then add the issues:
-       Backlog     : ISSUE-36 … ISSUE-43 (open)
-       Done        : ISSUE-01 … ISSUE-35 and ISSUE-44 (closed)
+       Backlog     : ISSUE-36 … ISSUE-39 and ISSUE-41 … ISSUE-42 (open)
+       Done        : ISSUE-01 … ISSUE-35, ISSUE-40, ISSUE-43 and ISSUE-44 (closed)
      https://github.com/${OWNER_REPO}/projects
 
   2. Branch protection — Settings → Branches → add a rule for "main":
