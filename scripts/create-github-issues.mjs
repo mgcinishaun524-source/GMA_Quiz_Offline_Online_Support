@@ -522,7 +522,7 @@ const ISSUES = [
     description:
       'No secret scan had been performed. `gitleaks` is not installed on the build machine, so `scripts/secret-scan.mjs` was written to scan every blob reachable from any ref plus the reflog.',
     criteria: `
-- [x] \`scripts/secret-scan.mjs\` run over the full history (370 revisions) — \`gitleaks\` unavailable, substitute documented
+- [x] \`scripts/secret-scan.mjs\` run over the full history — \`gitleaks\` unavailable, substitute documented
 - [x] 0 findings; the single placeholder (\`YOUR_GEMINI_API_KEY\` in \`.env.example\`) correctly ignored
 - [x] Detector validated against a synthetic repository containing fake credentials
 - [x] Result recorded in \`docs/SECURITY.md\` §7.1`,

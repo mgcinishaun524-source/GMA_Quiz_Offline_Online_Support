@@ -125,9 +125,9 @@ node scripts/secret-scan.mjs
 | Item | Value |
 |---|---|
 | Engine | [scripts/secret-scan.mjs](file:///c:/Users/thula/Downloads/growing-minds-academy-ai-quiz-system%20(1)/scripts/secret-scan.mjs) — `gitleaks` is not installed on the build machine |
-| Scope | Every blob reachable from any ref **plus the reflog** — 370 distinct file revisions (not just the working tree) |
+| Scope | Every blob reachable from any ref **plus the reflog** — the whole history, not just the working tree |
 | Patterns | Google `AIza…`, Groq `gsk_…`, GitHub `gh[pousr]_…`, AWS `AKIA…`, Slack `xox…`, PEM private-key blocks, JWTs (Supabase keys/session tokens), assignments to known secret variable names, and DB connection strings with inline credentials |
-| **Result** | **CLEAN — 0 findings.** One placeholder occurrence (`YOUR_GEMINI_API_KEY` in `.env.example`) was correctly ignored. |
+| **Result** | **CLEAN — 0 findings** (376 revisions at the latest run). One placeholder occurrence (`YOUR_GEMINI_API_KEY` in `.env.example`) was correctly ignored. |
 | `.env` tracked? | **No** — `git ls-files` returns only `.env.example` |
 
 The detector was validated against a synthetic repository containing fake Groq, GitHub, JWT and Gemini credentials: it flagged all four and ignored a `<your-key-here>` placeholder. Matches are redacted to a 4-character prefix plus length, so a report can be shared without leaking a value. Re-run before submission and after introducing any new configuration file.
