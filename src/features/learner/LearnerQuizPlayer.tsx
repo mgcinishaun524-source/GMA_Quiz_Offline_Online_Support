@@ -5,6 +5,8 @@ import { PrimaryButton, OutlineButton, SecondaryButton } from '../../components/
 import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
 import { appDataStore } from '../../services/storage';
 import { quizApiService, SubmissionRejectedError } from '../../services/quiz-api';
+import { submissionReceiptStore } from '../../services/submission-receipt';
+import type { ReceiptStatus } from '../../services/submission-receipt';
 import { networkManager } from '../../lib/network';
 import {
   saveActiveAnswers,
@@ -41,7 +43,6 @@ export const LearnerQuizPlayer: React.FC = () => {
   const [isReviewOpen, setIsReviewOpen] = useState<boolean>(false);
   const [isConfirmSubmitOpen, setIsConfirmSubmitOpen] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-  const [submitError, setSubmitError] = useState<string | null>(null);
 
   // Load quiz from store or IndexedDB offline cache
   useEffect(() => {
@@ -169,11 +170,15 @@ export const LearnerQuizPlayer: React.FC = () => {
     return { earned, total, percentage, answerDetails, topicsToPractise: Array.from(topicsFailed) };
   };
 
-  // Submit assessment (handles online vs offline queue)
+  // Submit assessment (handles online vs offline queue).
+  //
+  // The learner is sent to the receipt screen the instant they confirm, and the
+  // network work runs in the background, flipping the receipt to the honest
+  // outcome (saved / offline / rejected). This keeps the tap feeling immediate
+  // without ever fabricating a success.
   const handleFinalSubmit = async () => {
     if (isSubmitting) return; // A second click while the first is in flight.
     setIsSubmitting(true);
-    setSubmitError(null);
 
     const { earned, total, percentage, answerDetails, topicsToPractise } = calculateMarks();
     const submissionId = `sub-${Date.now()}-${user?.learnerId || 'anon'}`;
@@ -202,6 +207,23 @@ export const LearnerQuizPlayer: React.FC = () => {
       clientSubmissionHash: clientHash,
     };
 
+    const setReceipt = (status: ReceiptStatus, error?: string) =>
+      submissionReceiptStore.set({
+        submissionId,
+        quizId: quiz.id,
+        quizTitle: quiz.title,
+        status,
+        error,
+      });
+
+    // Show the receipt instantly and confirm with the server in the background.
+    setReceipt('saving');
+    setIsConfirmSubmitOpen(false);
+    setIsReviewOpen(false);
+    navigate(
+      `/learner/submitted?quizTitle=${encodeURIComponent(quiz.title)}&id=${submissionId}`
+    );
+
     let queuedOffline = !isOnline;
 
     try {
@@ -218,10 +240,11 @@ export const LearnerQuizPlayer: React.FC = () => {
     } catch (err) {
       if (err instanceof SubmissionRejectedError) {
         // The server answered and refused the attempt (deadline passed, attempt
-        // limit reached, wrong class…). That is a real result: show it and keep
-        // the learner's draft so nothing is lost. Never queue it as if it had
-        // been accepted, which would make a rejected attempt look submitted.
-        setSubmitError(err.message);
+        // limit reached, wrong class…). That is a real result: surface it on the
+        // receipt and keep the learner's draft so nothing is lost. Never queue it
+        // as if it had been accepted, which would make a rejected attempt look
+        // submitted.
+        setReceipt('rejected', err.message);
         return;
       }
       // Otherwise the server could not be reached (offline, timeout, gateway
@@ -231,25 +254,21 @@ export const LearnerQuizPlayer: React.FC = () => {
         queuedOffline = true;
       } catch (queueErr) {
         console.error('[Offline Queue] Failed to persist the attempt.', queueErr);
-        setSubmitError('Your answers could not be saved on this device. Please tell your teacher.');
+        setReceipt(
+          'rejected',
+          'Your answers could not be saved on this device. Please tell your teacher.'
+        );
         return;
       }
-    } finally {
-      setIsSubmitting(false);
     }
 
-    // Reached only when the attempt was accepted or durably queued.
+    // Reached only when the attempt was accepted or durably queued: the draft is
+    // no longer needed.
     if (user?.learnerId && id) {
       await clearActiveAnswers(id, user.learnerId);
     }
 
-    setIsConfirmSubmitOpen(false);
-    setIsReviewOpen(false);
-
-    // Redirect to honest confirmation screen
-    navigate(
-      `/learner/submitted?quizTitle=${encodeURIComponent(quiz.title)}&offline=${queuedOffline}&id=${submissionId}`
-    );
+    setReceipt(queuedOffline ? 'offline' : 'saved');
   };
 
   return (
@@ -487,7 +506,6 @@ export const LearnerQuizPlayer: React.FC = () => {
               <PrimaryButton
                 onClick={() => {
                   setIsReviewOpen(false);
-                  setSubmitError(null);
                   setIsConfirmSubmitOpen(true);
                 }}
               >
@@ -503,13 +521,11 @@ export const LearnerQuizPlayer: React.FC = () => {
         isOpen={isConfirmSubmitOpen}
         title="Finalize Assessment Submission"
         message={
-          submitError
-            ? `Your answers were not recorded. ${submitError}`
-            : isOnline
+          isOnline
             ? "Are you ready to submit your answers? Once submitted, your answers will be recorded on the school server and your teacher will release marks after review."
             : "You are currently offline. Your answers will be safely saved on this tablet and will automatically synchronize with your teacher as soon as Wi-Fi reconnects. Submit now?"
         }
-        confirmLabel={submitError ? 'Try Again' : 'Yes, Submit Assessment'}
+        confirmLabel="Yes, Submit Assessment"
         isLoading={isSubmitting}
         onConfirm={handleFinalSubmit}
         onCancel={() => setIsConfirmSubmitOpen(false)}
