@@ -2513,7 +2513,20 @@ app.post('/api/submissions', requireAuth, asyncHandler(async (req: Request, res:
     return;
   }
 
-  const quiz = await databaseAdapter.getQuizById(quizId);
+  const learnerId = req.user!.id;
+  const studentNum = req.user!.studentNumber || learnerId;
+
+  // The quiz fetch, the idempotency lookup and the attempt count each depend
+  // only on inputs already in hand, so they are issued together rather than as
+  // three sequential round trips on the learner submit critical path.
+  const [quiz, existing, priorAttempts] = await Promise.all([
+    databaseAdapter.getQuizById(quizId),
+    clientSubmissionHash
+      ? databaseAdapter.getSubmissionByHash(clientSubmissionHash)
+      : Promise.resolve(undefined),
+    databaseAdapter.countLearnerAttempts(quizId, [learnerId, studentNum]),
+  ]);
+
   if (!quiz) {
     res.status(404).json({ error: 'Assessment quiz not found.' });
     return;
@@ -2540,23 +2553,11 @@ app.post('/api/submissions', requireAuth, asyncHandler(async (req: Request, res:
     }
   }
 
-  const learnerId = req.user!.id;
-  const studentNum = req.user!.studentNumber || learnerId;
-
   // Check class eligibility for learners
   if (req.user?.role === 'learner' && quiz.classId && quiz.classId !== 'all' && req.user.classId && quiz.classId !== req.user.classId) {
     res.status(403).json({ error: `Assessment is assigned to ${quiz.className || quiz.classId}, not your class.` });
     return;
   }
-
-  // The idempotency lookup and the attempt count are independent of each other,
-  // so they are issued together rather than as two sequential round trips.
-  const [existing, priorAttempts] = await Promise.all([
-    clientSubmissionHash
-      ? databaseAdapter.getSubmissionByHash(clientSubmissionHash)
-      : Promise.resolve(undefined),
-    databaseAdapter.countLearnerAttempts(quiz.id, [learnerId, studentNum]),
-  ]);
 
   // Idempotency: hash already submitted (checked before the attempt count)
   if (existing) {
@@ -2619,9 +2620,14 @@ app.post('/api/submissions', requireAuth, asyncHandler(async (req: Request, res:
     answers,
   };
 
-  const saved = await databaseAdapter.saveSubmission(newSubmission, req.user?.schoolId);
+  const saved = await databaseAdapter.saveSubmission(newSubmission, req.user?.schoolId, {
+    skipDuplicateLookup: true,
+  });
 
-  await logAuditEvent({
+  // Audit logging is fire-and-forget: the learner's submit response must not
+  // wait on an unrelated audit_events insert. logAuditEvent swallows its own
+  // errors, so not awaiting it cannot produce an unhandled rejection.
+  void logAuditEvent({
     action: 'SUBMISSION_RECORDED',
     actorId: learnerId,
     actorRole: req.user!.role,
@@ -2787,7 +2793,8 @@ app.post('/api/submissions/sync', requireAuth, asyncHandler(async (req: Request,
         topicsToPractise,
         answers: rawAnswers,
       },
-      req.user?.schoolId
+      req.user?.schoolId,
+      { skipDuplicateLookup: true }
     );
 
     syncedCount++;

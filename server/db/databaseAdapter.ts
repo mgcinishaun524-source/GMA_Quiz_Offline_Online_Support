@@ -592,7 +592,11 @@ export class DatabaseAdapter {
     return (rows || []).map((r) => this.mapSubmissionRowToModel(r));
   }
 
-  public async saveSubmission(submission: Submission, schoolId = '00000000-0000-0000-0000-000000000001'): Promise<Submission> {
+  public async saveSubmission(
+    submission: Submission,
+    schoolId = '00000000-0000-0000-0000-000000000001',
+    options: { skipDuplicateLookup?: boolean } = {}
+  ): Promise<Submission> {
     this.assertPersistence();
 
     const supabase = getSupabaseAdmin();
@@ -604,8 +608,14 @@ export class DatabaseAdapter {
     const quizId = resolveUUID(submission.quizId);
     const learnerId = resolveUUID(submission.learnerId);
 
-    // 1. Transaction-safe / idempotent check on client_submission_hash
-    if (submission.clientSubmissionHash) {
+    // 1. Transaction-safe / idempotent check on client_submission_hash.
+    // Callers that have already performed this exact lookup on the submit
+    // critical path (the submit and batch-sync endpoints) pass
+    // skipDuplicateLookup so a fresh submission does not pay a second round
+    // trip here. The unique constraint on client_submission_hash below remains
+    // the authority: a genuine duplicate still surfaces as 23505 and is
+    // reconciled at step 2.
+    if (submission.clientSubmissionHash && !options.skipDuplicateLookup) {
       const existing = await this.getSubmissionByHash(submission.clientSubmissionHash);
       if (existing) {
         // Monotonic state protection against stale queued retries:
@@ -700,8 +710,11 @@ export class DatabaseAdapter {
       }
     }
 
-    const saved = await this.getSubmissionById(subId);
-    return saved || submission;
+    // Return the canonical model without re-reading the row: its id is the
+    // resolved UUID used for the insert and every other field was already
+    // carried on the input model, so the trailing getSubmissionById() only
+    // added a round trip to the submit path with no new information.
+    return { ...submission, id: subId };
   }
 
   public async updateSubmissionFeedback(
