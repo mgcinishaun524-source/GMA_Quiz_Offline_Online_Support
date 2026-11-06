@@ -3168,6 +3168,183 @@ app.post('/api/ai/generate-quiz', requireAuth, requireRole(['admin', 'teacher'])
   }
 });
 
+// ----------------------------------------------------------------------------
+// DEVICE PRESENCE HEARTBEAT
+// ----------------------------------------------------------------------------
+// Learner tablets report presence with a periodic heartbeat so the admin can see
+// how many are live right now. The API runs as a single long-lived Express
+// process, so presence is held in memory: a device counts as online while its
+// most recent heartbeat is inside the window below. Presence is best-effort —
+// a missed heartbeat is silently ignored on both sides and never affects the
+// learner experience.
+const DEVICE_ONLINE_WINDOW_MS = 90_000;
+
+interface DevicePresenceRecord {
+  lastSeen: number;
+  role: string;
+  userId: string;
+}
+
+const devicePresence = new Map<string, DevicePresenceRecord>();
+
+function pruneStaleDevices(now = Date.now()): void {
+  for (const [deviceId, record] of devicePresence) {
+    if (now - record.lastSeen > DEVICE_ONLINE_WINDOW_MS) {
+      devicePresence.delete(deviceId);
+    }
+  }
+}
+
+// 16. Device Presence Heartbeat
+app.post('/api/devices/heartbeat', requireAuth, (req: Request, res: Response): void => {
+  const deviceId = typeof req.body?.deviceId === 'string' ? req.body.deviceId.trim() : '';
+  if (!deviceId || deviceId.length > 128) {
+    res.status(400).json({ error: 'A valid deviceId is required.' });
+    return;
+  }
+
+  devicePresence.set(deviceId, {
+    lastSeen: Date.now(),
+    role: req.user?.role || 'unknown',
+    userId: req.user?.id || 'unknown',
+  });
+
+  res.json({ ok: true, onlineWindowSeconds: Math.round(DEVICE_ONLINE_WINDOW_MS / 1000) });
+});
+
+// ----------------------------------------------------------------------------
+// LIVE ADMIN DASHBOARD OVERVIEW
+// ----------------------------------------------------------------------------
+// A single round of reads that gives the administrator a live, school-wide view:
+// structure counts, assessment states, submission/sync totals and the most recent
+// quizzes. Every count is an exact HEAD count answered by the database, so the
+// overview stays constant-cost as the school grows. The service-role client is
+// used, so this must remain restricted to admins.
+app.get(
+  '/api/admin/dashboard',
+  requireAuth,
+  requireRole(['admin']),
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const schoolId = req.user?.schoolId || DEFAULT_SCHOOL_ID;
+    const supabase = getSupabaseAdmin();
+
+    if (!supabase) {
+      res.status(503).json({ error: 'Dashboard data is unavailable: a configured Supabase connection is required.' });
+      return;
+    }
+
+    const [
+      schoolResult,
+      learnersTotal,
+      learnersActive,
+      teachersTotal,
+      teachersActive,
+      classesTotal,
+      quizzesTotal,
+      quizzesOpen,
+      quizzesDraft,
+      quizzesClosed,
+      submissionsTotal,
+      offlineSubmissions,
+      pendingServerSync,
+      recentQuizzesResult,
+    ] = await Promise.all([
+      supabase
+        .from('schools')
+        .select('name, academic_year, current_term, term_end_date, pass_mark_percent')
+        .eq('id', schoolId)
+        .maybeSingle(),
+      supabase.from('learners').select('id', { count: 'exact', head: true }).eq('school_id', schoolId),
+      supabase.from('learners').select('id', { count: 'exact', head: true }).eq('school_id', schoolId).eq('is_active', true),
+      supabase.from('teachers').select('id', { count: 'exact', head: true }).eq('school_id', schoolId),
+      supabase.from('teachers').select('id', { count: 'exact', head: true }).eq('school_id', schoolId).eq('is_active', true),
+      supabase.from('classes').select('id', { count: 'exact', head: true }).eq('school_id', schoolId),
+      supabase.from('quizzes').select('id', { count: 'exact', head: true }).eq('school_id', schoolId),
+      supabase.from('quizzes').select('id', { count: 'exact', head: true }).eq('school_id', schoolId).in('status', ['published', 'in_progress']),
+      supabase.from('quizzes').select('id', { count: 'exact', head: true }).eq('school_id', schoolId).eq('status', 'draft'),
+      supabase.from('quizzes').select('id', { count: 'exact', head: true }).eq('school_id', schoolId).in('status', ['closed', 'results_released']),
+      supabase.from('submissions').select('id, quizzes!inner(school_id)', { count: 'exact', head: true }).eq('quizzes.school_id', schoolId),
+      supabase.from('submissions').select('id, quizzes!inner(school_id)', { count: 'exact', head: true }).eq('quizzes.school_id', schoolId).eq('is_offline_submission', true),
+      supabase.from('submissions').select('id, quizzes!inner(school_id)', { count: 'exact', head: true }).eq('quizzes.school_id', schoolId).neq('sync_status', 'synced'),
+      supabase
+        .from('quizzes')
+        .select('id, title, status, allow_offline, created_at, author_id, subjects:subject_id(name), classes:class_id(name)')
+        .eq('school_id', schoolId)
+        .order('created_at', { ascending: false })
+        .limit(5),
+    ]);
+
+    // Submissions have no school column of their own; they are scoped through the
+    // quiz they belong to (quizzes!inner above). A failed school lookup alone is
+    // not fatal — the school block falls back to safe defaults below.
+    const criticalError = [
+      learnersTotal, learnersActive, teachersTotal, teachersActive,
+      classesTotal, quizzesTotal, quizzesOpen, quizzesDraft, quizzesClosed,
+      submissionsTotal, offlineSubmissions, pendingServerSync,
+    ].find((r) => r.error)?.error;
+    if (criticalError) {
+      res.status(500).json({ error: `Failed to load dashboard metrics: ${criticalError.message}` });
+      return;
+    }
+
+    const recentRows = (recentQuizzesResult.data || []) as Array<Record<string, any>>;
+
+    // Resolve the assessing faculty names in one follow-up query rather than
+    // re-reading a profile per quiz row.
+    const authorIds = Array.from(new Set(recentRows.map((r) => r.author_id).filter(Boolean)));
+    const authorNames = new Map<string, string>();
+    if (authorIds.length > 0) {
+      const { data: profiles } = await supabase.from('user_profiles').select('id, full_name').in('id', authorIds);
+      (profiles || []).forEach((p: { id: string; full_name: string }) => authorNames.set(p.id, p.full_name));
+    }
+
+    pruneStaleDevices();
+    const onlineLearnerTablets = Array.from(devicePresence.values()).filter((r) => r.role === 'learner').length;
+
+    const school = schoolResult.data;
+
+    res.json({
+      generatedAt: new Date().toISOString(),
+      school: {
+        name: school?.name || 'Growing Minds Academy',
+        academicYear: school?.academic_year || CURRENT_ACADEMIC_YEAR,
+        currentTerm: school?.current_term || 'Term 2',
+        termEndDate: school?.term_end_date || null,
+        passMark: school?.pass_mark_percent ?? 60,
+      },
+      metrics: {
+        learnersTotal: learnersTotal.count || 0,
+        learnersActive: learnersActive.count || 0,
+        teachersTotal: teachersTotal.count || 0,
+        teachersActive: teachersActive.count || 0,
+        classesTotal: classesTotal.count || 0,
+        quizzesTotal: quizzesTotal.count || 0,
+        quizzesOpen: quizzesOpen.count || 0,
+        quizzesDraft: quizzesDraft.count || 0,
+        quizzesClosed: quizzesClosed.count || 0,
+        submissionsTotal: submissionsTotal.count || 0,
+        offlineSubmissions: offlineSubmissions.count || 0,
+        pendingServerSync: pendingServerSync.count || 0,
+      },
+      devices: {
+        available: true,
+        onlineLearnerTablets,
+        onlineWindowSeconds: Math.round(DEVICE_ONLINE_WINDOW_MS / 1000),
+      },
+      recentQuizzes: recentRows.map((r) => ({
+        id: r.id,
+        title: r.title,
+        status: r.status,
+        className: r.classes?.name || 'Assigned Cohort',
+        subjectName: r.subjects?.name || 'General',
+        allowOffline: r.allow_offline,
+        authorName: authorNames.get(r.author_id) || 'Faculty Teacher',
+        createdAt: r.created_at || null,
+      })),
+    });
+  })
+);
+
 // Global error handler — registered here so it works on Vercel serverless
 // (startServer() is not called on Vercel, so this must be outside it)
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {

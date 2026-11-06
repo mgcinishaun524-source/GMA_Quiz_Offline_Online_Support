@@ -14,6 +14,8 @@
 //   8. AI question generation reports itself unavailable instead of substituting
 //      synthetic questions that are presented as genuine AI output.
 //   9. Administrator bootstrap never fabricates or overwrites an account.
+//  10. The live administrative dashboard and device-presence endpoints are
+//      role-guarded and never fabricate metrics when storage is unavailable.
 //
 // The unconfigured backend is the exact configuration in which demo fallbacks used to
 // activate, so it is where these guarantees must be proven. The suite is fully isolated:
@@ -438,6 +440,45 @@ async function runAllTests() {
         false,
         'Bootstrap messages must never echo the password'
       );
+    });
+
+    // ========================================================================
+    // 7. Live admin dashboard & device presence
+    // ========================================================================
+
+    await test('The live admin dashboard is admin-only and fails closed without a database', async () => {
+      const noAuth = await get('/api/admin/dashboard');
+      assert.equal(noAuth.status, 401, 'The dashboard must require authentication');
+
+      const asTeacher = await get('/api/admin/dashboard', teacherToken);
+      assert.equal(asTeacher.status, 403, 'Teachers must not read the administrative dashboard');
+
+      const asLearner = await get('/api/admin/dashboard', learnerToken);
+      assert.equal(asLearner.status, 403, 'Learners must not read the administrative dashboard');
+
+      const asAdmin = await get('/api/admin/dashboard', adminToken);
+      assert.equal(asAdmin.status, 503, 'Without storage the dashboard must refuse rather than fabricate metrics');
+      const data = await asAdmin.json();
+      assert.equal(data.metrics, undefined, 'No fabricated metrics may be returned');
+    });
+
+    await test('Device heartbeat requires authentication and a valid device identifier', async () => {
+      const noAuth = await post('/api/devices/heartbeat', { deviceId: 'device-1' });
+      assert.equal(noAuth.status, 401, 'Heartbeat must require authentication');
+
+      const noDevice = await post('/api/devices/heartbeat', {}, learnerToken);
+      assert.equal(noDevice.status, 400, 'A missing deviceId must be rejected');
+
+      const blankDevice = await post('/api/devices/heartbeat', { deviceId: '   ' }, learnerToken);
+      assert.equal(blankDevice.status, 400, 'A blank deviceId must be rejected');
+    });
+
+    await test('A valid heartbeat is acknowledged on the presence window', async () => {
+      const res = await post('/api/devices/heartbeat', { deviceId: 'tablet-strict-1' }, learnerToken);
+      assert.equal(res.status, 200, 'An authenticated heartbeat with a deviceId must be accepted');
+      const data = await res.json();
+      assert.equal(data.ok, true, 'The heartbeat must be acknowledged');
+      assert.equal(typeof data.onlineWindowSeconds, 'number', 'The presence window must be reported');
     });
   } finally {
     await stopTestServer();

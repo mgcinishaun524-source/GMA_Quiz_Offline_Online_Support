@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../app/AuthContext';
 import { directoryApiService } from '../../services/directory-api';
+import { startDeviceHeartbeat } from '../../services/admin-dashboard-api';
 import { NetworkSimulatorBar } from '../feedback/NetworkSimulatorBar';
 import {
   LayoutDashboard,
@@ -40,6 +41,13 @@ export const AppShell: React.FC = () => {
     if (role === 'admin' || role === 'teacher') {
       void directoryApiService.hydrateDirectory();
     }
+  }, [role]);
+
+  // Learner tablets announce their presence so the admin dashboard can show how
+  // many are live right now. Best-effort: it never blocks or interrupts learning.
+  useEffect(() => {
+    if (role !== 'learner') return;
+    return startDeviceHeartbeat();
   }, [role]);
 
   const runtimeModeLabel =
