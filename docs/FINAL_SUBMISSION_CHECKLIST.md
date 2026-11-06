@@ -65,7 +65,7 @@ Every Uncommon requirement is evaluated below. Statuses used:
 | 23 | Appropriate branch structure | **MISSING** | `main` only | Create feature branches | Team | High |
 | 24 | Meaningful commit messages | **VERIFIED COMPLETE** | Conventional Commits observed | — | — | — |
 | 25 | Appropriate `.gitignore` | **VERIFIED COMPLETE** | `.env*`, `dist/`, `node_modules/` ignored | — | — | — |
-| 26 | No secrets in Git history | **COMPLETE BUT NOT INDEPENDENTLY VERIFIED** | `.env` untracked; `.env.example` placeholders | Run `gitleaks detect` | Owner | Medium |
+| 26 | No secrets in Git history | **VERIFIED COMPLETE** | [scripts/secret-scan.mjs](file:///c:/Users/thula/Downloads/growing-minds-academy-ai-quiz-system%20(1)/scripts/secret-scan.mjs) scanned 370 history revisions (all refs + reflog): **0 findings**, 1 placeholder ignored — [docs/SECURITY.md](file:///c:/Users/thula/Downloads/growing-minds-academy-ai-quiz-system%20(1)/docs/SECURITY.md) §7.1 | Re-run if config files change | — | — |
 | 27 | **≥ 30 GitHub issues** | **REQUIRES HUMAN ACTION** | 0 exist; 44 drafts ready in [docs/GITHUB_SETUP_GUIDE.md](file:///c:/Users/thula/Downloads/growing-minds-academy-ai-quiz-system%20(1)/docs/GITHUB_SETUP_GUIDE.md) | Create them | Owner | **Critical** |
 | 28 | Project board (4 columns) | **REQUIRES HUMAN ACTION** | None exists | Create Backlog/In Progress/Review/Done | Owner | **Critical** |
 | 29 | Branch protection | **REQUIRES HUMAN ACTION** | None | Enable PR + 1 review + no force-push/delete | Owner | **Critical** |
@@ -138,8 +138,8 @@ Every Uncommon requirement is evaluated below. Statuses used:
 
 | Status | Count |
 |---|---:|
-| VERIFIED COMPLETE | 22 |
-| COMPLETE BUT NOT INDEPENDENTLY VERIFIED | 4 |
+| VERIFIED COMPLETE | 23 |
+| COMPLETE BUT NOT INDEPENDENTLY VERIFIED | 3 |
 | PARTIALLY COMPLETE | 4 |
 | MISSING | 6 |
 | REQUIRES HUMAN ACTION | 12 |
@@ -159,9 +159,8 @@ Every Uncommon requirement is evaluated below. Statuses used:
 | 7 | **High** | Fill README §14 with real team members and contributions | [README.md](file:///c:/Users/thula/Downloads/growing-minds-academy-ai-quiz-system%20(1)/README.md) |
 | 8 | **High** | Capture and add the 8 required screenshots | ISSUE-42 |
 | 9 | **High** | Complete presentation Slide 15 with real team info | [docs/presentation/FINAL_PROJECT_PRESENTATION.md](file:///c:/Users/thula/Downloads/growing-minds-academy-ai-quiz-system%20(1)/docs/presentation/FINAL_PROJECT_PRESENTATION.md) |
-| 10 | **Medium** | Run a secret scan over Git history | ISSUE-44 |
-| 11 | **Medium** | Set `GEMINI_API_KEY` / `GROQ_API_KEY` in Vercel | [DEPLOYMENT.md](file:///c:/Users/thula/Downloads/growing-minds-academy-ai-quiz-system%20(1)/DEPLOYMENT.md) §3 |
-| 12 | **Low** | Render diagrams and convert docs to PDF | [docs/DIAGRAM_CREATION_GUIDE.md](file:///c:/Users/thula/Downloads/growing-minds-academy-ai-quiz-system%20(1)/docs/DIAGRAM_CREATION_GUIDE.md) |
+| 10 | **Medium** | Set `GEMINI_API_KEY` / `GROQ_API_KEY` in Vercel | [DEPLOYMENT.md](file:///c:/Users/thula/Downloads/growing-minds-academy-ai-quiz-system%20(1)/DEPLOYMENT.md) §3 |
+| 11 | **Low** | Render diagrams and convert docs to PDF | [docs/DIAGRAM_CREATION_GUIDE.md](file:///c:/Users/thula/Downloads/growing-minds-academy-ai-quiz-system%20(1)/docs/DIAGRAM_CREATION_GUIDE.md) |
 
 ---
 

@@ -114,6 +114,24 @@ Full inventory: [docs/DATABASE.md](DATABASE.md).
 | AI keys not hard-coded | The browser fetches AI keys at runtime from `GET /api/ai/client-config` (authenticated teachers only) |
 | Admin password never auto-overwritten | Bootstrap only realigns the Supabase Auth password when `ADMIN_PASSWORD_RESET="true"` |
 
+### 7.1 Git history secret scan
+
+Performed on **2026-11-06** across the entire repository history:
+
+```powershell
+node scripts/secret-scan.mjs
+```
+
+| Item | Value |
+|---|---|
+| Engine | [scripts/secret-scan.mjs](file:///c:/Users/thula/Downloads/growing-minds-academy-ai-quiz-system%20(1)/scripts/secret-scan.mjs) — `gitleaks` is not installed on the build machine |
+| Scope | Every blob reachable from any ref **plus the reflog** — 370 distinct file revisions (not just the working tree) |
+| Patterns | Google `AIza…`, Groq `gsk_…`, GitHub `gh[pousr]_…`, AWS `AKIA…`, Slack `xox…`, PEM private-key blocks, JWTs (Supabase keys/session tokens), assignments to known secret variable names, and DB connection strings with inline credentials |
+| **Result** | **CLEAN — 0 findings.** One placeholder occurrence (`YOUR_GEMINI_API_KEY` in `.env.example`) was correctly ignored. |
+| `.env` tracked? | **No** — `git ls-files` returns only `.env.example` |
+
+The detector was validated against a synthetic repository containing fake Groq, GitHub, JWT and Gemini credentials: it flagged all four and ignored a `<your-key-here>` placeholder. Matches are redacted to a 4-character prefix plus length, so a report can be shared without leaking a value. Re-run before submission and after introducing any new configuration file.
+
 ---
 
 ## 8. Input validation & error handling

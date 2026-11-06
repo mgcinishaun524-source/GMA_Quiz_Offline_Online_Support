@@ -518,12 +518,14 @@ const ISSUES = [
     id: 'ISSUE-44',
     title: 'Run a secret scan over Git history',
     labels: ['security', 'technical-debt'],
-    state: 'Backlog',
-    description: 'No secret scan has been performed.',
+    state: 'Done',
+    description:
+      'No secret scan had been performed. `gitleaks` is not installed on the build machine, so `scripts/secret-scan.mjs` was written to scan every blob reachable from any ref plus the reflog.',
     criteria: `
-- [ ] \`gitleaks detect\` (or GitHub secret scanning) run
-- [ ] Findings (if any) remediated
-- [ ] Result recorded in \`docs/SECURITY.md\``,
+- [x] \`scripts/secret-scan.mjs\` run over the full history (370 revisions) — \`gitleaks\` unavailable, substitute documented
+- [x] 0 findings; the single placeholder (\`YOUR_GEMINI_API_KEY\` in \`.env.example\`) correctly ignored
+- [x] Detector validated against a synthetic repository containing fake credentials
+- [x] Result recorded in \`docs/SECURITY.md\` §7.1`,
   },
 ];
 
@@ -770,8 +772,8 @@ Next steps (owner, still manual):
 
   1. Project board — create a Board project named "GMA Quiz System — Delivery"
      with columns Backlog / In Progress / Review / Done, then add the issues:
-       Backlog     : ISSUE-36 … ISSUE-44 (open)
-       Done        : ISSUE-01 … ISSUE-35 (closed)
+       Backlog     : ISSUE-36 … ISSUE-43 (open)
+       Done        : ISSUE-01 … ISSUE-35 and ISSUE-44 (closed)
      https://github.com/${OWNER_REPO}/projects
 
   2. Branch protection — Settings → Branches → add a rule for "main":
