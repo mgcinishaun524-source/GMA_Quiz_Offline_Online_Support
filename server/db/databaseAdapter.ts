@@ -188,28 +188,34 @@ export class DatabaseAdapter {
 
     const resolvedId = resolveUUID(id);
 
-    const { data: qr, error: quizError } = await supabase
-      .from('quizzes')
-      .select(`
-        *,
-        subjects:subject_id(id, name),
-        classes:class_id(id, name)
-      `)
-      .eq('id', resolvedId)
-      .maybeSingle();
+    // The questions lookup only needs the resolved id — it does not depend on
+    // the quiz row — so both queries are issued together. Awaiting them
+    // sequentially cost every learner submit two round trips instead of one.
+    const [quizResult, questionResult] = await Promise.all([
+      supabase
+        .from('quizzes')
+        .select(`
+          *,
+          subjects:subject_id(id, name),
+          classes:class_id(id, name)
+        `)
+        .eq('id', resolvedId)
+        .maybeSingle(),
+      supabase
+        .from('questions')
+        .select('*')
+        .eq('quiz_id', resolvedId)
+        .order('sort_order', { ascending: true }),
+    ]);
 
+    const { data: qr, error: quizError } = quizResult;
     if (quizError) {
       throw new Error(`Database error fetching quiz ${id}: ${quizError.message}`);
     }
 
     if (!qr) return undefined;
 
-    const { data: questionRows, error: questionError } = await supabase
-      .from('questions')
-      .select('*')
-      .eq('quiz_id', resolvedId)
-      .order('sort_order', { ascending: true });
-
+    const { data: questionRows, error: questionError } = questionResult;
     if (questionError) {
       throw new Error(`Database error fetching questions for quiz ${id}: ${questionError.message}`);
     }
@@ -521,6 +527,41 @@ export class DatabaseAdapter {
     }
 
     return (rows || []).map((r) => this.mapSubmissionRowToModel(r));
+  }
+
+  /**
+   * Counts how many submissions a learner already has for a quiz.
+   *
+   * Deliberately a HEAD request asking for an exact count rather than reusing
+   * getSubmissionsByQuiz(): that method returns every submission for the quiz
+   * together with each one's nested answers, learner profile, class memberships
+   * and subject. Downloading and mapping all of that merely to call `.length`
+   * made each learner's submit progressively slower as more classmates
+   * submitted. This is a constant-cost count the (quiz_id, learner_id) index
+   * can answer directly.
+   */
+  public async countLearnerAttempts(quizId: string, learnerIds: string[]): Promise<number> {
+    this.assertPersistence();
+
+    const supabase = getSupabaseAdmin();
+    if (!supabase) {
+      throw new Error('Supabase client is not available in production mode.');
+    }
+
+    const resolvedQuizId = resolveUUID(quizId);
+    const ids = Array.from(new Set(learnerIds.filter(Boolean).map((v) => resolveUUID(v))));
+
+    const { count, error } = await supabase
+      .from('submissions')
+      .select('id', { count: 'exact', head: true })
+      .eq('quiz_id', resolvedQuizId)
+      .in('learner_id', ids);
+
+    if (error) {
+      throw new Error(`Database error counting attempts for quiz ${quizId}: ${error.message}`);
+    }
+
+    return count || 0;
   }
 
   public async getSubmissionsByLearner(learnerId: string, studentNumber?: string): Promise<Submission[]> {

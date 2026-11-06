@@ -2549,26 +2549,28 @@ app.post('/api/submissions', requireAuth, asyncHandler(async (req: Request, res:
     return;
   }
 
-  // Idempotency: verify hash has not already been submitted (checks before attempt count)
-  if (clientSubmissionHash) {
-    const existing = await databaseAdapter.getSubmissionByHash(clientSubmissionHash);
-    if (existing) {
-      res.status(200).json({
-        submission: existing,
-        isDuplicate: true,
-        message: 'Submission already recorded (idempotent).',
-      });
-      return;
-    }
+  // The idempotency lookup and the attempt count are independent of each other,
+  // so they are issued together rather than as two sequential round trips.
+  const [existing, priorAttempts] = await Promise.all([
+    clientSubmissionHash
+      ? databaseAdapter.getSubmissionByHash(clientSubmissionHash)
+      : Promise.resolve(undefined),
+    databaseAdapter.countLearnerAttempts(quiz.id, [learnerId, studentNum]),
+  ]);
+
+  // Idempotency: hash already submitted (checked before the attempt count)
+  if (existing) {
+    res.status(200).json({
+      submission: existing,
+      isDuplicate: true,
+      message: 'Submission already recorded (idempotent).',
+    });
+    return;
   }
 
   // Check attempt limits
-  const quizSubs = await databaseAdapter.getSubmissionsByQuiz(quiz.id);
-  const existingAttempts = quizSubs.filter(
-    (s) => s.learnerId === learnerId || s.learnerId === studentNum
-  );
   const maxAttempts = quiz.maxAttempts || 1;
-  if (existingAttempts.length >= maxAttempts) {
+  if (priorAttempts >= maxAttempts) {
     res.status(400).json({ error: `Maximum attempt limit of ${maxAttempts} has already been reached for this quiz.` });
     return;
   }
