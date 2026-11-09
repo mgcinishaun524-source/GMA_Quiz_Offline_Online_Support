@@ -11,6 +11,10 @@ export type SubmissionStatus =
 
 export type SyncStatus = 'synced' | 'pending' | 'offline_queued' | 'sync_error';
 
+// Why a timed attempt ended early. 'time_expired' is the hard duration cutoff;
+// 'integrity_violation:*' marks an attempt terminated for cheating.
+export type TerminationReason = 'time_expired' | `integrity_violation:${string}`;
+
 export interface AnswerRecord {
   questionId: string;
   response: string; // optionId or boolean string or short text
@@ -41,4 +45,8 @@ export interface Submission {
   teacherFeedback?: string;
   topicsToPractise?: string[];
   clientSubmissionHash: string; // Idempotency key
+  // Set when the attempt ended early (duration cutoff or integrity violation).
+  terminationReason?: string;
+  // True when this attempt was terminated for cheating and needs staff review.
+  isFlagged?: boolean;
 }

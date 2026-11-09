@@ -8,7 +8,7 @@ import { appDataStore } from '../../services/storage';
 import { useServerSync } from '../../hooks/useServerSync';
 import { syncQueueService, SyncState } from '../../lib/sync-queue';
 import { Submission } from '../../types/submission';
-import { FileCheck, Search, Filter, RefreshCw, Wifi, WifiOff } from 'lucide-react';
+import { FileCheck, Search, Filter, RefreshCw, Wifi, WifiOff, ShieldAlert, Clock } from 'lucide-react';
 
 export const TeacherSubmissionsPage: React.FC = () => {
   // Sync from server on mount so submissions created on other devices appear
@@ -73,6 +73,16 @@ export const TeacherSubmissionsPage: React.FC = () => {
         <div>
           <span className="font-semibold text-xs text-[#0F172A] block">{s.learnerName}</span>
           <span className="font-mono text-[11px] text-[#64748B]">{s.learnerId}</span>
+          {s.isFlagged && (
+            <span className="inline-flex items-center gap-1 text-[10px] font-bold text-[#991B1B] bg-[#FEF2F2] px-1.5 py-0.5 border border-[#EF4444]/40 mt-1">
+              <ShieldAlert size={10} /> Flagged — integrity violation
+            </span>
+          )}
+          {!s.isFlagged && s.terminationReason === 'time_expired' && (
+            <span className="inline-flex items-center gap-1 text-[10px] font-bold text-[#92400E] bg-[#FEF3C7] px-1.5 py-0.5 border border-[#F59E0B]/40 mt-1">
+              <Clock size={10} /> Time expired (auto-collected)
+            </span>
+          )}
         </div>
       ),
     },

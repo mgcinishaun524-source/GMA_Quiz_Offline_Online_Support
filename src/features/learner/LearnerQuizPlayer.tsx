@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../app/AuthContext';
 import { PrimaryButton, OutlineButton, SecondaryButton } from '../../components/ui/Buttons';
@@ -28,7 +28,22 @@ import {
   AlertCircle,
   HelpCircle,
   FileCheck,
+  Maximize2,
+  ShieldAlert,
 } from 'lucide-react';
+
+// Human-readable countdown, e.g. "09:41" or "1:29:58".
+function formatDuration(totalSeconds: number): string {
+  const s = Math.max(0, Math.floor(totalSeconds));
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const sec = s % 60;
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return h > 0 ? `${h}:${pad(m)}:${pad(sec)}` : `${pad(m)}:${pad(sec)}`;
+}
+
+// Under five minutes the clock turns red and the learner gets a warning band.
+const LOW_TIME_THRESHOLD_MS = 5 * 60 * 1000;
 
 export const LearnerQuizPlayer: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -43,6 +58,24 @@ export const LearnerQuizPlayer: React.FC = () => {
   const [isReviewOpen, setIsReviewOpen] = useState<boolean>(false);
   const [isConfirmSubmitOpen, setIsConfirmSubmitOpen] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+
+  // --- Server-owned timed sitting -----------------------------------------
+  // `deadlineAt` comes from the server (POST /api/quizzes/:id/start). It is the
+  // single authority for the hard cutoff: refreshing the page or reopening the
+  // tab returns the SAME deadline, so no amount of reloading buys extra time.
+  const [deadlineAt, setDeadlineAt] = useState<string | null>(null);
+  const [serverOffsetMs, setServerOffsetMs] = useState<number>(0);
+  const [timeLeftMs, setTimeLeftMs] = useState<number | null>(null);
+  const [startError, setStartError] = useState<string | null>(null);
+  const [startNonce, setStartNonce] = useState<number>(0);
+  const [gateOpen, setGateOpen] = useState<boolean>(true);
+  const [monitoring, setMonitoring] = useState<boolean>(false);
+
+  // Refs that survive re-renders so the interval / listeners always act on the
+  // latest state without re-subscribing.
+  const submittedRef = useRef<boolean>(false);
+  const violationHandledRef = useRef<boolean>(false);
+  const finalizeRef = useRef<(integrityReason?: string) => void>(() => {});
 
   // Load quiz from store or IndexedDB offline cache
   useEffect(() => {
@@ -77,6 +110,105 @@ export const LearnerQuizPlayer: React.FC = () => {
     return () => unsubNet();
   }, [id, user]);
 
+  // Open (or resume) the server-owned clock. Timed exams are online-only: with
+  // no server the clock cannot be enforced, so we refuse to start rather than
+  // hand out a timer the learner could simply outwait.
+  useEffect(() => {
+    if (!id) return;
+    let cancelled = false;
+
+    async function startAttempt() {
+      setStartError(null);
+      if (!networkManager.isOnline()) {
+        setStartError(
+          'This timed assessment can only be taken online. Reconnect to the school network, then tap Retry to begin.'
+        );
+        return;
+      }
+      try {
+        const result = await quizApiService.startTimedAttempt(id as string);
+        if (cancelled) return;
+        // Trust the server's clock over the device clock: the offset neutralises
+        // a deliberately wrong system time on the tablet.
+        const offset = Date.parse(result.serverTime) - Date.now();
+        setServerOffsetMs(Number.isFinite(offset) ? offset : 0);
+        setDeadlineAt(result.attempt.deadlineAt);
+      } catch (err) {
+        if (cancelled) return;
+        setStartError(
+          err instanceof Error ? err.message : 'Unable to start this timed assessment.'
+        );
+      }
+    }
+
+    startAttempt();
+    return () => {
+      cancelled = true;
+    };
+  }, [id, startNonce]);
+
+  // Countdown. Uses the server-corrected now so a tampered device clock cannot
+  // extend the exam. At zero the paper is collected automatically — answered or
+  // not — exactly like an invigilated final.
+  useEffect(() => {
+    if (!deadlineAt) return;
+
+    const tick = () => {
+      if (submittedRef.current) return;
+      const remaining = Date.parse(deadlineAt) - (Date.now() + serverOffsetMs);
+      setTimeLeftMs(remaining);
+      if (remaining <= 0) {
+        void finalizeRef.current('time_expired');
+      }
+    };
+
+    tick();
+    const interval = window.setInterval(tick, 1000);
+    return () => window.clearInterval(interval);
+  }, [deadlineAt, serverOffsetMs]);
+
+  // Integrity monitoring. The page can only perceive itself, so these are the
+  // detectable "left the exam" signals: the tab being hidden, the window losing
+  // focus, and picture-in-picture video starting. Per the exam policy the first
+  // occurrence ends the sitting immediately and flags the record for review.
+  useEffect(() => {
+    if (!monitoring) return;
+
+    const trigger = (reason: string) => {
+      if (submittedRef.current || violationHandledRef.current) return;
+      violationHandledRef.current = true;
+      void finalizeRef.current(reason);
+    };
+
+    const onVisibility = () => {
+      if (document.visibilityState === 'hidden') trigger('tab_hidden');
+    };
+    const onBlur = () => trigger('window_blur');
+    const onEnterPip = () => trigger('pip');
+
+    document.addEventListener('visibilitychange', onVisibility);
+    window.addEventListener('blur', onBlur);
+    document.addEventListener('enterpictureinpicture', onEnterPip, true);
+
+    return () => {
+      document.removeEventListener('visibilitychange', onVisibility);
+      window.removeEventListener('blur', onBlur);
+      document.removeEventListener('enterpictureinpicture', onEnterPip, true);
+    };
+  }, [monitoring]);
+
+  // Best-effort fullscreen on open; browsers require a user gesture, so the
+  // gate overlay also offers one. A refused fullscreen still runs & monitors.
+  useEffect(() => {
+    if (!quiz) return;
+    const el = document.documentElement as HTMLElement & {
+      requestFullscreen?: () => Promise<void>;
+    };
+    el.requestFullscreen?.().catch(() => {
+      /* needs a gesture — the gate's tap provides it */
+    });
+  }, [quiz]);
+
   if (!quiz) {
     return (
       <div className="max-w-2xl mx-auto my-12 bg-white border border-[#CBD5E1] p-8 text-center shadow-sm">
@@ -91,9 +223,36 @@ export const LearnerQuizPlayer: React.FC = () => {
     );
   }
 
+  // Timed exams cannot start without a server-owned clock.
+  if (startError) {
+    return (
+      <div className="max-w-xl mx-auto my-12 bg-white border border-[#EF4444]/40 p-8 text-center shadow-sm space-y-4">
+        <div className="w-14 h-14 mx-auto flex items-center justify-center border border-[#EF4444] bg-[#FEF2F2] text-[#991B1B]">
+          <AlertCircle size={28} />
+        </div>
+        <div>
+          <span className="text-[11px] font-bold uppercase tracking-wider text-[#D6A21E] block mb-1">
+            {quiz.subjectName} Assessment
+          </span>
+          <h2 className="text-lg font-bold text-[#0B1F4B]">Cannot Start Assessment</h2>
+          <p className="text-xs text-[#64748B] mt-2">{startError}</p>
+        </div>
+        <div className="flex flex-col sm:flex-row justify-center gap-3">
+          <PrimaryButton onClick={() => setStartNonce((n) => n + 1)}>Retry</PrimaryButton>
+          <OutlineButton onClick={() => navigate('/learner/dashboard')}>
+            Return to Dashboard
+          </OutlineButton>
+        </div>
+      </div>
+    );
+  }
+
   const currentQuestion: Question = quiz.questions[currentIdx] || quiz.questions[0];
   const totalQuestions = quiz.questions.length;
   const answeredCount = Object.keys(answers).filter((k) => !!answers[k]?.trim()).length;
+
+  const timeLeftSeconds = timeLeftMs === null ? null : Math.max(0, Math.ceil(timeLeftMs / 1000));
+  const isLowTime = timeLeftMs !== null && timeLeftMs <= LOW_TIME_THRESHOLD_MS;
 
   // Real-time answer persistence to IndexedDB
   const handleSelectAnswer = async (response: string) => {
@@ -131,32 +290,60 @@ export const LearnerQuizPlayer: React.FC = () => {
     }
   };
 
-  // Submit assessment (handles online vs offline queue).
+  // Submit the assessment (handles the timed cutoff, integrity violations,
+  // online submission and the offline queue).
   //
-  // The learner is sent to the receipt screen the instant they confirm, and the
-  // network work runs in the background, flipping the receipt to the honest
-  // outcome (saved / offline / rejected). This keeps the tap feeling immediate
-  // without ever fabricating a success.
-  const handleFinalSubmit = async () => {
-    if (isSubmitting) return; // A second click while the first is in flight.
+  // The learner is sent to the receipt screen the instant the attempt ends, and
+  // the network work runs in the background, flipping the receipt to the honest
+  // outcome (saved / offline / rejected / terminated). This keeps the tap
+  // feeling immediate without ever fabricating a success.
+  //
+  // `integrityReason` is supplied when the attempt was ended by the clock
+  // ('time_expired') or by an integrity signal ('tab_hidden', 'window_blur',
+  // 'pip'). The server stamps the record accordingly and flags it for review.
+  const handleFinalSubmit = async (integrityReason?: string) => {
+    if (submittedRef.current) return; // A second click while the first is in flight.
+    submittedRef.current = true;
     setIsSubmitting(true);
+    setMonitoring(false);
+
+    const isTerminated = !!integrityReason && integrityReason !== 'time_expired';
+    const timedOut = integrityReason === 'time_expired';
+    const timeUpNote = 'Time expired — your paper was collected automatically.';
 
     const submissionId = `sub-${Date.now()}-${user?.learnerId || 'anon'}`;
     const clientHash = `hash-${quiz.id}-${user?.learnerId || 'anon'}-${Date.now()}`;
 
-    const setReceipt = (status: ReceiptStatus, error?: string) =>
+    const setReceipt = (status: ReceiptStatus, error?: string, note?: string) =>
       submissionReceiptStore.set({
         submissionId,
         quizId: quiz.id,
         quizTitle: quiz.title,
         status,
         error,
+        note,
       });
 
-    // Show the receipt instantly and confirm with the server in the background.
-    setReceipt('saving');
+    // Show the receipt immediately and confirm with the server in the background.
+    if (isTerminated) {
+      setReceipt(
+        'terminated',
+        integrityReason === 'pip'
+          ? 'This attempt was ended because a floating (picture-in-picture) video was detected.'
+          : 'This attempt was ended because another window or tab was opened during the assessment.'
+      );
+    } else {
+      setReceipt('saving', undefined, timedOut ? timeUpNote : undefined);
+    }
+
     setIsConfirmSubmitOpen(false);
     setIsReviewOpen(false);
+    setGateOpen(false);
+    try {
+      if (document.fullscreenElement) await document.exitFullscreen();
+    } catch {
+      /* exiting fullscreen is best-effort */
+    }
     navigate(
       `/learner/submitted?quizTitle=${encodeURIComponent(quiz.title)}&id=${submissionId}`
     );
@@ -181,6 +368,8 @@ export const LearnerQuizPlayer: React.FC = () => {
       isOfflineSubmission: true,
       submittedAt: new Date().toISOString(),
       clientSubmissionHash: clientHash,
+      terminationReason: integrityReason,
+      isFlagged: isTerminated,
     });
 
     try {
@@ -190,7 +379,7 @@ export const LearnerQuizPlayer: React.FC = () => {
         // marks withheld until the teacher releases results). The learner device
         // never holds the answer key, so a locally-computed score would always be
         // a fabricated 0% — we must never persist one.
-        await quizApiService.submitQuiz(quiz.id, answers, clientHash, false);
+        await quizApiService.submitQuiz(quiz.id, answers, clientHash, false, integrityReason);
       } else {
         await queueOfflineSubmission(createQueuedRecord());
       }
@@ -201,7 +390,11 @@ export const LearnerQuizPlayer: React.FC = () => {
         // receipt and keep the learner's draft so nothing is lost. Never queue it
         // as if it had been accepted, which would make a rejected attempt look
         // submitted.
-        setReceipt('rejected', err.message);
+        if (isTerminated) {
+          setReceipt('terminated', err.message);
+        } else {
+          setReceipt('rejected', err.message);
+        }
         return;
       }
       // Otherwise the server could not be reached (offline, timeout, gateway
@@ -219,9 +412,13 @@ export const LearnerQuizPlayer: React.FC = () => {
       }
     }
 
+    // A terminated attempt keeps its terminated receipt even though the flagged
+    // record reached the server — the learner must not see it as "submitted".
+    if (isTerminated) return;
+
     // Reached only when the attempt was accepted or durably queued: the draft is
     // no longer needed.
-    setReceipt(queuedOffline ? 'offline' : 'saved');
+    setReceipt(queuedOffline ? 'offline' : 'saved', undefined, timedOut ? timeUpNote : undefined);
     if (user?.learnerId && id) {
       void clearActiveAnswers(id, user.learnerId).catch((err) => {
         console.warn('[Quiz Draft] Could not clear the submitted draft.', err);
@@ -229,8 +426,66 @@ export const LearnerQuizPlayer: React.FC = () => {
     }
   };
 
+  // Keep the ref pointing at the latest closure so the countdown and the
+  // integrity listeners always submit the current answers.
+  finalizeRef.current = handleFinalSubmit;
+
+  const enterExamMode = async () => {
+    try {
+      const el = document.documentElement as HTMLElement & {
+        requestFullscreen?: () => Promise<void>;
+      };
+      if (el.requestFullscreen && !document.fullscreenElement) {
+        await el.requestFullscreen();
+      }
+    } catch {
+      // Fullscreen refused or unavailable — the exam still runs and is monitored.
+    }
+    setGateOpen(false);
+    // Monitoring is armed only once the learner is actually in exam mode, and
+    // after a short settle, so the fullscreen transition itself can never be
+    // mistaken for the learner leaving the assessment.
+    window.setTimeout(() => setMonitoring(true), 800);
+  };
+
   return (
     <div className="max-w-4xl mx-auto space-y-4 py-2">
+      {/* Exam-mode gate: the tap that grants fullscreen. The clock is already
+          running behind it, exactly like a paper handed out at the bell. */}
+      {gateOpen && !isSubmitting && (
+        <div className="fixed inset-0 z-[60] bg-[#0B1F4B] text-white flex items-center justify-center p-6">
+          <div className="max-w-lg w-full text-center space-y-6">
+            <div className="w-16 h-16 mx-auto flex items-center justify-center border border-[#D6A21E] bg-[#0B1F4B] text-[#D6A21E]">
+              <ShieldAlert size={32} />
+            </div>
+            <div>
+              <span className="text-[11px] font-bold uppercase tracking-widest text-[#D6A21E] block mb-2">
+                Supervised Assessment
+              </span>
+              <h2 className="text-2xl font-extrabold">{quiz.title}</h2>
+              <p className="text-sm text-white/70 mt-2">
+                {quiz.durationMinutes} minute time limit. The clock starts now and cannot be paused.
+              </p>
+            </div>
+            <div className="text-left text-xs bg-white/5 border border-white/15 p-4 space-y-2 text-white/80">
+              <p className="font-bold text-[#D6A21E] uppercase tracking-wider text-[11px]">
+                Exam Rules
+              </p>
+              <p>• Your paper is collected automatically the moment the timer reaches zero.</p>
+              <p>• Do not switch tabs or windows, and do not open floating (picture-in-picture) video.</p>
+              <p>• Any of these ends your assessment instantly and is recorded for your teacher.</p>
+            </div>
+            <PrimaryButton
+              onClick={enterExamMode}
+              icon={<Maximize2 size={16} />}
+              className="w-full justify-center text-xs uppercase font-bold py-3"
+            >
+              Enter Exam Mode (Fullscreen)
+            </PrimaryButton>
+          </div>
+        </div>
+      )}
+
       {/* Quiz Header Bar */}
       <div className="bg-white border border-[#CBD5E1] p-4 shadow-sm flex flex-wrap items-center justify-between gap-3">
         <div>
@@ -241,6 +496,20 @@ export const LearnerQuizPlayer: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-4 text-xs font-semibold">
+          {/* Server-owned Countdown */}
+          {timeLeftSeconds !== null && (
+            <span
+              className={`flex items-center gap-1 px-2.5 py-1 border font-bold tabular-nums ${
+                isLowTime
+                  ? 'text-[#991B1B] bg-[#FEF2F2] border-[#EF4444]/50'
+                  : 'text-[#0B1F4B] bg-[#F7F7F4] border-[#CBD5E1]'
+              }`}
+              title="Time remaining (server clock)"
+            >
+              <Clock size={13} /> {formatDuration(timeLeftSeconds)}
+            </span>
+          )}
+
           {/* Connection Status Badge */}
           {isOnline ? (
             <span className="flex items-center gap-1 text-[#0B1F4B] bg-[#F7F7F4] px-2.5 py-1 border border-[#D6A21E]/40">
@@ -259,6 +528,14 @@ export const LearnerQuizPlayer: React.FC = () => {
           </span>
         </div>
       </div>
+
+      {/* Low-time warning band */}
+      {isLowTime && (
+        <div className="bg-[#FEF2F2] border border-[#EF4444]/40 text-[#991B1B] px-4 py-2.5 text-xs font-bold flex items-center gap-2">
+          <AlertCircle size={14} />
+          Time is nearly up — your paper will be collected automatically at zero.
+        </div>
+      )}
 
       {/* Progress Bar (Strictly Sky Blue, No Green) */}
       <div className="bg-white border border-[#CBD5E1] p-3 shadow-sm">
@@ -444,6 +721,14 @@ export const LearnerQuizPlayer: React.FC = () => {
                   {answeredCount} of {totalQuestions}
                 </span>
               </div>
+              {timeLeftSeconds !== null && (
+                <div className="flex justify-between py-1.5 border-b border-[#CBD5E1]/50">
+                  <span className="text-[#64748B]">Time Remaining:</span>
+                  <span className={`font-bold ${isLowTime ? 'text-[#991B1B]' : 'text-[#0B1F4B]'}`}>
+                    {formatDuration(timeLeftSeconds)}
+                  </span>
+                </div>
+              )}
               {totalQuestions - answeredCount > 0 && (
                 <div className="p-3 bg-[#FEF3C7] border border-[#F59E0B]/40 text-[#92400E]">
                   You still have {totalQuestions - answeredCount} unanswered question{totalQuestions - answeredCount === 1 ? '' : 's'}. You can go back and complete them before submitting.
@@ -485,7 +770,7 @@ export const LearnerQuizPlayer: React.FC = () => {
         }
         confirmLabel="Yes, Submit Assessment"
         isLoading={isSubmitting}
-        onConfirm={handleFinalSubmit}
+        onConfirm={() => handleFinalSubmit()}
         onCancel={() => setIsConfirmSubmitOpen(false)}
       />
     </div>

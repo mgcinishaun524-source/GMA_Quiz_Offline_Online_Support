@@ -16,6 +16,8 @@
 //   9. Administrator bootstrap never fabricates or overwrites an account.
 //  10. The live administrative dashboard and device-presence endpoints are
 //      role-guarded and never fabricate metrics when storage is unavailable.
+//  11. The server-owned exam clock is learner-only and refuses to start when it
+//      cannot enforce the deadline, rather than handing out an unenforceable timer.
 //
 // The unconfigured backend is the exact configuration in which demo fallbacks used to
 // activate, so it is where these guarantees must be proven. The suite is fully isolated:
@@ -479,6 +481,30 @@ async function runAllTests() {
       const data = await res.json();
       assert.equal(data.ok, true, 'The heartbeat must be acknowledged');
       assert.equal(typeof data.onlineWindowSeconds, 'number', 'The presence window must be reported');
+    });
+
+    // ========================================================================
+    // 8. Timed assessment clock
+    // ========================================================================
+
+    await test('Starting a timed assessment requires a learner and fails closed without storage', async () => {
+      const noAuth = await post('/api/quizzes/quiz-1/start', {});
+      assert.equal(noAuth.status, 401, 'Starting a timed attempt must require authentication');
+
+      const asTeacher = await post('/api/quizzes/quiz-1/start', {}, teacherToken);
+      assert.equal(asTeacher.status, 403, 'Only learners may open a sitting of an assessment');
+
+      const asAdmin = await post('/api/quizzes/quiz-1/start', {}, adminToken);
+      assert.equal(asAdmin.status, 403, 'Staff must not open a learner sitting');
+
+      const asLearner = await post('/api/quizzes/quiz-1/start', {}, learnerToken);
+      assert.equal(
+        asLearner.status,
+        503,
+        'Without storage the server cannot own the exam clock, so it must refuse to start'
+      );
+      const data = await asLearner.json();
+      assert.equal(data.attempt, undefined, 'No attempt (and so no deadline) may be fabricated offline');
     });
   } finally {
     await stopTestServer();

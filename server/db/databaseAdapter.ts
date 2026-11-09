@@ -65,6 +65,19 @@ export function questionDbId(quizId: string, qId: string): string {
   return deterministicUUID(`${quizId}_${qId}`);
 }
 
+// A learner's server-owned sitting of a timed assessment. `deadlineAt` is the
+// single authority for the hard duration cutoff; it is computed on the server
+// and is never accepted from a client.
+export interface QuizAttempt {
+  id: string;
+  quizId: string;
+  learnerId: string;
+  startedAt: string;
+  deadlineAt: string;
+  status: 'in_progress' | 'submitted' | 'terminated';
+  terminationReason?: string;
+}
+
 export class DatabaseAdapter {
   // Guards every persistence operation. There is no local fallback storage:
   // without a configured database the operation must fail rather than pretend.
@@ -592,6 +605,128 @@ export class DatabaseAdapter {
     return (rows || []).map((r) => this.mapSubmissionRowToModel(r));
   }
 
+  // ==========================================================================
+  // TIMED EXAM ATTEMPTS
+  // ==========================================================================
+
+  private mapQuizAttemptRow(r: any): QuizAttempt {
+    return {
+      id: r.id,
+      quizId: r.quiz_id,
+      learnerId: r.learner_id,
+      startedAt: r.started_at,
+      deadlineAt: r.deadline_at,
+      status: r.status,
+      terminationReason: r.termination_reason || undefined,
+    };
+  }
+
+  public async getQuizAttempt(quizId: string, learnerId: string): Promise<QuizAttempt | undefined> {
+    this.assertPersistence();
+
+    const supabase = getSupabaseAdmin();
+    if (!supabase) {
+      throw new Error('Supabase client is not available in production mode.');
+    }
+
+    const { data, error } = await supabase
+      .from('quiz_attempts')
+      .select('*')
+      .eq('quiz_id', resolveUUID(quizId))
+      .eq('learner_id', resolveUUID(learnerId))
+      .maybeSingle();
+
+    if (error) {
+      throw new Error(`Database error fetching quiz attempt: ${error.message}`);
+    }
+    return data ? this.mapQuizAttemptRow(data) : undefined;
+  }
+
+  /**
+   * Opens (or reopens) the learner's timed sitting of an assessment.
+   *
+   * Idempotent on (quiz_id, learner_id): reopening returns the SAME deadline,
+   * so refreshing the page or reopening a tab can never extend the clock. The
+   * deadline is derived here from the quiz's own duration and is never taken
+   * from the client, so a tampered device clock buys nothing.
+   */
+  public async startQuizAttempt(
+    quizId: string,
+    learnerId: string,
+    durationMinutes: number,
+    schoolId?: string
+  ): Promise<QuizAttempt> {
+    this.assertPersistence();
+
+    const supabase = getSupabaseAdmin();
+    if (!supabase) {
+      throw new Error('Supabase client is not available in production mode.');
+    }
+
+    const resolvedQuizId = resolveUUID(quizId);
+    const resolvedLearnerId = resolveUUID(learnerId);
+
+    const existing = await this.getQuizAttempt(resolvedQuizId, resolvedLearnerId);
+    if (existing) return existing;
+
+    const now = new Date();
+    const minutes = Number.isFinite(durationMinutes) && durationMinutes > 0 ? durationMinutes : 15;
+    const deadline = new Date(now.getTime() + minutes * 60_000);
+
+    const { data, error } = await supabase
+      .from('quiz_attempts')
+      .insert({
+        school_id: schoolId || null,
+        quiz_id: resolvedQuizId,
+        learner_id: resolvedLearnerId,
+        started_at: now.toISOString(),
+        deadline_at: deadline.toISOString(),
+        status: 'in_progress',
+      })
+      .select('*')
+      .single();
+
+    if (error) {
+      // Concurrent first-open race: the UNIQUE(quiz_id, learner_id) constraint
+      // is the authority. Return the row that won instead of failing the open.
+      if ((error as any).code === '23505' || error.message.includes('duplicate key')) {
+        const winner = await this.getQuizAttempt(resolvedQuizId, resolvedLearnerId);
+        if (winner) return winner;
+      }
+      throw new Error(`Database error starting quiz attempt: ${error.message}`);
+    }
+
+    return this.mapQuizAttemptRow(data);
+  }
+
+  public async finalizeQuizAttempt(
+    quizId: string,
+    learnerId: string,
+    status: 'submitted' | 'terminated',
+    terminationReason?: string
+  ): Promise<void> {
+    this.assertPersistence();
+
+    const supabase = getSupabaseAdmin();
+    if (!supabase) {
+      throw new Error('Supabase client is not available in production mode.');
+    }
+
+    const { error } = await supabase
+      .from('quiz_attempts')
+      .update({
+        status,
+        termination_reason: terminationReason || null,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('quiz_id', resolveUUID(quizId))
+      .eq('learner_id', resolveUUID(learnerId));
+
+    if (error) {
+      throw new Error(`Database error finalizing quiz attempt: ${error.message}`);
+    }
+  }
+
   public async saveSubmission(
     submission: Submission,
     schoolId = '00000000-0000-0000-0000-000000000001',
@@ -674,6 +809,8 @@ export class DatabaseAdapter {
       synced_at: submission.syncedAt || new Date().toISOString(),
       teacher_feedback: submission.teacherFeedback || null,
       topics_to_practise: submission.topicsToPractise || [],
+      termination_reason: submission.terminationReason || null,
+      is_flagged: submission.isFlagged || false,
     });
 
     if (subError) {
@@ -792,6 +929,8 @@ export class DatabaseAdapter {
       teacherFeedback: r.teacher_feedback || undefined,
       topicsToPractise: r.topics_to_practise || [],
       clientSubmissionHash: r.client_submission_hash,
+      terminationReason: r.termination_reason || undefined,
+      isFlagged: r.is_flagged || false,
     };
   }
 }

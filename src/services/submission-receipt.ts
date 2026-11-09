@@ -11,7 +11,11 @@
 // learner reopening the receipt tab) keeps showing the true outcome instead of
 // resetting to a default.
 
-export type ReceiptStatus = 'saving' | 'saved' | 'offline' | 'rejected';
+// 'terminated' is used when the assessment was ended by the exam policy (the
+// hard time limit or an integrity violation). It is deliberately distinct from
+// 'rejected': the attempt IS on record, but it must never read as a clean
+// submission.
+export type ReceiptStatus = 'saving' | 'saved' | 'offline' | 'rejected' | 'terminated';
 
 export interface SubmissionReceipt {
   submissionId: string;
@@ -19,6 +23,7 @@ export interface SubmissionReceipt {
   quizTitle: string;
   status: ReceiptStatus;
   error?: string;
+  note?: string;
 }
 
 const STORAGE_KEY = 'gma.submissionReceipt';

@@ -34,6 +34,22 @@ export class SubmissionRejectedError extends Error {
   }
 }
 
+// The server-owned timed sitting of an assessment. `deadlineAt` is the single
+// authority for the hard duration cutoff; it is computed on the server and the
+// client only ever displays it.
+export interface TimedAttempt {
+  quizId: string;
+  startedAt: string;
+  deadlineAt: string;
+  status: 'in_progress' | 'submitted' | 'terminated';
+}
+
+export interface StartAttemptResult {
+  attempt: TimedAttempt;
+  durationMinutes: number;
+  serverTime: string;
+}
+
 export const quizApiService = {
   // --- TEACHER QUIZ LIFECYCLE ---
 
@@ -258,12 +274,42 @@ export const quizApiService = {
     return appDataStore.getQuizzes();
   },
 
+  // 9b. Start (or resume) the server-owned clock for a timed assessment.
+  //     Reopening returns the SAME deadline, so refreshing the page or opening
+  //     a second tab cannot buy extra time. Refuses to start when the server
+  //     cannot own the clock, rather than handing out an unenforceable timer.
+  async startTimedAttempt(quizId: string): Promise<StartAttemptResult> {
+    const res = await fetch(`/api/quizzes/${quizId}/start`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...getAuthHeader(),
+      },
+    });
+
+    const data = await res.json().catch(() => ({} as Record<string, unknown>));
+
+    if (!res.ok) {
+      throw new SubmissionRejectedError(
+        (data as { error?: string }).error || 'Unable to start this timed assessment.',
+        res.status
+      );
+    }
+
+    const result = data as unknown as StartAttemptResult;
+    if (!result?.attempt?.deadlineAt) {
+      throw new Error('Invalid response from server.');
+    }
+    return result;
+  },
+
   // 10. Submit Attempt
   async submitQuiz(
     quizId: string,
     answers: Record<string, string>,
     clientSubmissionHash?: string,
-    isOffline = false
+    isOffline = false,
+    integrityReason?: string
   ): Promise<Submission> {
     const token = authService.getAuthToken();
     const controller = new AbortController();
@@ -283,6 +329,7 @@ export const quizApiService = {
           clientSubmissionHash,
           isOfflineSubmission: isOffline,
           submittedAt: new Date().toISOString(),
+          ...(integrityReason ? { integrityReason } : {}),
         }),
         signal: controller.signal,
       });

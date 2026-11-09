@@ -1800,6 +1800,86 @@ app.get('/api/quizzes/:id', requireAuth, async (req: Request, res: Response): Pr
   res.json({ quiz });
 });
 
+// ----------------------------------------------------------------------------
+// TIMED ASSESSMENTS — server-owned clock
+// ----------------------------------------------------------------------------
+// Network grace allowed on top of the stored deadline so a last-second
+// auto-submit (whose request is already in flight as the clock hits zero) still
+// lands. Everything beyond this is refused.
+const SUBMIT_GRACE_MS = 30_000;
+
+// Start (or resume) a learner's timed sitting of an assessment.
+//
+// The server stamps the start time and computes the deadline from the quiz's
+// own duration; the client supplies neither. Because the attempt is keyed on
+// (quiz, learner), reopening returns the SAME deadline — so refreshing the page,
+// opening a second tab or changing the tablet's system clock cannot buy extra
+// time. Timed exams are online-only: without storage the server cannot own the
+// clock, so we refuse to start rather than hand out an unenforceable timer.
+app.post(
+  '/api/quizzes/:id/start',
+  requireAuth,
+  requireRole(['learner']),
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    if (!isSupabaseConfigured()) {
+      res.status(503).json({
+        error: 'This timed assessment can only begin with a server connection. Please reconnect and try again.',
+      });
+      return;
+    }
+
+    const quiz = await databaseAdapter.getQuizById(req.params.id);
+    if (!quiz) {
+      res.status(404).json({ error: 'Assessment quiz not found.' });
+      return;
+    }
+
+    if (quiz.status === 'draft' || quiz.status === 'closed') {
+      res.status(400).json({ error: `Assessment is not currently open (status: ${quiz.status}).` });
+      return;
+    }
+
+    if (quiz.dueDate && new Date(quiz.dueDate) < new Date()) {
+      res.status(400).json({ error: `Assessment deadline (${new Date(quiz.dueDate).toLocaleString()}) has expired.` });
+      return;
+    }
+
+    if (quiz.classId && quiz.classId !== 'all' && req.user!.classId && quiz.classId !== req.user!.classId) {
+      res.status(403).json({ error: `Assessment is assigned to ${quiz.className || quiz.classId}, not your class.` });
+      return;
+    }
+
+    // A finished attempt must not reopen a fresh clock.
+    const priorAttempts = await databaseAdapter.countLearnerAttempts(quiz.id, [
+      req.user!.id,
+      req.user!.studentNumber || req.user!.id,
+    ]);
+    const maxAttempts = quiz.maxAttempts || 1;
+    if (priorAttempts >= maxAttempts) {
+      res.status(400).json({ error: `Maximum attempt limit of ${maxAttempts} has already been reached for this quiz.` });
+      return;
+    }
+
+    const attempt = await databaseAdapter.startQuizAttempt(
+      quiz.id,
+      req.user!.id,
+      quiz.durationMinutes,
+      req.user!.schoolId
+    );
+
+    res.json({
+      attempt: {
+        quizId: quiz.id,
+        startedAt: attempt.startedAt,
+        deadlineAt: attempt.deadlineAt,
+        status: attempt.status,
+      },
+      durationMinutes: quiz.durationMinutes,
+      serverTime: new Date().toISOString(),
+    });
+  })
+);
+
 // Helper for question validation
 function validateQuizQuestions(questions: any[]): { isValid: boolean; error?: string } {
   if (!Array.isArray(questions) || questions.length === 0) {
@@ -2513,18 +2593,31 @@ app.post('/api/submissions', requireAuth, asyncHandler(async (req: Request, res:
     return;
   }
 
+  // Client-reported reason the attempt ended early: 'time_expired' (the hard
+  // duration cutoff fired) or an integrity signal ('tab_hidden', 'window_blur',
+  // 'pip'). An integrity reason flags the record for staff review.
+  const rawIntegrityReason =
+    typeof req.body?.integrityReason === 'string' ? req.body.integrityReason.trim() : '';
+  const isIntegrityViolation = rawIntegrityReason !== '' && rawIntegrityReason !== 'time_expired';
+  const terminationReason = rawIntegrityReason
+    ? isIntegrityViolation
+      ? `integrity_violation:${rawIntegrityReason}`
+      : 'time_expired'
+    : undefined;
+
   const learnerId = req.user!.id;
   const studentNum = req.user!.studentNumber || learnerId;
 
-  // The quiz fetch, the idempotency lookup and the attempt count each depend
-  // only on inputs already in hand, so they are issued together rather than as
-  // three sequential round trips on the learner submit critical path.
-  const [quiz, existing, priorAttempts] = await Promise.all([
+  // The quiz fetch, the idempotency lookup, the attempt count and the timed
+  // attempt clock each depend only on inputs already in hand, so they are issued
+  // together rather than as sequential round trips on the learner submit path.
+  const [quiz, existing, priorAttempts, attempt] = await Promise.all([
     databaseAdapter.getQuizById(quizId),
     clientSubmissionHash
       ? databaseAdapter.getSubmissionByHash(clientSubmissionHash)
       : Promise.resolve(undefined),
     databaseAdapter.countLearnerAttempts(quizId, [learnerId, studentNum]),
+    databaseAdapter.getQuizAttempt(quizId, learnerId),
   ]);
 
   if (!quiz) {
@@ -2565,6 +2658,28 @@ app.post('/api/submissions', requireAuth, asyncHandler(async (req: Request, res:
       submission: existing,
       isDuplicate: true,
       message: 'Submission already recorded (idempotent).',
+    });
+    return;
+  }
+
+  // Hard duration cutoff. The server owns the clock: the deadline was computed
+  // at POST /api/quizzes/:id/start and is never accepted from the client. A
+  // sitting that is past its deadline (plus a small transit grace window) is
+  // refused outright, so "time up, auto submit" cannot be gamed by stalling the
+  // tab. An integrity-violation submission is still recorded (it is being
+  // terminated and flagged for staff review) so the evidence is never lost.
+  const lateByMs = attempt?.deadlineAt
+    ? Date.now() - new Date(attempt.deadlineAt).getTime()
+    : 0;
+  if (
+    attempt &&
+    attempt.status === 'in_progress' &&
+    !isIntegrityViolation &&
+    lateByMs > SUBMIT_GRACE_MS
+  ) {
+    await databaseAdapter.finalizeQuizAttempt(quiz.id, learnerId, 'terminated', 'time_expired');
+    res.status(400).json({
+      error: 'The time limit for this assessment has expired. Late answers were not accepted.',
     });
     return;
   }
@@ -2618,11 +2733,26 @@ app.post('/api/submissions', requireAuth, asyncHandler(async (req: Request, res:
     syncedAt: new Date().toISOString(),
     topicsToPractise,
     answers,
+    terminationReason,
+    isFlagged: isIntegrityViolation,
   };
 
   const saved = await databaseAdapter.saveSubmission(newSubmission, req.user?.schoolId, {
     skipDuplicateLookup: true,
   });
+
+  // Close out the server-owned sitting so it can never be resumed. An integrity
+  // violation terminates the attempt and flags the record for staff review;
+  // anything else (including a submit fired by the timer running out) is a
+  // normal finish.
+  if (attempt) {
+    await databaseAdapter.finalizeQuizAttempt(
+      quiz.id,
+      learnerId,
+      isIntegrityViolation ? 'terminated' : 'submitted',
+      terminationReason,
+    );
+  }
 
   // Audit logging is fire-and-forget: the learner's submit response must not
   // wait on an unrelated audit_events insert. logAuditEvent swallows its own

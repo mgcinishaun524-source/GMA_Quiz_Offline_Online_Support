@@ -12,6 +12,7 @@ import {
   AlertCircle,
   ArrowRight,
   ArrowLeft,
+  ShieldAlert,
 } from 'lucide-react';
 
 export const LearnerSubmittedPage: React.FC = () => {
@@ -45,6 +46,7 @@ export const LearnerSubmittedPage: React.FC = () => {
     saved: 'bg-[#F7F7F4] border-[#0B1F4B] text-[#0B1F4B]',
     offline: 'bg-[#FEF3C7] border-[#F59E0B] text-[#92400E]',
     rejected: 'bg-[#FEF2F2] border-[#EF4444] text-[#991B1B]',
+    terminated: 'bg-[#FEF2F2] border-[#EF4444] text-[#991B1B]',
   };
 
   const heading: Record<ReceiptStatus, string> = {
@@ -52,6 +54,7 @@ export const LearnerSubmittedPage: React.FC = () => {
     saved: 'Assessment Successfully Submitted',
     offline: 'Assessment Saved Locally on Tablet',
     rejected: 'Assessment Not Submitted',
+    terminated: 'Assessment Terminated',
   };
 
   return (
@@ -64,6 +67,7 @@ export const LearnerSubmittedPage: React.FC = () => {
         {status === 'saved' && <CheckCircle2 size={32} />}
         {status === 'offline' && <Clock size={32} />}
         {status === 'rejected' && <AlertCircle size={32} />}
+        {status === 'terminated' && <ShieldAlert size={32} />}
       </div>
 
       <div>
@@ -97,6 +101,7 @@ export const LearnerSubmittedPage: React.FC = () => {
           <p className="font-medium">
             It will automatically upload to your teacher as soon as this tablet connects to the school network.
           </p>
+          {receipt?.note && <p className="font-bold">{receipt.note}</p>}
         </div>
       )}
 
@@ -108,6 +113,11 @@ export const LearnerSubmittedPage: React.FC = () => {
           <p className="text-[#64748B]">
             Your responses have been successfully transmitted and logged on the Growing Minds Academy assessment server.
           </p>
+          {receipt?.note && (
+            <p className="font-bold text-[#92400E] flex items-center gap-1.5">
+              <Clock size={14} /> {receipt.note}
+            </p>
+          )}
         </div>
       )}
 
@@ -119,6 +129,21 @@ export const LearnerSubmittedPage: React.FC = () => {
           <p>{receipt?.error || 'The school server could not record this attempt.'}</p>
           <p className="font-medium">
             Your answers are still saved on this tablet. Please tell your teacher before trying again.
+          </p>
+        </div>
+      )}
+
+      {status === 'terminated' && (
+        <div className="p-4 border text-left text-xs leading-relaxed space-y-2 bg-[#FEF2F2] border-[#EF4444]/50 text-[#991B1B]">
+          <p className="font-bold flex items-center gap-1.5">
+            <ShieldAlert size={14} /> Integrity Violation Recorded
+          </p>
+          <p>
+            {receipt?.error ||
+              'This attempt was ended by the exam policy because the assessment window was left.'}
+          </p>
+          <p className="font-medium">
+            Your answers up to this point have been recorded and flagged for your teacher to review.
           </p>
         </div>
       )}
@@ -146,6 +171,13 @@ export const LearnerSubmittedPage: React.FC = () => {
               Return to Dashboard
             </OutlineButton>
           </>
+        ) : status === 'terminated' ? (
+          <PrimaryButton
+            onClick={() => navigate('/learner/dashboard')}
+            icon={<ArrowRight size={14} />}
+          >
+            Return to Dashboard
+          </PrimaryButton>
         ) : (
           <>
             <PrimaryButton
