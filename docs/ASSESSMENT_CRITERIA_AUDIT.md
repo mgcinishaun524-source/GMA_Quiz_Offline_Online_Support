@@ -126,9 +126,9 @@ Git shows a **single author** and no collaborative artefacts. The brief explicit
 
 | Criterion | Finding | Status |
 |---|---|---|
-| Database relationships | 14 tables with PK/FK + ON DELETE rules | ✅ |
-| Database indexes | 13 (M1) + 2 (M2) + 1 partial-unique (M3) + 3 GIN (M4) | ✅ |
-| Security | RLS on all 14 tables; service-role server-only; answer key stripped by view | ✅ |
+| Database relationships | 15 tables with PK/FK + ON DELETE rules | ✅ |
+| Database indexes | 13 (M1) + 2 (M2) + 1 partial-unique (M3) + 3 GIN (M4) + 3 (M6) | ✅ |
+| Security | RLS on all 15 tables; service-role server-only; answer key stripped by view | ✅ |
 | Authentication & authorisation | Dual auth; `requireRole` on every protected route | ✅ |
 | Input validation | Hand-rolled per route | ⚠️ Partial |
 | Input sanitisation | No explicit layer; React escaping mitigates | ⚠️ Partial |

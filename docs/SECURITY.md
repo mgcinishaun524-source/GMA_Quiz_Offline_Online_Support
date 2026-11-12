@@ -14,7 +14,7 @@ This document describes the security model **as implemented in the codebase**. E
 |---|---|
 | **Fail closed** | When the database is unavailable the API returns HTTP 503; there is no mock/in-memory fallback in production. Unrecognised tokens are rejected rather than defaulted to a privileged role. |
 | **Least privilege** | The service-role key lives only on the server. The browser receives only the public anon key. |
-| **Defence in depth** | Auth middleware + per-route role checks + Supabase Row Level Security (RLS) on all 14 tables. |
+| **Defence in depth** | Auth middleware + per-route role checks + Supabase Row Level Security (RLS) on all 15 tables. |
 | **No secrets in source** | All secrets come from environment variables. `.env` is gitignored; `.env.example` contains placeholders only. |
 | **Least exposure of the answer key** | `questions.correct_answer` never reaches a learner's device; it is stripped by a database view. |
 | **Grading on the server** | Scores are computed server-side so a learner's device cannot influence the mark. |
@@ -62,7 +62,7 @@ Staff tokens issued by `generateStaffToken` (fallback/test path) expire in **7 d
   - `admin`, `teacher`, `learner`.
   - Missing authentication → HTTP 401; wrong role → HTTP 403.
 - Teacher data isolation: when a teacher authenticates, their assigned classes and subjects are loaded from `teacher_assignments` and `classes.form_teacher_id`, and stored on `req.user` for downstream scoping.
-- **Database layer:** RLS is enabled on **all 14 tables** (see §6). Two helper functions, `current_user_school_id()` and `current_user_role()`, are `SECURITY DEFINER` and drive the tenant/role predicates in the policies.
+- **Database layer:** RLS is enabled on **all 15 tables** (see §6). Two helper functions, `current_user_school_id()` and `current_user_role()`, are `SECURITY DEFINER` and drive the tenant/role predicates in the policies.
 
 ---
 
@@ -90,7 +90,7 @@ Source: [server/auth.ts](file:///c:/Users/thula/Downloads/growing-minds-academy-
 
 ## 6. Database security (Supabase / PostgreSQL)
 
-- **RLS enabled on all 14 tables** (`schools`, `user_profiles`, `teachers`, `classes`, `subjects`, `teacher_assignments`, `learners`, `class_memberships`, `quizzes`, `questions`, `quiz_assignments`, `submissions`, `submission_answers`, `audit_events`).
+- **RLS enabled on all 15 tables** (`schools`, `user_profiles`, `teachers`, `classes`, `subjects`, `teacher_assignments`, `learners`, `class_memberships`, `quizzes`, `questions`, `quiz_assignments`, `submissions`, `submission_answers`, `audit_events`, `quiz_attempts`).
 - Tenant isolation is keyed on `school_id`; role isolation on `current_user_role()`.
 - **Two separate Supabase clients by design** ([server/db.ts](file:///c:/Users/thula/Downloads/growing-minds-academy-ai-quiz-system%20(1)/server/db.ts)):
   - `getSupabaseAdmin()` — service-role client used for data (bypasses RLS, server-only).

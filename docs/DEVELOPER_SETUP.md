@@ -102,7 +102,7 @@ npm run dev        # Express API + Vite dev server → http://localhost:3000
 │  ├─ lib/                    # ai-quiz-core, ai-service, offline-db, sync-queue, tokens, network, supabase
 │  ├─ services/               # quiz-api, learner-api, directory-api, auth-service, storage
 │  └─ types/                  # Shared TypeScript models
-├─ supabase/migrations/       # 5 forward migrations
+├─ supabase/migrations/       # 6 forward migrations
 ├─ test/                      # 4 test suites
 ├─ docs/                      # Submission documentation
 └─ vercel.json                # Build + API rewrite config

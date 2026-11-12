@@ -23,10 +23,10 @@ Every Uncommon requirement is evaluated below. Statuses used:
 
 | # | Requirement | Status | Evidence | Remaining work | Who | Priority |
 |---|---|---|---|---|---|---|
-| 1 | Working full-stack application | **VERIFIED COMPLETE** | 36 API routes; 20 feature pages; 14-table schema | — | — | — |
+| 1 | Working full-stack application | **VERIFIED COMPLETE** | 36 API routes; 20 feature pages; 15-table schema | — | — | — |
 | 2 | Frontend implementation | **VERIFIED COMPLETE** | `src/` builds clean; entry chunk 352 kB (gzip 110 kB) across 22 code-split routes | — | — | — |
 | 3 | Backend implementation | **VERIFIED COMPLETE** | `server.ts` + `server/*` | Consider splitting `server.ts` | Dev | Low |
-| 4 | Database + migrations | **VERIFIED COMPLETE** | 5 migrations; RLS on 14 tables | — | — | — |
+| 4 | Database + migrations | **VERIFIED COMPLETE** | 6 migrations; RLS on 15 tables | — | — | — |
 | 5 | Automated tests | **VERIFIED COMPLETE** | 45/45 pass in one `npm test`; `c8` coverage (statements 30.8% / branches 42.4% / functions 52.1%); lint clean; build clean; all four gated in CI on every push/PR | Coverage threshold not yet enforced | Dev | Low |
 
 ### A2. Documentation

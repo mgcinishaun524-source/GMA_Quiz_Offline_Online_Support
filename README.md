@@ -127,11 +127,11 @@ Full list in [package.json](package.json).
 └───────────────┬──────────────────────────────────────────────────┘
                 ▼
 ┌────────────────────────────────────────────────────────────────────┐
-│                  Supabase PostgreSQL (14 tables, RLS)               │
+│                  Supabase PostgreSQL (15 tables, RLS)               │
 │  schools · user_profiles · teachers · classes · subjects ·          │
 │  teacher_assignments · learners · class_memberships · quizzes ·      │
 │  questions · quiz_assignments · submissions · submission_answers ·  │
-│  audit_events · (view) learner_active_quiz_questions                │
+│  audit_events · quiz_attempts · (view) learner_active_quiz_questions│
 └────────────────────────────────────────────────────────────────────┘
 ```
 *(Editable source: [docs/diagrams/architecture.mmd](docs/diagrams/architecture.mmd))*
@@ -227,8 +227,9 @@ The database is **Supabase PostgreSQL**. Apply the migrations **in filename orde
 | 3 | `supabase/migrations/20261026000001_add_username_to_user_profiles.sql` | `user_profiles.username` + case-insensitive unique index |
 | 4 | `supabase/migrations/20261027000001_add_directory_associations.sql` | `classes.subject_ids`, `teachers.assigned_class_ids`, `teachers.assigned_subject_ids` (UUID[]) + 3 GIN indexes |
 | 5 | `supabase/migrations/20261027000002_fix_rls_policies.sql` | Missing admin INSERT/DELETE policies on `user_profiles` |
+| 6 | `supabase/migrations/20261109000001_add_timed_exam_integrity.sql` | `quiz_attempts` table (server-owned exam clock), `submissions.termination_reason` + `submissions.is_flagged`, 3 indexes, RLS on `quiz_attempts` |
 
-All migrations are **additive and safe to re-run** (`IF NOT EXISTS` / `DROP POLICY IF EXISTS`). Migration 2 includes rollback SQL.
+All migrations are **additive and safe to re-run** (`IF NOT EXISTS` / `DROP POLICY IF EXISTS`). Migrations 2 and 6 include rollback SQL.
 
 ```bash
 # Option A — Supabase SQL editor: paste each file in order and run.

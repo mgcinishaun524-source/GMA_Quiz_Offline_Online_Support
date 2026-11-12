@@ -74,7 +74,8 @@ This document provides complete instructions for unzipping, inspecting, configur
 │       ├── 20261022000001_add_due_date_and_cohort_fk.sql
 │       ├── 20261026000001_add_username_to_user_profiles.sql
 │       ├── 20261027000001_add_directory_associations.sql
-│       └── 20261027000002_fix_rls_policies.sql
+│       ├── 20261027000002_fix_rls_policies.sql
+│       └── 20261109000001_add_timed_exam_integrity.sql
 │
 └── test/                         # Automated test suite
     ├── security.test.ts          # Fail-closed auth, RBAC, demo-removal & tenant isolation
@@ -178,6 +179,7 @@ When deploying to a live database:
    * `supabase/migrations/20261026000001_add_username_to_user_profiles.sql`
    * `supabase/migrations/20261027000001_add_directory_associations.sql`
    * `supabase/migrations/20261027000002_fix_rls_policies.sql`
+   * `supabase/migrations/20261109000001_add_timed_exam_integrity.sql`
    * *(Optional)* `supabase/seed.sql` — clearly labelled test cohorts only. This file is **never** run automatically; only load it if you deliberately want development sample rows. Real school data should be created through the app.
 3. Copy your project URL, Service Role Key, and Anon Key into `.env`:
    ```env

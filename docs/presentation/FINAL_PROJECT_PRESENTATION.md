@@ -201,16 +201,16 @@
 
 ## Slide 11 — Database Design
 
-**Title:** 14 tables, fully constrained, RLS everywhere
+**Title:** 15 tables, fully constrained, RLS everywhere
 
 **Diagram:** ERD (`docs/diagrams/database-er.md`).
 
 **Bullets:**
-- 14 tables with PK/FK and explicit `ON DELETE` rules.
-- 19 indexes including 3 GIN indexes for array membership.
-- RLS enabled on **all 14 tables**.
+- 15 tables with PK/FK and explicit `ON DELETE` rules.
+- 22 indexes including 3 GIN indexes for array membership.
+- RLS enabled on **all 15 tables**.
 - `learner_active_quiz_questions` view strips the answer key.
-- 5 additive, re-runnable migrations.
+- 6 additive, re-runnable migrations.
 
 **Speaker notes:** "Every table has RLS. Learners literally cannot query the answer key — it's removed at the view level, not hidden in the app."
 

@@ -1,7 +1,7 @@
 # Database ER Diagram — Growing Minds Academy AI Quiz System
 
-Entity-relationship diagram for the 14 `public` tables produced by
-`supabase/migrations/20261020000001_initial_schema.sql` and the four additive
+Entity-relationship diagram for the 15 `public` tables produced by
+`supabase/migrations/20261020000001_initial_schema.sql` and the five additive
 migrations. Primary keys (`PK`), foreign keys (`FK`) and unique constraints
 (`UK`) are marked; column names match the migrations exactly.
 
@@ -10,7 +10,7 @@ migrations. Primary keys (`PK`), foreign keys (`FK`) and unique constraints
 > - Cardinality: `||` = exactly one, `o|` = zero or one, `o{` = zero or more,
 >   `|{` = one or more.
 > - `auth_users` is the Supabase-managed `auth.users` table (external, not one of
->   the 14 application tables) — shown only to anchor the staff-profile link.
+>   the 15 application tables) — shown only to anchor the staff-profile link.
 > - `uuid_array` = PostgreSQL `UUID[]` (M4 directory associations);
 >   `text_array` = PostgreSQL `TEXT[]`.
 
@@ -46,6 +46,10 @@ erDiagram
     quizzes ||--o{ questions : "contains"
     quizzes ||--o{ submissions : "receives"
     learners ||--o{ submissions : "submits"
+
+    quizzes ||--o{ quiz_attempts : "attempted via"
+    learners ||--o{ quiz_attempts : "sits"
+    schools o|--o{ quiz_attempts : "scopes"
 
     submissions ||--o{ submission_answers : "records"
     questions ||--o{ submission_answers : "answered in"
@@ -205,6 +209,8 @@ erDiagram
         timestamptz synced_at
         text teacher_feedback
         text_array topics_to_practise
+        text termination_reason "M6"
+        boolean is_flagged "M6"
         timestamptz created_at
     }
 
@@ -228,6 +234,19 @@ erDiagram
         jsonb metadata
         text ip_address
         timestamptz created_at
+    }
+
+    quiz_attempts {
+        uuid id PK
+        uuid school_id FK "schools ON DELETE CASCADE (nullable)"
+        uuid quiz_id FK "quizzes ON DELETE CASCADE"
+        uuid learner_id FK "learners ON DELETE CASCADE"
+        timestamptz started_at
+        timestamptz deadline_at "server-owned clock"
+        text status "CHECK in_progress|submitted|terminated"
+        text termination_reason
+        timestamptz created_at
+        timestamptz updated_at
     }
 ```
 
@@ -260,6 +279,9 @@ erDiagram
 | `submissions` | `submission_answers` | 1 : 0..N | `submission_id` | CASCADE |
 | `questions` | `submission_answers` | 1 : 0..N | `question_id` | CASCADE |
 | `schools` | `audit_events` | 1 : 0..N | `school_id` | CASCADE |
+| `quizzes` | `quiz_attempts` | 1 : 0..N | `quiz_id` | CASCADE |
+| `learners` | `quiz_attempts` | 1 : 0..N | `learner_id` | CASCADE |
+| `schools` | `quiz_attempts` | 0..1 : 0..N | `school_id` | CASCADE |
 
 ## UNIQUE / composite constraints shown
 
@@ -271,6 +293,7 @@ erDiagram
 - `teacher_assignments (teacher_id, class_id, subject_id)`
 - `class_memberships (class_id, learner_id, academic_year)`
 - `quiz_assignments (quiz_id, class_id)`
+- `quiz_attempts (quiz_id, learner_id)`
 - `submissions.client_submission_hash`
 - `submission_answers (submission_id, question_id)`
 

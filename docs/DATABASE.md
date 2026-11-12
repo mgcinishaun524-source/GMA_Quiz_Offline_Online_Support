@@ -17,10 +17,10 @@
 | Extension required | `pgcrypto` (`CREATE EXTENSION IF NOT EXISTS "pgcrypto"` — provides `gen_random_uuid()`) |
 | Server access | Express backend (`server.ts`) / Vercel serverless (`api/index.ts`) connects with the **service-role key** (`SUPABASE_SERVICE_ROLE_KEY`), which **bypasses Row Level Security**. |
 | Client access | Browser SPA uses the **anon/publishable key** (`VITE_SUPABASE_ANON_KEY`) via `src/lib/supabase.ts`; every query is subject to RLS. |
-| RLS | Enabled on **all 14 tables** (see §5). |
-| Tables | 14 application tables + 1 helper view. |
+| RLS | Enabled on **all 15 tables** (see §5). |
+| Tables | 15 application tables + 1 helper view. |
 | Seed data | `supabase/seed.sql` inserts one school, 4 subjects, 3 classes, 3 test learners, and 3 class memberships. |
-| Migrations | 5 forward migrations (see §6). |
+| Migrations | 6 forward migrations (see §6). |
 
 **Fail-closed persistence policy.** `server/db/databaseAdapter.ts` refuses every
 persistence operation when Supabase is not configured (`assertPersistence()`), and
@@ -39,7 +39,8 @@ Legend for the **Source** column: `M1` = `20261020000001_initial_schema.sql`,
 `M2` = `20261022000001_add_due_date_and_cohort_fk.sql`,
 `M3` = `20261026000001_add_username_to_user_profiles.sql`,
 `M4` = `20261027000001_add_directory_associations.sql`,
-`M5` = `20261027000002_fix_rls_policies.sql`.
+`M5` = `20261027000002_fix_rls_policies.sql`,
+`M6` = `20261109000001_add_timed_exam_integrity.sql`.
 
 Unless stated otherwise every table and every base column below was introduced by
 **M1**.
@@ -270,11 +271,17 @@ the PK.
 | `synced_at` | TIMESTAMPTZ | nullable | — | M1 |
 | `teacher_feedback` | TEXT | nullable | — | M1 |
 | `topics_to_practise` | TEXT[] | nullable | `'{}'` | M1 |
+| `termination_reason` | TEXT | nullable — e.g. `time_expired`, `integrity_violation:tab_hidden` | — | **M6** |
+| `is_flagged` | BOOLEAN | NOT NULL | `FALSE` | **M6** |
 | `created_at` | TIMESTAMPTZ | NOT NULL | `now()` | M1 |
 
 **Notes:** `client_submission_hash` is the offline idempotency key (see §7). The
 adapter's `saveSubmission()` performs a pre-insert hash lookup and also catches
 PostgreSQL unique-violation code `23505` to return the existing row.
+`is_flagged` (M6) marks a submission whose sitting ended in an exam-integrity
+violation so it surfaces to the teacher/admin; `termination_reason` (M6) records
+why the sitting ended (e.g. `time_expired`, `integrity_violation:tab_hidden`,
+`integrity_violation:window_blur`).
 
 ### 2.13 `submission_answers` — per-question responses
 
@@ -309,6 +316,34 @@ row per question per submission (used as the `upsert` conflict target).
 include `AUTH_STAFF_LOGIN`, `AUTH_STAFF_FAILED`, `AUTH_STAFF_LOCKED`,
 `AUTH_LEARNER_LOGIN`, `AUTH_PIN_FAILED`, `AUTH_PIN_LOCKED`,
 `SUBMISSION_RECORDED`, `OFFLINE_SYNC_BATCH`.
+
+### 2.15 `quiz_attempts` — server-authoritative timed-exam clock (M6)
+
+**Purpose:** One row per (quiz, learner) sitting. The server computes and stores
+`deadline_at`, so a learner cannot reset the countdown by reloading the page or
+changing the tablet's system time. The stored deadline is the single authority
+the submission endpoint checks against.
+
+| Column | Type | Constraints | Default | Source |
+|---|---|---|---|---|
+| `id` | UUID | **PK** | `gen_random_uuid()` | **M6** |
+| `school_id` | UUID | nullable, **FK → `schools(id)` ON DELETE CASCADE** | — | **M6** |
+| `quiz_id` | UUID | NOT NULL, **FK → `quizzes(id)` ON DELETE CASCADE** | — | **M6** |
+| `learner_id` | UUID | NOT NULL, **FK → `learners(id)` ON DELETE CASCADE** | — | **M6** |
+| `started_at` | TIMESTAMPTZ | NOT NULL | `now()` | **M6** |
+| `deadline_at` | TIMESTAMPTZ | NOT NULL — server-computed `started_at + quizzes.duration_minutes`, never client-supplied | — | **M6** |
+| `status` | TEXT | NOT NULL, **CHECK** `IN ('in_progress','submitted','terminated')` | `'in_progress'` | **M6** |
+| `termination_reason` | TEXT | nullable — e.g. `time_expired`, `integrity_violation:tab_hidden`, `integrity_violation:window_blur` | — | **M6** |
+| `created_at` | TIMESTAMPTZ | NOT NULL | `now()` | **M6** |
+| `updated_at` | TIMESTAMPTZ | NOT NULL | `now()` | **M6** |
+
+**Constraints:** PK `id`; **UNIQUE (`quiz_id`, `learner_id`)** — a learner sits a
+given assessment once, and reopening returns the same clock.
+
+**Notes:** The server writes this table with the service-role key and enforces
+the deadline on submit; a terminated sitting (`status = 'terminated'`) is
+recorded together with an `is_flagged` submission row (§2.12). RLS limits staff
+reads to attempts on quizzes in their own school (§5).
 
 ---
 
@@ -353,6 +388,14 @@ include `AUTH_STAFF_LOGIN`, `AUTH_STAFF_FAILED`, `AUTH_STAFF_LOCKED`,
 | `idx_teachers_assigned_class_ids` | `teachers USING GIN (assigned_class_ids)` | teacher → classes array membership |
 | `idx_teachers_assigned_subject_ids` | `teachers USING GIN (assigned_subject_ids)` | teacher → subjects array membership |
 
+### M6 — timed-exam & integrity indexes
+
+| Index | Table (columns) | Supports |
+|---|---|---|
+| `idx_quiz_attempts_quiz` | `quiz_attempts(quiz_id)` | attempts for a quiz |
+| `idx_quiz_attempts_learner` | `quiz_attempts(learner_id)` | a learner's attempts |
+| `idx_submissions_flagged` | `submissions(is_flagged)` — **partial**, `WHERE is_flagged` | surfacing flagged / integrity-violation submissions to staff |
+
 ### Implicit indexes from UNIQUE / PK constraints
 
 Unique constraints also create backing indexes: `schools.code`,
@@ -360,6 +403,7 @@ Unique constraints also create backing indexes: `schools.code`,
 `subjects(school_id,code)`, `teacher_assignments(teacher_id,class_id,subject_id)`,
 `class_memberships(class_id,learner_id,academic_year)`,
 `quiz_assignments(quiz_id,class_id)`,
+`quiz_attempts(quiz_id,learner_id)`,
 `submissions.client_submission_hash`,
 `submission_answers(submission_id,question_id)`, plus every PK.
 
@@ -395,8 +439,8 @@ quizzes never leak their questions.
 
 ## 5. RLS Policy Inventory
 
-**RLS is enabled on all 14 tables** (`ALTER TABLE ... ENABLE ROW LEVEL SECURITY`
-in M1).
+**RLS is enabled on all 15 tables** — the 14 tables created in M1 (`ALTER TABLE
+... ENABLE ROW LEVEL SECURITY`) plus `quiz_attempts`, enabled in M6.
 
 ### Helper functions (M1)
 
@@ -435,6 +479,7 @@ caller's own RLS grants.
 | `submission_answers` | Staff read submission answers | SELECT | authenticated | `submission_id IN (submissions of current-school quizzes)` | M1 |
 | `audit_events` | Staff insert audit events | INSERT | authenticated | `WITH CHECK school_id = current_user_school_id()` | M1 |
 | `audit_events` | Admins read school audit events | SELECT | authenticated | `current_user_role() = 'admin' AND school_id = current_user_school_id()` | M1 |
+| `quiz_attempts` | Staff read school quiz attempts | SELECT | authenticated | `quiz_id IN (quizzes where school_id = current_user_school_id())` | **M6** |
 
 **Server-role bypass note (from M1 footer and DEPLOYMENT.md):** the Express /
 Vercel server backend connects with the **service-role key**, which **bypasses
@@ -456,9 +501,10 @@ Apply in lexical/numeric order (Supabase CLI sorts by filename timestamp):
 | 3 | `20261026000001_add_username_to_user_profiles.sql` | Adds nullable `user_profiles.username`; unique partial index on `LOWER(username)` |
 | 4 | `20261027000001_add_directory_associations.sql` | Adds `classes.subject_ids`, `teachers.assigned_class_ids`, `teachers.assigned_subject_ids` (UUID[] NOT NULL DEFAULT '{}'); 3 GIN indexes |
 | 5 | `20261027000002_fix_rls_policies.sql` | Adds `Admins insert school profiles` and `Admins delete school profiles` policies on `user_profiles` |
+| 6 | `20261109000001_add_timed_exam_integrity.sql` | Adds `quiz_attempts` (server-owned exam clock) with 2 indexes + RLS; adds `submissions.termination_reason` and `submissions.is_flagged` + partial index; documented safe rollback |
 
 All statements are written defensively: tables use `CREATE TABLE IF NOT EXISTS`,
-additive columns use `ADD COLUMN IF NOT EXISTS`, and M5 drops policies before
+additive columns use `ADD COLUMN IF NOT EXISTS`, and M5/M6 drop policies before
 recreating them — so re-running is safe.
 
 **Typical local application:**
@@ -478,7 +524,10 @@ DROP INDEX IF EXISTS public.idx_quizzes_due_date;
 ALTER TABLE public.quizzes DROP COLUMN IF EXISTS class_id;
 ALTER TABLE public.quizzes DROP COLUMN IF EXISTS due_date;
 ```
-M3 and M4 are additive/non-destructive; no rollback SQL is embedded in them.
+M3 and M4 are additive/non-destructive; no rollback SQL is embedded in them. M6
+also embeds rollback instructions (drops the policy, the `idx_submissions_flagged`
+index, the two `submissions` columns, the two `quiz_attempts` indexes, then the
+`quiz_attempts` table).
 
 ---
 
@@ -540,7 +589,7 @@ These fixed IDs come from `supabase/seed.sql` and are mirrored in
 ## Appendix B — External dependency
 
 `user_profiles.id` references **`auth.users(id)`** — the Supabase-managed
-authentication table in the `auth` schema (not part of the 14 application
+authentication table in the `auth` schema (not part of the 15 application
 tables, and not created by these migrations).
 
 ## Appendix C — Uncertainties / not found in source

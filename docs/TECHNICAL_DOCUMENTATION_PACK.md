@@ -139,7 +139,7 @@ Browser SPA (React 19 + Vite)  ──fetch /api/*──►  Express API (server.
         ├── IndexedDB (GMA_Offline_DB) + sync queue         ▼
         │                                        databaseAdapter (fail-closed)
         └── direct AI calls ──► Gemini / Groq               ▼
-                                              Supabase PostgreSQL (14 tables, RLS)
+                                              Supabase PostgreSQL (15 tables, RLS)
 ```
 
 Editable source: [docs/diagrams/architecture.mmd](../diagrams/architecture.mmd) · Data flow: [docs/diagrams/data-flow.mmd](../diagrams/data-flow.mmd).

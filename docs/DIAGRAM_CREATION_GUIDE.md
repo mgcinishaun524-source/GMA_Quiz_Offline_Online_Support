@@ -62,7 +62,7 @@ backend, the database, and the AI providers, and how they are wired.
 | Auth middleware | JWT/Supabase verification | `server/auth.ts` |
 | DatabaseAdapter | row ⇄ model mapping, persistence | `server/db/databaseAdapter.ts` |
 | Supabase admin client | service-role client | `server/db.ts` |
-| PostgreSQL | 14 tables + view, RLS | `supabase/migrations/*` |
+| PostgreSQL | 15 tables + view, RLS | `supabase/migrations/*` |
 | Supabase Auth | `auth.users` | Supabase managed |
 | Gemini API | primary AI provider | `@google/genai` |
 | Groq API | fallback AI provider | `groq-sdk` |
@@ -93,7 +93,7 @@ backend, the database, and the AI providers, and how they are wired.
 
 ## 2. Database ER Diagram
 
-**Purpose:** document all 14 tables, their primary/foreign keys, and cardinality.
+**Purpose:** document all 15 tables, their primary/foreign keys, and cardinality.
 
 **Reference the file directly:** `docs/diagrams/database-er.md` (contains the
 complete Mermaid `erDiagram` plus a relationship summary table). Full column
@@ -101,10 +101,10 @@ types, CHECK constraints, defaults, indexes, the `learner_active_quiz_questions`
 view, and RLS policies are documented in `docs/DATABASE.md`.
 
 ### Key points to preserve if you redraw it
-- 14 tables: `schools`, `user_profiles`, `teachers`, `classes`, `subjects`,
+- 15 tables: `schools`, `user_profiles`, `teachers`, `classes`, `subjects`,
   `teacher_assignments`, `learners`, `class_memberships`, `quizzes`,
   `quiz_assignments`, `questions`, `submissions`, `submission_answers`,
-  `audit_events`.
+  `audit_events`, `quiz_attempts`.
 - `user_profiles.id` → `auth.users(id)` (external).
 - `teachers.id` → `user_profiles(id)` is **1:1**.
 - `classes.form_teacher_id` and `quizzes.class_id` are **nullable** (0..1).
@@ -286,7 +286,7 @@ where AI is called from.
 - **Vercel project**: static SPA (`dist/` from `vite build`) + one Node
   serverless function (`api/index.ts`, 1024 MB, 30 s max) + the rewrite
   `/api/:path*` → `/api/index`.
-- **Supabase**: managed PostgreSQL (`public` schema, 14 tables, RLS) and
+- **Supabase**: managed PostgreSQL (`public` schema, 15 tables, RLS) and
   Supabase Auth (`auth.users`).
 - **AI providers**: Gemini (primary) and Groq (fallback), called **browser-direct**
   by teachers after fetching keys from `/api/ai/client-config`; server-side

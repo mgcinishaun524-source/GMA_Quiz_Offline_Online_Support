@@ -37,7 +37,7 @@ The Uncommon brief lists five optional extra-credit deliverables. This document 
 
 | Requirement | Status |
 |---|---|
-| Tables | ✅ all 14 |
+| Tables | ✅ all 15 |
 | Primary keys | ✅ marked |
 | Foreign keys + ON DELETE | ✅ marked |
 | Relationships + cardinality | ✅ (incl. 1:1 `user_profiles↔teachers`, nullable FKs) |
