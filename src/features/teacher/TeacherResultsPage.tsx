@@ -103,8 +103,8 @@ export const TeacherResultsPage: React.FC = () => {
               </PrimaryButton>
             )}
             {isReleased && (
-              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-[#0B1F4B] text-white text-xs font-bold uppercase tracking-wider">
-                <CheckCircle2 size={14} className="text-[#D6A21E]" />
+              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gma-navy text-white text-xs font-bold uppercase tracking-wider">
+                <CheckCircle2 size={14} className="text-[gma-gold]" />
                 <span>Results Currently Released</span>
               </div>
             )}
@@ -113,9 +113,9 @@ export const TeacherResultsPage: React.FC = () => {
       />
 
       {/* Quiz Selector Dropdown Bar */}
-      <div className="bg-white border border-[#CBD5E1] p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-sm">
+      <div className="gma-card rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <div className="flex items-center gap-2 w-full sm:w-auto">
-          <span className="text-xs font-bold uppercase tracking-wider text-[#0B1F4B] shrink-0">
+          <span className="text-xs font-bold uppercase tracking-wider text-gma-navy shrink-0">
             Select Assessment:
           </span>
           <SelectField
@@ -132,7 +132,7 @@ export const TeacherResultsPage: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-3 text-xs">
-          <span className="text-[#64748B]">Current Status:</span>
+          <span className="text-gma-muted">Current Status:</span>
           <StatusLabel status={selectedQuiz?.status || 'draft'} />
         </div>
       </div>
@@ -141,22 +141,22 @@ export const TeacherResultsPage: React.FC = () => {
         <>
           {/* Performance Overview Banner */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="bg-white border border-[#CBD5E1] p-5 shadow-sm">
-              <span className="text-[11px] font-semibold uppercase tracking-wider text-[#64748B] block mb-1">
+            <div className="gma-card rounded-2xl p-5">
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-gma-muted block mb-1">
                 Cohort Mean Score
               </span>
-              <div className="text-3xl font-extrabold text-[#0B1F4B]">{averagePercentage}%</div>
-              <p className="text-xs text-[#64748B] mt-1">Based on {scoredSubs.length} completed attempts</p>
+              <div className="text-3xl font-extrabold text-gma-navy">{averagePercentage}%</div>
+              <p className="text-xs text-gma-muted mt-1">Based on {scoredSubs.length} completed attempts</p>
             </div>
 
-            <div className="bg-white border border-[#CBD5E1] p-5 shadow-sm">
-              <span className="text-[11px] font-semibold uppercase tracking-wider text-[#64748B] block mb-1">
+            <div className="gma-card rounded-2xl p-5">
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-gma-muted block mb-1">
                 Cohort Turnout
               </span>
-              <div className="text-3xl font-extrabold text-[#0B1F4B]">
+              <div className="text-3xl font-extrabold text-gma-navy">
                 {quizSubmissions.length} / {cohortLearners.length}
               </div>
-              <p className="text-xs text-[#64748B] mt-1">
+              <p className="text-xs text-gma-muted mt-1">
                 {absentLearners.length > 0 ? (
                   <span className="text-[#B45309] font-medium">
                     {absentLearners.length} student{absentLearners.length === 1 ? '' : 's'} absent
@@ -167,24 +167,24 @@ export const TeacherResultsPage: React.FC = () => {
               </p>
             </div>
 
-            <div className="bg-white border border-[#CBD5E1] p-5 shadow-sm">
-              <span className="text-[11px] font-semibold uppercase tracking-wider text-[#64748B] block mb-1">
+            <div className="gma-card rounded-2xl p-5">
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-gma-muted block mb-1">
                 Release Mode
               </span>
-              <div className="text-3xl font-extrabold text-[#0B1F4B] uppercase">
+              <div className="text-3xl font-extrabold text-gma-navy uppercase">
                 {selectedQuiz.releasePolicy}
               </div>
-              <p className="text-xs text-[#64748B] mt-1">
+              <p className="text-xs text-gma-muted mt-1">
                 {isReleased ? 'Published to learner portals' : 'Locked awaiting teacher release'}
               </p>
             </div>
 
-            <div className="bg-white border border-[#CBD5E1] p-5 shadow-sm">
-              <span className="text-[11px] font-semibold uppercase tracking-wider text-[#64748B] block mb-1">
+            <div className="gma-card rounded-2xl p-5">
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-gma-muted block mb-1">
                 Passing Standard
               </span>
-              <div className="text-3xl font-extrabold text-[#0B1F4B]">60%</div>
-              <p className="text-xs text-[#64748B] mt-1">School mastery benchmark</p>
+              <div className="text-3xl font-extrabold text-gma-navy">60%</div>
+              <p className="text-xs text-gma-muted mt-1">School mastery benchmark</p>
             </div>
           </div>
 
@@ -208,17 +208,17 @@ export const TeacherResultsPage: React.FC = () => {
           )}
 
           {/* Individual Learner Submissions Table */}
-          <div className="bg-white border border-[#CBD5E1] p-5 shadow-sm">
-            <div className="flex items-center justify-between pb-3 mb-4 border-b border-[#CBD5E1]">
+          <div className="gma-card rounded-2xl p-5">
+            <div className="flex items-center justify-between pb-3 mb-4 border-b border-gma-navy/10">
               <div>
-                <h3 className="text-sm font-bold uppercase tracking-wider text-[#0B1F4B]">
+                <h3 className="text-sm font-bold uppercase tracking-wider text-gma-navy">
                   Individual Learner Marksheet & Responses
                 </h3>
-                <p className="text-xs text-[#64748B]">
+                <p className="text-xs text-gma-muted">
                   Auto-marked objective scores, completion timestamps, and sync origin
                 </p>
               </div>
-              <span className="text-xs text-[#64748B]">
+              <span className="text-xs text-gma-muted">
                 {quizSubmissions.length} Submitted / {absentLearners.length} Absent
               </span>
             </div>
@@ -226,7 +226,7 @@ export const TeacherResultsPage: React.FC = () => {
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs border-collapse">
                 <thead>
-                  <tr className="bg-[#0B1F4B] text-white">
+                  <tr className="bg-gma-navy/95 text-white">
                     <th className="p-2.5 font-semibold uppercase">Learner ID</th>
                     <th className="p-2.5 font-semibold uppercase">Student Name</th>
                     <th className="p-2.5 font-semibold uppercase">Raw Score</th>
@@ -236,10 +236,10 @@ export const TeacherResultsPage: React.FC = () => {
                     <th className="p-2.5 font-semibold uppercase text-right">Teacher Action</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#CBD5E1]/60">
+                <tbody className="divide-y divide-gma-navy/8">
                   {quizSubmissions.map((sub) => (
-                    <tr key={sub.id} className="hover:bg-[#F7F7F4]">
-                      <td className="p-2.5 font-mono font-bold text-[#0B1F4B]">{sub.learnerId}</td>
+                    <tr key={sub.id} className="hover:bg-gma-frost/60">
+                      <td className="p-2.5 font-mono font-bold text-gma-navy">{sub.learnerId}</td>
                       <td className="p-2.5 font-semibold text-[#0F172A]">{sub.learnerName}</td>
                       <td className="p-2.5 font-bold text-[#0F172A]">
                         {sub.score} / {sub.totalMarks}
@@ -248,21 +248,21 @@ export const TeacherResultsPage: React.FC = () => {
                         <span
                           className={`font-bold px-2 py-0.5 ${
                             sub.percentage >= 60
-                              ? 'bg-[#F7F7F4] text-[#0B1F4B] border border-[#D6A21E]/40'
-                              : 'bg-[#F1F5F9] text-[#475569] border border-[#CBD5E1]'
+                              ? 'bg-gma-mist text-gma-navy border border-[gma-gold]/40'
+                              : 'bg-[#F1F5F9] text-[#475569] border border-gma-navy/10'
                           }`}
                         >
                           {sub.percentage}%
                         </span>
                       </td>
-                      <td className="p-2.5 text-[#64748B]">
+                      <td className="p-2.5 text-gma-muted">
                         {sub.isOfflineSubmission ? 'Tablet (Synced)' : 'Online Web'}
                       </td>
                       <td className="p-2.5 font-medium">
                         {isReleased ? (
-                          <span className="text-[#0B1F4B] font-bold">Released</span>
+                          <span className="text-gma-navy font-bold">Released</span>
                         ) : (
-                          <span className="text-[#64748B]">Withheld</span>
+                          <span className="text-gma-muted">Withheld</span>
                         )}
                       </td>
                       <td className="p-2.5 text-right">
@@ -309,22 +309,22 @@ export const TeacherResultsPage: React.FC = () => {
       {/* Teacher Manual Review & Feedback Modal */}
       {selectedSubForFeedback && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="bg-white border-2 border-[#0B1F4B] max-w-lg w-full p-6 shadow-xl space-y-4">
-            <div className="border-b border-[#CBD5E1] pb-3">
-              <span className="text-[11px] font-bold text-[#D6A21E] uppercase tracking-wider block">
+          <div className="bg-white border-2 border-gma-navy max-w-lg w-full p-6 shadow-xl space-y-4">
+            <div className="border-b border-gma-navy/10 pb-3">
+              <span className="text-[11px] font-bold text-[gma-gold] uppercase tracking-wider block">
                 Teacher Review & Marks Adjustment
               </span>
-              <h3 className="text-base font-bold text-[#0B1F4B]">
+              <h3 className="text-base font-bold text-gma-navy">
                 {selectedSubForFeedback.learnerName} ({selectedSubForFeedback.learnerId})
               </h3>
-              <p className="text-xs text-[#64748B] mt-0.5">
+              <p className="text-xs text-gma-muted mt-0.5">
                 Assessment: {selectedSubForFeedback.quizTitle} • Max Marks: {selectedSubForFeedback.totalMarks}
               </p>
             </div>
 
             <div className="space-y-3 text-xs">
               <div>
-                <label className="block font-bold text-[#0B1F4B] uppercase tracking-wider mb-1">
+                <label className="block font-bold text-gma-navy uppercase tracking-wider mb-1">
                   Adjust Raw Score (Max {selectedSubForFeedback.totalMarks})
                 </label>
                 <input
@@ -333,12 +333,12 @@ export const TeacherResultsPage: React.FC = () => {
                   max={selectedSubForFeedback.totalMarks}
                   value={scoreInput}
                   onChange={(e) => setScoreInput(e.target.value)}
-                  className="w-full border border-[#CBD5E1] p-2 text-xs font-semibold focus:outline-hidden focus:border-[#0B1F4B]"
+                  className="w-full border border-gma-navy/10 p-2 text-xs font-semibold focus:outline-hidden focus:border-gma-sky"
                 />
               </div>
 
               <div>
-                <label className="block font-bold text-[#0B1F4B] uppercase tracking-wider mb-1">
+                <label className="block font-bold text-gma-navy uppercase tracking-wider mb-1">
                   Teacher Pedagogical Notes & Feedback
                 </label>
                 <textarea
@@ -346,16 +346,16 @@ export const TeacherResultsPage: React.FC = () => {
                   value={feedbackInput}
                   onChange={(e) => setFeedbackInput(e.target.value)}
                   placeholder="Enter constructive praise, specific learning tips, or revision guidance for the student..."
-                  className="w-full border border-[#CBD5E1] p-2 text-xs focus:outline-hidden focus:border-[#0B1F4B]"
+                  className="w-full border border-gma-navy/10 p-2 text-xs focus:outline-hidden focus:border-gma-sky"
                 />
               </div>
 
               {selectedSubForFeedback.topicsToPractise && selectedSubForFeedback.topicsToPractise.length > 0 && (
-                <div className="p-2.5 bg-[#F7F7F4] border border-[#CBD5E1]">
-                  <span className="font-bold text-[#0B1F4B] block mb-1">Identified Focus Topics:</span>
+                <div className="p-2.5 bg-gma-mist border border-gma-navy/10">
+                  <span className="font-bold text-gma-navy block mb-1">Identified Focus Topics:</span>
                   <div className="flex flex-wrap gap-1">
                     {selectedSubForFeedback.topicsToPractise.map((t, i) => (
-                      <span key={i} className="bg-white border border-[#CBD5E1] px-1.5 py-0.5 text-[10px] font-medium text-[#475569]">
+                      <span key={i} className="bg-white border border-gma-navy/10 px-1.5 py-0.5 text-[10px] font-medium text-[#475569]">
                         {t}
                       </span>
                     ))}
@@ -364,7 +364,7 @@ export const TeacherResultsPage: React.FC = () => {
               )}
             </div>
 
-            <div className="flex justify-end gap-2 pt-3 border-t border-[#CBD5E1]">
+            <div className="flex justify-end gap-2 pt-3 border-t border-gma-navy/10">
               <OutlineButton onClick={() => setSelectedSubForFeedback(null)}>
                 Cancel
               </OutlineButton>

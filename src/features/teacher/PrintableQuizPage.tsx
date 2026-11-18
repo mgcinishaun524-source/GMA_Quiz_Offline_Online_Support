@@ -355,10 +355,10 @@ export const PrintableQuizPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-[400px] flex items-center justify-center bg-white border border-[#CBD5E1] p-12 text-center">
+      <div className="min-h-[400px] flex items-center justify-center bg-white border border-gma-navy/10 p-12 text-center">
         <div>
-          <div className="w-8 h-8 border-3 border-[#D6A21E] border-t-transparent animate-spin mx-auto mb-3" />
-          <p className="text-xs font-semibold text-[#0B1F4B]">Preparing Examination Print Layout...</p>
+          <div className="w-8 h-8 border-3 border-gma-gold border-t-transparent animate-spin mx-auto mb-3" />
+          <p className="text-xs font-semibold text-gma-navy">Preparing Examination Print Layout...</p>
         </div>
       </div>
     );
@@ -366,10 +366,10 @@ export const PrintableQuizPage: React.FC = () => {
 
   if (errorMessage || (!paper && !answerKey)) {
     return (
-      <div className="bg-white border border-[#CBD5E1] p-10 text-center space-y-4">
+      <div className="bg-white border border-gma-navy/10 p-10 text-center space-y-4">
         <AlertCircle size={36} className="mx-auto text-[#DC2626]" />
-        <h3 className="text-base font-bold text-[#0B1F4B]">Examination Document Unavailable</h3>
-        <p className="text-xs text-[#64748B] max-w-md mx-auto">{errorMessage || 'The requested assessment could not be formatted for print export.'}</p>
+        <h3 className="text-base font-bold text-gma-navy">Examination Document Unavailable</h3>
+        <p className="text-xs text-gma-muted max-w-md mx-auto">{errorMessage || 'The requested assessment could not be formatted for print export.'}</p>
         <OutlineButton onClick={() => navigate(-1)} icon={<ArrowLeft size={13} />}>
           Go Back
         </OutlineButton>
@@ -382,7 +382,7 @@ export const PrintableQuizPage: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Print Controls Bar - strictly hidden in @media print */}
-      <div className="no-print bg-[#0B1F4B] text-white p-4 shadow-sm flex flex-wrap items-center justify-between gap-3">
+      <div className="no-print bg-gma-navy text-white p-4 shadow-sm flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <button
             onClick={() => navigate(-1)}
@@ -391,7 +391,7 @@ export const PrintableQuizPage: React.FC = () => {
             <ArrowLeft size={14} /> Back
           </button>
           <div className="h-4 w-px bg-white/20" />
-          <span className="text-xs font-bold uppercase tracking-wider text-[#D6A21E]">
+          <span className="text-xs font-bold uppercase tracking-wider text-gma-gold">
             Print & PDF Export Utility
           </span>
         </div>
@@ -403,7 +403,7 @@ export const PrintableQuizPage: React.FC = () => {
                 type="button"
                 onClick={() => handleModeChange('paper')}
                 className={`px-3 py-1 font-semibold transition-colors flex items-center gap-1.5 ${
-                  viewMode === 'paper' ? 'bg-[#D6A21E] text-[#0B1F4B]' : 'text-slate-300 hover:text-white'
+                  viewMode === 'paper' ? 'bg-gma-gold text-gma-navy' : 'text-slate-300 hover:text-white'
                 }`}
               >
                 <FileText size={12} /> Candidate Paper
@@ -412,7 +412,7 @@ export const PrintableQuizPage: React.FC = () => {
                 type="button"
                 onClick={() => handleModeChange('answer_key')}
                 className={`px-3 py-1 font-semibold transition-colors flex items-center gap-1.5 ${
-                  viewMode === 'answer_key' ? 'bg-[#D6A21E] text-[#0B1F4B]' : 'text-slate-300 hover:text-white'
+                  viewMode === 'answer_key' ? 'bg-gma-gold text-gma-navy' : 'text-slate-300 hover:text-white'
                 }`}
               >
                 <ShieldCheck size={12} /> Staff Answer Key (Confidential)

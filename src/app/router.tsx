@@ -49,12 +49,13 @@ const PrintableQuizPage = React.lazy(() => import('../features/teacher/Printable
 
 /** Shown in the content area while a page chunk is fetching. */
 const PageLoader: React.FC = () => (
-  <div className="flex items-center justify-center py-24" role="status" aria-live="polite">
+  <div className="flex flex-col items-center justify-center gap-3 py-24" role="status" aria-live="polite">
     <span className="sr-only">Loading page…</span>
     <span
       aria-hidden="true"
-      className="h-7 w-7 rounded-full border-2 border-[#0B1F4B]/15 border-t-[#0B1F4B] animate-spin"
+      className="h-8 w-8 rounded-full border-2 border-gma-navy/12 border-t-gma-sky animate-spin"
     />
+    <span className="text-xs font-medium uppercase tracking-[0.18em] text-gma-muted">Loading</span>
   </div>
 );
 

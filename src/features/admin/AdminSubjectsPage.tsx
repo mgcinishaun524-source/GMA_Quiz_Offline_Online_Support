@@ -116,47 +116,47 @@ export const AdminSubjectsPage: React.FC = () => {
           return (
             <div
               key={subj.id}
-              className="bg-white border border-[#CBD5E1] p-5 shadow-sm flex flex-col justify-between"
+              className="gma-card rounded-2xl p-5 flex flex-col justify-between"
             >
               <div>
-                <div className="flex items-center justify-between pb-3 mb-3 border-b border-[#CBD5E1]/70">
+                <div className="flex items-center justify-between pb-3 mb-3 border-b border-gma-navy/10">
                   <div>
-                    <span className="font-mono text-xs font-bold text-[#D6A21E] uppercase tracking-wider block">
+                    <span className="font-mono text-xs font-bold text-gma-gold uppercase tracking-wider block">
                       {subj.code}
                     </span>
-                    <h3 className="text-base font-bold text-[#0B1F4B]">{subj.name}</h3>
+                    <h3 className="text-base font-bold text-gma-navy">{subj.name}</h3>
                   </div>
                   <button
                     onClick={() => openEditModal(subj)}
-                    className="p-1.5 text-[#64748B] hover:text-[#0B1F4B] hover:bg-[#F7F7F4] transition-colors"
+                    className="p-1.5 text-gma-muted hover:text-gma-navy hover:bg-gma-mist transition-colors"
                     title="Edit Subject"
                   >
                     <Edit2 size={15} />
                   </button>
                 </div>
 
-                <p className="text-xs text-[#64748B] mb-4 min-h-[36px] line-clamp-2">
+                <p className="text-xs text-gma-muted mb-4 min-h-[36px] line-clamp-2">
                   {subj.description || 'Core curriculum learning area for elementary cohorts.'}
                 </p>
 
                 <div className="space-y-2 text-xs mb-4">
                   <div className="flex justify-between">
-                    <span className="text-[#64748B]">Curriculum Topics:</span>
+                    <span className="text-gma-muted">Curriculum Topics:</span>
                     <span className="font-bold text-[#0F172A]">{subj.topicCount} Topics</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-[#64748B]">Assessments Run:</span>
-                    <span className="font-semibold text-[#0B1F4B]">
+                    <span className="text-gma-muted">Assessments Run:</span>
+                    <span className="font-semibold text-gma-navy">
                       {associatedQuizzes.length} Quizzes
                     </span>
                   </div>
                   <div>
-                    <span className="text-[#64748B] block mb-1">Grade Level Coverage:</span>
+                    <span className="text-gma-muted block mb-1">Grade Level Coverage:</span>
                     <div className="flex flex-wrap gap-1">
                       {subj.gradeLevels.map((g) => (
                         <span
                           key={g}
-                          className="bg-[#F7F7F4] text-[#0B1F4B] text-[10px] font-semibold px-2 py-0.5 border border-[#D6A21E]/30"
+                          className="bg-gma-mist text-gma-navy text-[10px] font-semibold px-2 py-0.5 border border-gma-gold/30"
                         >
                           {g}
                         </span>
@@ -166,9 +166,9 @@ export const AdminSubjectsPage: React.FC = () => {
                 </div>
               </div>
 
-              <div className="pt-3 border-t border-[#CBD5E1] text-[11px] text-[#64748B] flex justify-between items-center">
+              <div className="pt-3 border-t border-gma-navy/10 text-[11px] text-gma-muted flex justify-between items-center">
                 <span>Active in Syllabus</span>
-                <span className="font-mono text-[10px] text-[#0B1F4B] font-bold">ST-ID: {subj.id}</span>
+                <span className="font-mono text-[10px] text-gma-navy font-bold">ST-ID: {subj.id}</span>
               </div>
             </div>
           );
@@ -177,12 +177,12 @@ export const AdminSubjectsPage: React.FC = () => {
 
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0F172A]/40 backdrop-blur-xs">
-          <div className="bg-white border border-[#CBD5E1] shadow-lg max-w-lg w-full p-6">
-            <div className="flex items-center justify-between pb-3 mb-4 border-b border-[#CBD5E1]">
-              <h3 className="text-base font-bold uppercase tracking-wider text-[#0B1F4B]">
+          <div className="gma-card rounded-2xl max-w-lg w-full p-6">
+            <div className="flex items-center justify-between pb-3 mb-4 border-b border-gma-navy/10">
+              <h3 className="text-base font-bold uppercase tracking-wider text-gma-navy">
                 {editingSubject ? `Edit Subject: ${editingSubject.name}` : 'Add Curriculum Subject'}
               </h3>
-              <button onClick={() => setIsModalOpen(false)} className="text-[#64748B] hover:text-[#0B1F4B]">
+              <button onClick={() => setIsModalOpen(false)} className="text-gma-muted hover:text-gma-navy">
                 <X size={18} />
               </button>
             </div>
@@ -237,7 +237,7 @@ export const AdminSubjectsPage: React.FC = () => {
               </FormField>
 
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-[#0B1F4B] mb-2">
+                <label className="block text-xs font-semibold uppercase tracking-wider text-gma-navy mb-2">
                   Applicable Grade Levels
                 </label>
                 <div className="flex flex-wrap gap-2">
@@ -256,8 +256,8 @@ export const AdminSubjectsPage: React.FC = () => {
                         }}
                         className={`px-3 py-1 text-xs font-semibold border cursor-pointer transition-colors ${
                           isSelected
-                            ? 'bg-[#0B1F4B] text-white border-[#0B1F4B]'
-                            : 'bg-[#F7F7F4] text-[#64748B] border-[#CBD5E1] hover:text-[#0B1F4B]'
+                            ? 'bg-gma-navy text-white border-gma-navy'
+                            : 'bg-gma-mist text-gma-muted border-gma-navy/10 hover:text-gma-navy'
                         }`}
                       >
                         {g}
@@ -267,7 +267,7 @@ export const AdminSubjectsPage: React.FC = () => {
                 </div>
               </div>
 
-              <div className="flex items-center justify-end gap-3 pt-3 border-t border-[#CBD5E1]">
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-gma-navy/10">
                 <OutlineButton type="button" onClick={() => setIsModalOpen(false)}>
                   Cancel
                 </OutlineButton>

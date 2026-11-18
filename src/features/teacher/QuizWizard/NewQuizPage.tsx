@@ -395,7 +395,7 @@ export const NewQuizPage: React.FC = () => {
       />
 
       {/* Step Indicator — Rectangular & Strict Brand Colours */}
-      <div className="bg-white border border-[#CBD5E1] p-3 shadow-sm">
+      <div className="gma-card rounded-2xl p-3">
         <div className="grid grid-cols-5 gap-2 text-center text-xs">
           {[
             { num: 1, label: '1. Assessment Details' },
@@ -411,10 +411,10 @@ export const NewQuizPage: React.FC = () => {
               }}
               className={`py-2 px-1 text-xs font-bold uppercase tracking-wider border transition-colors cursor-pointer ${
                 step === item.num
-                  ? 'bg-[#0B1F4B] text-white border-[#0B1F4B]'
+                  ? 'bg-gma-navy text-white border-gma-navy'
                   : step > item.num
-                  ? 'bg-[#F7F7F4] text-[#0B1F4B] border-[#D6A21E]/40'
-                  : 'bg-[#F7F7F4] text-[#64748B] border-[#CBD5E1]'
+                  ? 'bg-gma-mist text-gma-navy border-gma-gold/40'
+                  : 'bg-gma-mist text-gma-muted border-gma-navy/10'
               }`}
             >
               {item.label}
@@ -433,12 +433,12 @@ export const NewQuizPage: React.FC = () => {
 
       {/* STEP 1: Assessment Details */}
       {step === 1 && (
-        <div className="bg-white border border-[#CBD5E1] p-6 shadow-sm space-y-5">
-          <div className="pb-3 border-b border-[#CBD5E1]">
-            <h3 className="text-base font-bold uppercase tracking-wider text-[#0B1F4B]">
+        <div className="gma-card rounded-2xl p-6 space-y-5">
+          <div className="pb-3 border-b border-gma-navy/10">
+            <h3 className="text-base font-bold uppercase tracking-wider text-gma-navy">
               Step 1: Assessment Configuration & Topics
             </h3>
-            <p className="text-xs text-[#64748B]">
+            <p className="text-xs text-gma-muted">
               Specify cohort, curriculum discipline, weekly topics and learning objectives
             </p>
           </div>
@@ -488,7 +488,7 @@ export const NewQuizPage: React.FC = () => {
 
           {/* Topics Covered */}
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-[#0B1F4B] mb-1.5">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-gma-navy mb-1.5">
               Curriculum Topics Covered This Week <span className="text-[#B91C1C]">*</span>
             </label>
             <div className="flex gap-2 mb-2">
@@ -513,7 +513,7 @@ export const NewQuizPage: React.FC = () => {
               {topicsCovered.map((topic) => (
                 <span
                   key={topic}
-                  className="bg-[#F7F7F4] text-[#0B1F4B] text-xs font-medium px-2.5 py-1 border border-[#D6A21E]/40 flex items-center gap-1.5"
+                  className="bg-gma-mist text-gma-navy text-xs font-medium px-2.5 py-1 border border-gma-gold/40 flex items-center gap-1.5"
                 >
                   <span>{topic}</span>
                   <button
@@ -574,12 +574,12 @@ export const NewQuizPage: React.FC = () => {
       {/* STEP 2: Question Creation */}
       {step === 2 && (
         <div className="space-y-6">
-          <div className="bg-white border border-[#CBD5E1] p-5 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="gma-card rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <h3 className="text-base font-bold uppercase tracking-wider text-[#0B1F4B]">
+              <h3 className="text-base font-bold uppercase tracking-wider text-gma-navy">
                 Step 2: Question Bank ({questions.length} Items)
               </h3>
-              <p className="text-xs text-[#64748B]">
+              <p className="text-xs text-gma-muted">
                 Author multiple-choice, true/false, or short-answer questions. Set keys and mark allocations.
               </p>
             </div>
@@ -609,13 +609,13 @@ export const NewQuizPage: React.FC = () => {
           </div>
 
           {questions.map((q, idx) => (
-            <div key={q.id} className="bg-white border border-[#CBD5E1] p-5 shadow-sm space-y-4">
-              <div className="flex items-center justify-between pb-3 border-b border-[#CBD5E1]/60">
+            <div key={q.id} className="gma-card rounded-2xl p-5 space-y-4">
+              <div className="flex items-center justify-between pb-3 border-b border-gma-navy/10">
                 <div className="flex items-center gap-2">
-                  <span className="font-bold text-xs text-[#0B1F4B] bg-[#F7F7F4] px-2 py-0.5 border border-[#D6A21E]/30">
+                  <span className="font-bold text-xs text-gma-navy bg-gma-mist px-2 py-0.5 border border-gma-gold/30">
                     Question #{idx + 1}
                   </span>
-                  <span className="text-xs font-semibold text-[#64748B] uppercase">
+                  <span className="text-xs font-semibold text-gma-muted uppercase">
                     {q.type.replace('_', ' ')}
                   </span>
                 </div>
@@ -625,7 +625,7 @@ export const NewQuizPage: React.FC = () => {
                     type="button"
                     onClick={() => handleMoveQuestion(idx, 'up')}
                     disabled={idx === 0}
-                    className="p-1 text-[#64748B] hover:text-[#0B1F4B] disabled:opacity-30 cursor-pointer"
+                    className="p-1 text-gma-muted hover:text-gma-navy disabled:opacity-30 cursor-pointer"
                     title="Move Question Up"
                   >
                     <MoveUp size={15} />
@@ -634,7 +634,7 @@ export const NewQuizPage: React.FC = () => {
                     type="button"
                     onClick={() => handleMoveQuestion(idx, 'down')}
                     disabled={idx === questions.length - 1}
-                    className="p-1 text-[#64748B] hover:text-[#0B1F4B] disabled:opacity-30 cursor-pointer"
+                    className="p-1 text-gma-muted hover:text-gma-navy disabled:opacity-30 cursor-pointer"
                     title="Move Question Down"
                   >
                     <MoveDown size={15} />
@@ -642,7 +642,7 @@ export const NewQuizPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => handleDeleteQuestion(idx)}
-                    className="p-1 text-[#64748B] hover:text-[#B91C1C] cursor-pointer"
+                    className="p-1 text-gma-muted hover:text-[#B91C1C] cursor-pointer"
                     title="Delete Question"
                   >
                     <Trash2 size={15} />
@@ -663,7 +663,7 @@ export const NewQuizPage: React.FC = () => {
               {/* Options for MCQ */}
               {q.type === 'multiple_choice' && q.options && (
                 <div className="space-y-2">
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-[#0B1F4B]">
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-gma-navy">
                     Multiple Choice Options (Select Radio Button for Correct Answer)
                   </label>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
@@ -673,7 +673,7 @@ export const NewQuizPage: React.FC = () => {
                         <div
                           key={opt.id}
                           className={`flex items-center gap-2.5 p-2 border ${
-                            isCorrect ? 'border-[#0B1F4B] bg-[#F7F7F4]' : 'border-[#CBD5E1] bg-white'
+                            isCorrect ? 'border-gma-navy bg-gma-mist' : 'border-gma-navy/10 bg-white'
                           }`}
                         >
                           <input
@@ -681,7 +681,7 @@ export const NewQuizPage: React.FC = () => {
                             name={`correct-${q.id}`}
                             checked={isCorrect}
                             onChange={() => handleUpdateQuestion(idx, { correctAnswer: opt.id })}
-                            className="accent-[#0B1F4B] cursor-pointer"
+                            className="accent-gma-navy cursor-pointer"
                           />
                           <InputField
                             type="text"
@@ -703,7 +703,7 @@ export const NewQuizPage: React.FC = () => {
               {/* True / False */}
               {q.type === 'true_false' && (
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-[#0B1F4B] mb-2">
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-gma-navy mb-2">
                     Correct Answer
                   </label>
                   <div className="flex gap-4">
@@ -713,7 +713,7 @@ export const NewQuizPage: React.FC = () => {
                         name={`tf-${q.id}`}
                         checked={q.correctAnswer === 'true'}
                         onChange={() => handleUpdateQuestion(idx, { correctAnswer: 'true' })}
-                        className="accent-[#0B1F4B]"
+                        className="accent-gma-navy"
                       />
                       <span>TRUE</span>
                     </label>
@@ -723,7 +723,7 @@ export const NewQuizPage: React.FC = () => {
                         name={`tf-${q.id}`}
                         checked={q.correctAnswer === 'false'}
                         onChange={() => handleUpdateQuestion(idx, { correctAnswer: 'false' })}
-                        className="accent-[#0B1F4B]"
+                        className="accent-gma-navy"
                       />
                       <span>FALSE</span>
                     </label>
@@ -743,7 +743,7 @@ export const NewQuizPage: React.FC = () => {
                 </FormField>
               )}
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 border-t border-[#CBD5E1]/40">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 border-t border-gma-navy/10">
                 <FormField label="Marks Awarded">
                   <InputField
                     type="number"
@@ -783,10 +783,10 @@ export const NewQuizPage: React.FC = () => {
       {/* STEP 3: AI-Assisted Generation */}
       {step === 3 && (
         <div className="space-y-6">
-          <div className="bg-[#0B1F4B] text-white p-6 shadow-sm border border-[#0B1F4B]">
+          <div className="bg-gma-navy text-white p-6 shadow-sm border border-gma-navy">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-white/20">
               <div>
-                <span className="text-xs font-bold text-[#D6A21E] uppercase tracking-wider block">
+                <span className="text-xs font-bold text-gma-gold uppercase tracking-wider block">
                   AI Question Assistant
                 </span>
                 <h3 className="text-lg font-bold text-white mt-0.5">
@@ -795,7 +795,7 @@ export const NewQuizPage: React.FC = () => {
                 <p className="text-xs text-slate-300 mt-1">
                   Drafting questions for <strong className="text-white">{grade}</strong> •{' '}
                   <strong className="text-white">{selectedSubject?.name}</strong> • Topics:{' '}
-                  <strong className="text-[#D6A21E]">{topicsCovered.join(', ') || 'General'}</strong>
+                  <strong className="text-gma-gold">{topicsCovered.join(', ') || 'General'}</strong>
                 </p>
               </div>
 
@@ -809,8 +809,8 @@ export const NewQuizPage: React.FC = () => {
                       onClick={() => setAiGenCount(preset)}
                       className={`px-2 py-1 text-xs font-semibold border transition-colors ${
                         aiGenCount === preset
-                          ? 'bg-[#D6A21E] text-[#0B1F4B] border-[#D6A21E]'
-                          : 'bg-[#0F172A] text-slate-300 border-white/20 hover:border-[#D6A21E]'
+                          ? 'bg-gma-gold text-gma-navy border-gma-gold'
+                          : 'bg-[#0F172A] text-slate-300 border-white/20 hover:border-gma-gold'
                       }`}
                     >
                       {preset}
@@ -829,7 +829,7 @@ export const NewQuizPage: React.FC = () => {
                           setAiGenCount(Math.min(200, Math.max(1, val)));
                         }
                       }}
-                      className="w-12 bg-transparent text-white text-xs font-mono text-center outline-none border-b border-[#D6A21E]"
+                      className="w-12 bg-transparent text-white text-xs font-mono text-center outline-none border-b border-gma-gold"
                       title="Enter custom question count (1 to 200)"
                     />
                   </div>
@@ -852,7 +852,7 @@ export const NewQuizPage: React.FC = () => {
                 fallback. If AI generation is unavailable, an explicit error is shown. Every item
                 requires teacher verification.
               </span>
-              <span className="text-[#D6A21E] font-semibold whitespace-nowrap">
+              <span className="text-gma-gold font-semibold whitespace-nowrap">
                 {isGeneratingAI && aiProgress
                   ? `Generating ${aiProgress.completed}/${aiProgress.total} • ${aiProgress.provider}`
                   : 'Ready to generate'}
@@ -861,7 +861,7 @@ export const NewQuizPage: React.FC = () => {
             {isGeneratingAI && aiProgress && (
               <div className="mt-2 h-1.5 w-full bg-[#0F172A] border border-white/10 overflow-hidden">
                 <div
-                  className="h-full bg-[#D6A21E] transition-all duration-300"
+                  className="h-full bg-gma-gold transition-all duration-300"
                   style={{
                     width: `${Math.min(
                       100,
@@ -874,7 +874,7 @@ export const NewQuizPage: React.FC = () => {
           </div>
 
           {aiNotice && (
-            <div className="p-3 bg-[#F7F7F4] border border-[#D6A21E] text-[#0B1F4B] text-xs font-semibold">
+            <div className="p-3 bg-gma-mist border border-gma-gold text-gma-navy text-xs font-semibold">
               {aiNotice}
             </div>
           )}
@@ -900,7 +900,7 @@ export const NewQuizPage: React.FC = () => {
           {aiGeneratedItems.length > 0 && (
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h4 className="text-sm font-bold uppercase tracking-wider text-[#0B1F4B]">
+                <h4 className="text-sm font-bold uppercase tracking-wider text-gma-navy">
                   Generated AI Drafts ({aiGeneratedItems.length})
                 </h4>
                 <PrimaryButton onClick={handleAcceptAllAI} className="text-xs py-1 px-3">
@@ -911,14 +911,14 @@ export const NewQuizPage: React.FC = () => {
               {aiGeneratedItems.map((item) => (
                 <div
                   key={item.id}
-                  className="bg-white border border-[#CBD5E1] p-5 shadow-sm space-y-3"
+                  className="gma-card rounded-2xl p-5 space-y-3"
                 >
-                  <div className="flex items-center justify-between pb-2 border-b border-[#CBD5E1]/60">
+                  <div className="flex items-center justify-between pb-2 border-b border-gma-navy/10">
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-bold bg-[#F7F7F4] text-[#0B1F4B] px-2 py-0.5 border border-[#D6A21E]/40">
+                      <span className="text-xs font-bold bg-gma-mist text-gma-navy px-2 py-0.5 border border-gma-gold/40">
                         AI Draft
                       </span>
-                      <span className="text-xs font-semibold text-[#64748B]">{item.topic}</span>
+                      <span className="text-xs font-semibold text-gma-muted">{item.topic}</span>
                     </div>
 
                     <div className="flex items-center gap-2">
@@ -927,7 +927,7 @@ export const NewQuizPage: React.FC = () => {
                         onClick={() =>
                           setAiGeneratedItems(aiGeneratedItems.filter((q) => q.id !== item.id))
                         }
-                        className="text-xs font-medium text-[#64748B] hover:text-[#B91C1C] px-2 py-1"
+                        className="text-xs font-medium text-gma-muted hover:text-[#B91C1C] px-2 py-1"
                       >
                         Reject
                       </button>
@@ -950,13 +950,13 @@ export const NewQuizPage: React.FC = () => {
                           key={opt.id}
                           className={`p-2 border ${
                             item.correctAnswer === opt.id
-                              ? 'bg-[#F7F7F4] border-[#0B1F4B] font-bold text-[#0B1F4B]'
-                              : 'bg-[#F7F7F4] border-[#CBD5E1] text-[#0F172A]'
+                              ? 'bg-gma-mist border-gma-navy font-bold text-gma-navy'
+                              : 'bg-gma-mist border-gma-navy/10 text-[#0F172A]'
                           }`}
                         >
                           <span>{opt.text}</span>
                           {item.correctAnswer === opt.id && (
-                            <span className="ml-2 text-[10px] text-[#D6A21E] uppercase font-bold">
+                            <span className="ml-2 text-[10px] text-gma-gold uppercase font-bold">
                               (Correct Key)
                             </span>
                           )}
@@ -965,7 +965,7 @@ export const NewQuizPage: React.FC = () => {
                     </div>
                   )}
 
-                  <div className="text-[11px] text-[#64748B] bg-[#F7F7F4] p-2 border border-[#CBD5E1]/60">
+                  <div className="text-[11px] text-gma-muted bg-gma-mist p-2 border border-gma-navy/10">
                     <strong>Explanation:</strong> {item.explanation}
                   </div>
                 </div>
@@ -974,9 +974,9 @@ export const NewQuizPage: React.FC = () => {
           )}
 
           {/* Current Question Count in Quiz */}
-          <div className="p-4 bg-white border border-[#CBD5E1] flex items-center justify-between text-xs">
+          <div className="gma-card rounded-2xl p-4 flex items-center justify-between text-xs">
             <span>
-              Current Quiz Bank: <strong className="text-[#0B1F4B]">{questions.length} Questions</strong> accepted
+              Current Quiz Bank: <strong className="text-gma-navy">{questions.length} Questions</strong> accepted
             </span>
             <OutlineButton onClick={() => setStep(2)}>Review Current Questions in Step 2</OutlineButton>
           </div>
@@ -985,30 +985,30 @@ export const NewQuizPage: React.FC = () => {
 
       {/* STEP 4: Learner Preview */}
       {step === 4 && (
-        <div className="bg-white border border-[#CBD5E1] p-6 shadow-sm space-y-6">
-          <div className="pb-3 border-b border-[#CBD5E1] flex items-center justify-between">
+        <div className="gma-card rounded-2xl p-6 space-y-6">
+          <div className="pb-3 border-b border-gma-navy/10 flex items-center justify-between">
             <div>
-              <span className="text-xs font-bold uppercase tracking-wider text-[#D6A21E] block">
+              <span className="text-xs font-bold uppercase tracking-wider text-gma-gold block">
                 Learner Preview Mode
               </span>
-              <h3 className="text-lg font-bold text-[#0B1F4B]">{title}</h3>
-              <p className="text-xs text-[#64748B] mt-0.5">
+              <h3 className="text-lg font-bold text-gma-navy">{title}</h3>
+              <p className="text-xs text-gma-muted mt-0.5">
                 Exact appearance as rendered on school tablets during active taking
               </p>
             </div>
-            <span className="text-xs font-mono font-bold text-[#0B1F4B] bg-[#F7F7F4] px-3 py-1 border border-[#D6A21E]/40">
+            <span className="text-xs font-mono font-bold text-gma-navy bg-gma-mist px-3 py-1 border border-gma-gold/40">
               Duration: {durationMinutes} mins
             </span>
           </div>
 
           <div className="space-y-6 max-w-2xl mx-auto">
             {questions.map((q, idx) => (
-              <div key={q.id} className="p-5 border border-[#CBD5E1] bg-[#F7F7F4]">
+              <div key={q.id} className="p-5 border border-gma-navy/10 bg-gma-mist">
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-xs font-bold text-[#0B1F4B] uppercase">
+                  <span className="text-xs font-bold text-gma-navy uppercase">
                     Question {idx + 1} of {questions.length}
                   </span>
-                  <span className="text-xs text-[#64748B]">{q.marks} Marks</span>
+                  <span className="text-xs text-gma-muted">{q.marks} Marks</span>
                 </div>
                 <h4 className="text-sm font-bold text-[#0F172A] mb-4">{q.prompt}</h4>
 
@@ -1017,7 +1017,7 @@ export const NewQuizPage: React.FC = () => {
                     {q.options.map((opt) => (
                       <div
                         key={opt.id}
-                        className="p-3 bg-white border border-[#CBD5E1] text-xs font-medium text-[#0F172A] hover:border-[#D6A21E] cursor-pointer"
+                        className="p-3 bg-white border border-gma-navy/10 text-xs font-medium text-[#0F172A] hover:border-gma-gold cursor-pointer"
                       >
                         {opt.text}
                       </div>
@@ -1027,10 +1027,10 @@ export const NewQuizPage: React.FC = () => {
 
                 {q.type === 'true_false' && (
                   <div className="grid grid-cols-2 gap-3">
-                    <div className="p-3 bg-white border border-[#CBD5E1] text-xs font-bold text-center hover:border-[#D6A21E] cursor-pointer">
+                    <div className="p-3 bg-white border border-gma-navy/10 text-xs font-bold text-center hover:border-gma-gold cursor-pointer">
                       TRUE
                     </div>
-                    <div className="p-3 bg-white border border-[#CBD5E1] text-xs font-bold text-center hover:border-[#D6A21E] cursor-pointer">
+                    <div className="p-3 bg-white border border-gma-navy/10 text-xs font-bold text-center hover:border-gma-gold cursor-pointer">
                       FALSE
                     </div>
                   </div>
@@ -1052,12 +1052,12 @@ export const NewQuizPage: React.FC = () => {
 
       {/* STEP 5: Publication Settings */}
       {step === 5 && (
-        <div className="bg-white border border-[#CBD5E1] p-6 shadow-sm space-y-6">
-          <div className="pb-3 border-b border-[#CBD5E1]">
-            <h3 className="text-base font-bold uppercase tracking-wider text-[#0B1F4B]">
+        <div className="gma-card rounded-2xl p-6 space-y-6">
+          <div className="pb-3 border-b border-gma-navy/10">
+            <h3 className="text-base font-bold uppercase tracking-wider text-gma-navy">
               Step 5: Availability & Release Policy Rules
             </h3>
-            <p className="text-xs text-[#64748B]">
+            <p className="text-xs text-gma-muted">
               Configure submission synchronization, offline tablet permissions, and result visibility
             </p>
           </div>
@@ -1115,30 +1115,30 @@ export const NewQuizPage: React.FC = () => {
               </FormField>
             </div>
 
-            <div className="p-5 bg-[#F7F7F4] border border-[#CBD5E1] space-y-3 text-xs">
-              <h4 className="font-bold text-xs uppercase tracking-wider text-[#0B1F4B]">
+            <div className="p-5 bg-gma-mist border border-gma-navy/10 space-y-3 text-xs">
+              <h4 className="font-bold text-xs uppercase tracking-wider text-gma-navy">
                 Publication Summary Check
               </h4>
-              <div className="flex justify-between py-1 border-b border-[#CBD5E1]/60">
-                <span className="text-[#64748B]">Assigned Cohort:</span>
+              <div className="flex justify-between py-1 border-b border-gma-navy/10">
+                <span className="text-gma-muted">Assigned Cohort:</span>
                 <span className="font-bold text-[#0F172A]">{selectedClass?.name} ({grade})</span>
               </div>
-              <div className="flex justify-between py-1 border-b border-[#CBD5E1]/60">
-                <span className="text-[#64748B]">Question Count:</span>
+              <div className="flex justify-between py-1 border-b border-gma-navy/10">
+                <span className="text-gma-muted">Question Count:</span>
                 <span className="font-bold text-[#0F172A]">{questions.length} Items</span>
               </div>
-              <div className="flex justify-between py-1 border-b border-[#CBD5E1]/60">
-                <span className="text-[#64748B]">Total Marks:</span>
-                <span className="font-bold text-[#0B1F4B]">
+              <div className="flex justify-between py-1 border-b border-gma-navy/10">
+                <span className="text-gma-muted">Total Marks:</span>
+                <span className="font-bold text-gma-navy">
                   {questions.reduce((sum, q) => sum + q.marks, 0)} Marks
                 </span>
               </div>
-              <div className="flex justify-between py-1 border-b border-[#CBD5E1]/60">
-                <span className="text-[#64748B]">Release Visibility:</span>
-                <span className="font-semibold text-[#0B1F4B] uppercase">{releasePolicy}</span>
+              <div className="flex justify-between py-1 border-b border-gma-navy/10">
+                <span className="text-gma-muted">Release Visibility:</span>
+                <span className="font-semibold text-gma-navy uppercase">{releasePolicy}</span>
               </div>
               <div className="flex justify-between py-1">
-                <span className="text-[#64748B]">Offline Support:</span>
+                <span className="text-gma-muted">Offline Support:</span>
                 <span className="font-semibold text-[#0F172A]">
                   {allowOffline ? 'Active (Pre-cached)' : 'Online Only'}
                 </span>
@@ -1146,7 +1146,7 @@ export const NewQuizPage: React.FC = () => {
             </div>
           </div>
 
-          <div className="p-4 bg-[#F7F7F4] border border-[#D6A21E]/50 text-xs text-[#0B1F4B]">
+          <div className="p-4 bg-gma-mist border border-gma-gold/50 text-xs text-gma-navy">
             <p className="font-bold">Honest Architectural Confirmation</p>
             <p className="mt-0.5 text-[#0F172A]">
               Saving a draft does not expose questions to learners. Clicking "Publish Assessment" immediately enables tablet downloading and assessment taking.
@@ -1156,7 +1156,7 @@ export const NewQuizPage: React.FC = () => {
       )}
 
       {/* Navigation Footer Controls */}
-      <div className="flex items-center justify-between pt-4 border-t border-[#CBD5E1]">
+      <div className="flex items-center justify-between pt-4 border-t border-gma-navy/10">
         <div>
           {step > 1 ? (
             <OutlineButton onClick={handlePrevStep} icon={<ArrowLeft size={14} />}>

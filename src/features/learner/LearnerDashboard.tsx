@@ -74,11 +74,11 @@ export const LearnerDashboard: React.FC = () => {
   return (
     <div className="max-w-5xl mx-auto space-y-8 py-2">
       {/* Warm, Focused Tablet Greeting Header */}
-      <div className="bg-[#0B1F4B] text-white p-6 sm:p-8 shadow-sm border border-[#0B1F4B]">
+      <div className="bg-gma-navy text-white p-6 sm:p-8 shadow-sm border border-gma-navy">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <span className="text-xs font-bold text-[#D6A21E] uppercase tracking-wider">
+              <span className="text-xs font-bold text-gma-gold uppercase tracking-wider">
                 {user?.grade || 'Grade not assigned'} • {user?.className || 'Class not assigned'}
               </span>
               <span className="text-white/40">•</span>
@@ -97,8 +97,8 @@ export const LearnerDashboard: React.FC = () => {
           {/* Connection Indicator on Tablet */}
           <div className="shrink-0">
             {isOnline ? (
-              <div className="flex items-center gap-2 bg-[#0F172A] px-3 py-2 border border-[#D6A21E]/40 text-xs">
-                <Wifi size={16} className="text-[#D6A21E]" />
+              <div className="flex items-center gap-2 bg-[#0F172A] px-3 py-2 border border-gma-gold/40 text-xs">
+                <Wifi size={16} className="text-gma-gold" />
                 <div>
                   <span className="font-bold text-white block">Connected</span>
                   <span className="text-[10px] text-slate-300">Quizzes sync live</span>
@@ -119,18 +119,18 @@ export const LearnerDashboard: React.FC = () => {
 
       {/* Available Quizzes to Take */}
       <div className="space-y-4">
-        <div className="flex items-center justify-between border-b border-[#CBD5E1] pb-2">
-          <h2 className="text-lg font-bold text-[#0B1F4B] uppercase tracking-wider">
+        <div className="flex items-center justify-between border-b border-gma-navy/10 pb-2">
+          <h2 className="text-lg font-bold text-gma-navy uppercase tracking-wider">
             Available Assessments ({availableQuizzes.length})
           </h2>
-          <span className="text-xs text-[#64748B]">Assigned by your teacher</span>
+          <span className="text-xs text-gma-muted">Assigned by your teacher</span>
         </div>
 
         {availableQuizzes.length === 0 ? (
-          <div className="bg-white border border-[#CBD5E1] p-10 text-center shadow-sm">
-            <CheckCircle2 size={32} className="text-[#0B1F4B] mx-auto mb-2" />
-            <h3 className="text-base font-bold text-[#0B1F4B]">You're All Caught Up!</h3>
-            <p className="text-xs text-[#64748B] mt-1">
+          <div className="gma-card rounded-2xl p-10 text-center">
+            <CheckCircle2 size={32} className="text-gma-navy mx-auto mb-2" />
+            <h3 className="text-base font-bold text-gma-navy">You're All Caught Up!</h3>
+            <p className="text-xs text-gma-muted mt-1">
               There are no new assessments awaiting completion right now.
             </p>
           </div>
@@ -139,23 +139,23 @@ export const LearnerDashboard: React.FC = () => {
             {availableQuizzes.map((quiz) => (
               <div
                 key={quiz.id}
-                className="bg-white border border-[#CBD5E1] p-6 shadow-sm hover:border-[#D6A21E] transition-colors flex flex-col justify-between"
+                className="gma-card rounded-2xl p-6 hover:border-gma-gold transition-colors flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-center justify-between gap-2 mb-2">
-                    <span className="text-xs font-bold text-[#D6A21E] uppercase tracking-wider">
+                    <span className="text-xs font-bold text-gma-gold uppercase tracking-wider">
                       {quiz.subjectName}
                     </span>
                     {quiz.allowOffline && (
-                      <span className="text-[10px] font-semibold text-[#0B1F4B] bg-[#F7F7F4] px-2 py-0.5 border border-[#D6A21E]/30">
+                      <span className="text-[10px] font-semibold text-gma-navy bg-gma-mist px-2 py-0.5 border border-gma-gold/30">
                         Saved for Offline
                       </span>
                     )}
                   </div>
 
-                  <h3 className="text-lg font-bold text-[#0B1F4B] mb-2">{quiz.title}</h3>
+                  <h3 className="text-lg font-bold text-gma-navy mb-2">{quiz.title}</h3>
 
-                  <div className="flex flex-wrap gap-4 text-xs text-[#64748B] mb-4">
+                  <div className="flex flex-wrap gap-4 text-xs text-gma-muted mb-4">
                     <span>
                       Questions: <strong className="text-[#0F172A]">{quiz.questions.length}</strong>
                     </span>
@@ -168,13 +168,13 @@ export const LearnerDashboard: React.FC = () => {
                   </div>
 
                   {quiz.instructions && (
-                    <p className="text-xs text-[#64748B] mb-4 bg-[#F7F7F4] p-2.5 border border-[#CBD5E1]/60">
+                    <p className="text-xs text-gma-muted mb-4 bg-gma-mist p-2.5 border border-gma-navy/10">
                       {quiz.instructions}
                     </p>
                   )}
                 </div>
 
-                <div className="pt-4 border-t border-[#CBD5E1]">
+                <div className="pt-4 border-t border-gma-navy/10">
                   <PrimaryButton
                     onClick={() => navigate(`/learner/take/${quiz.id}`)}
                     className="w-full py-3 text-sm font-bold uppercase tracking-wider justify-center"
@@ -191,8 +191,8 @@ export const LearnerDashboard: React.FC = () => {
 
       {/* Released Results Quick View */}
       <div className="space-y-4">
-        <div className="flex items-center justify-between border-b border-[#CBD5E1] pb-2">
-          <h2 className="text-lg font-bold text-[#0B1F4B] uppercase tracking-wider">
+        <div className="flex items-center justify-between border-b border-gma-navy/10 pb-2">
+          <h2 className="text-lg font-bold text-gma-navy uppercase tracking-wider">
             Your Released Results
           </h2>
           <OutlineButton onClick={() => navigate('/learner/results')} className="text-xs py-1">
@@ -201,8 +201,8 @@ export const LearnerDashboard: React.FC = () => {
         </div>
 
         {releasedResults.length === 0 ? (
-          <div className="bg-white border border-[#CBD5E1] p-8 text-center shadow-sm">
-            <p className="text-xs text-[#64748B]">
+          <div className="gma-card rounded-2xl p-8 text-center">
+            <p className="text-xs text-gma-muted">
               Your results aren't available yet. Your teacher will let you know when they're ready.
             </p>
           </div>
@@ -212,15 +212,15 @@ export const LearnerDashboard: React.FC = () => {
               <div
                 key={res.id}
                 onClick={() => navigate('/learner/results')}
-                className="bg-white border border-[#CBD5E1] p-5 shadow-sm hover:border-[#D6A21E] cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                className="gma-card rounded-2xl p-5 hover:border-gma-gold cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-3"
               >
                 <div>
-                  <span className="text-[11px] font-bold text-[#D6A21E] uppercase tracking-wider block">
+                  <span className="text-[11px] font-bold text-gma-gold uppercase tracking-wider block">
                     {res.subjectName}
                   </span>
-                  <h4 className="text-base font-bold text-[#0B1F4B]">{res.quizTitle}</h4>
+                  <h4 className="text-base font-bold text-gma-navy">{res.quizTitle}</h4>
                   {res.teacherFeedback && (
-                    <p className="text-xs text-[#64748B] mt-1 italic">
+                    <p className="text-xs text-gma-muted mt-1 italic">
                       "{res.teacherFeedback}"
                     </p>
                   )}
@@ -228,10 +228,10 @@ export const LearnerDashboard: React.FC = () => {
 
                 <div className="flex items-center gap-4 shrink-0">
                   <div className="text-right">
-                    <span className="text-xs text-[#64748B] block">Score</span>
-                    <span className="text-xl font-extrabold text-[#0B1F4B]">{res.percentage}%</span>
+                    <span className="text-xs text-gma-muted block">Score</span>
+                    <span className="text-xl font-extrabold text-gma-navy">{res.percentage}%</span>
                   </div>
-                  <span className="text-xs font-bold text-[#0B1F4B] bg-[#F7F7F4] px-2.5 py-1 border border-[#D6A21E]/40">
+                  <span className="text-xs font-bold text-gma-navy bg-gma-mist px-2.5 py-1 border border-gma-gold/40">
                     Released
                   </span>
                 </div>

@@ -211,9 +211,9 @@ export const LearnerQuizPlayer: React.FC = () => {
 
   if (!quiz) {
     return (
-      <div className="max-w-2xl mx-auto my-12 bg-white border border-[#CBD5E1] p-8 text-center shadow-sm">
-        <h2 className="text-lg font-bold text-[#0B1F4B]">Quiz Not Found</h2>
-        <p className="text-xs text-[#64748B] mt-1 mb-4">
+      <div className="max-w-2xl mx-auto my-12 gma-card rounded-2xl p-8 text-center">
+        <h2 className="text-lg font-bold text-gma-navy">Quiz Not Found</h2>
+        <p className="text-xs text-gma-muted mt-1 mb-4">
           This assessment is not available in local cache or has not been assigned.
         </p>
         <OutlineButton onClick={() => navigate('/learner/dashboard')}>
@@ -226,16 +226,16 @@ export const LearnerQuizPlayer: React.FC = () => {
   // Timed exams cannot start without a server-owned clock.
   if (startError) {
     return (
-      <div className="max-w-xl mx-auto my-12 bg-white border border-[#EF4444]/40 p-8 text-center shadow-sm space-y-4">
+      <div className="max-w-xl mx-auto my-12 gma-card rounded-2xl border-[#EF4444]/40 p-8 text-center space-y-4">
         <div className="w-14 h-14 mx-auto flex items-center justify-center border border-[#EF4444] bg-[#FEF2F2] text-[#991B1B]">
           <AlertCircle size={28} />
         </div>
         <div>
-          <span className="text-[11px] font-bold uppercase tracking-wider text-[#D6A21E] block mb-1">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-gma-gold block mb-1">
             {quiz.subjectName} Assessment
           </span>
-          <h2 className="text-lg font-bold text-[#0B1F4B]">Cannot Start Assessment</h2>
-          <p className="text-xs text-[#64748B] mt-2">{startError}</p>
+          <h2 className="text-lg font-bold text-gma-navy">Cannot Start Assessment</h2>
+          <p className="text-xs text-gma-muted mt-2">{startError}</p>
         </div>
         <div className="flex flex-col sm:flex-row justify-center gap-3">
           <PrimaryButton onClick={() => setStartNonce((n) => n + 1)}>Retry</PrimaryButton>
@@ -453,13 +453,13 @@ export const LearnerQuizPlayer: React.FC = () => {
       {/* Exam-mode gate: the tap that grants fullscreen. The clock is already
           running behind it, exactly like a paper handed out at the bell. */}
       {gateOpen && !isSubmitting && (
-        <div className="fixed inset-0 z-[60] bg-[#0B1F4B] text-white flex items-center justify-center p-6">
+        <div className="fixed inset-0 z-[60] bg-gma-navy text-white flex items-center justify-center p-6">
           <div className="max-w-lg w-full text-center space-y-6">
-            <div className="w-16 h-16 mx-auto flex items-center justify-center border border-[#D6A21E] bg-[#0B1F4B] text-[#D6A21E]">
+            <div className="w-16 h-16 mx-auto flex items-center justify-center border border-gma-gold bg-gma-navy text-gma-gold">
               <ShieldAlert size={32} />
             </div>
             <div>
-              <span className="text-[11px] font-bold uppercase tracking-widest text-[#D6A21E] block mb-2">
+              <span className="text-[11px] font-bold uppercase tracking-widest text-gma-gold block mb-2">
                 Supervised Assessment
               </span>
               <h2 className="text-2xl font-extrabold">{quiz.title}</h2>
@@ -468,7 +468,7 @@ export const LearnerQuizPlayer: React.FC = () => {
               </p>
             </div>
             <div className="text-left text-xs bg-white/5 border border-white/15 p-4 space-y-2 text-white/80">
-              <p className="font-bold text-[#D6A21E] uppercase tracking-wider text-[11px]">
+              <p className="font-bold text-gma-gold uppercase tracking-wider text-[11px]">
                 Exam Rules
               </p>
               <p>• Your paper is collected automatically the moment the timer reaches zero.</p>
@@ -487,12 +487,12 @@ export const LearnerQuizPlayer: React.FC = () => {
       )}
 
       {/* Quiz Header Bar */}
-      <div className="bg-white border border-[#CBD5E1] p-4 shadow-sm flex flex-wrap items-center justify-between gap-3">
+      <div className="gma-card rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <span className="text-[11px] font-bold text-[#D6A21E] uppercase tracking-wider block">
+          <span className="text-[11px] font-bold text-gma-gold uppercase tracking-wider block">
             {quiz.subjectName} Assessment
           </span>
-          <h1 className="text-base font-bold text-[#0B1F4B]">{quiz.title}</h1>
+          <h1 className="text-base font-bold text-gma-navy">{quiz.title}</h1>
         </div>
 
         <div className="flex items-center gap-4 text-xs font-semibold">
@@ -502,7 +502,7 @@ export const LearnerQuizPlayer: React.FC = () => {
               className={`flex items-center gap-1 px-2.5 py-1 border font-bold tabular-nums ${
                 isLowTime
                   ? 'text-[#991B1B] bg-[#FEF2F2] border-[#EF4444]/50'
-                  : 'text-[#0B1F4B] bg-[#F7F7F4] border-[#CBD5E1]'
+                  : 'text-gma-navy bg-gma-mist border-gma-navy/10'
               }`}
               title="Time remaining (server clock)"
             >
@@ -512,8 +512,8 @@ export const LearnerQuizPlayer: React.FC = () => {
 
           {/* Connection Status Badge */}
           {isOnline ? (
-            <span className="flex items-center gap-1 text-[#0B1F4B] bg-[#F7F7F4] px-2.5 py-1 border border-[#D6A21E]/40">
-              <Wifi size={13} className="text-[#D6A21E]" /> Online
+            <span className="flex items-center gap-1 text-gma-navy bg-gma-mist px-2.5 py-1 border border-gma-gold/40">
+              <Wifi size={13} className="text-gma-gold" /> Online
             </span>
           ) : (
             <span className="flex items-center gap-1 text-[#92400E] bg-[#FEF3C7] px-2.5 py-1 border border-[#F59E0B]/40 font-bold">
@@ -522,7 +522,7 @@ export const LearnerQuizPlayer: React.FC = () => {
           )}
 
           {/* Autosave Status */}
-          <span className="flex items-center gap-1 text-[#64748B]">
+          <span className="flex items-center gap-1 text-gma-muted">
             <Save size={13} />
             <span>Saved: {lastSavedTime}</span>
           </span>
@@ -538,8 +538,8 @@ export const LearnerQuizPlayer: React.FC = () => {
       )}
 
       {/* Progress Bar (Strictly Sky Blue, No Green) */}
-      <div className="bg-white border border-[#CBD5E1] p-3 shadow-sm">
-        <div className="flex justify-between items-center text-xs font-semibold text-[#0B1F4B] mb-1.5">
+      <div className="gma-card rounded-2xl p-3">
+        <div className="flex justify-between items-center text-xs font-semibold text-gma-navy mb-1.5">
           <span>
             Question {currentIdx + 1} of {totalQuestions}
           </span>
@@ -547,18 +547,18 @@ export const LearnerQuizPlayer: React.FC = () => {
             {answeredCount} of {totalQuestions} Answered
           </span>
         </div>
-        <div className="w-full bg-[#F7F7F4] h-2.5 overflow-hidden">
+        <div className="w-full bg-gma-mist h-2.5 overflow-hidden">
           <div
-            className="bg-[#D6A21E] h-full transition-all duration-200"
+            className="bg-gma-gold h-full transition-all duration-200"
             style={{ width: `${((currentIdx + 1) / totalQuestions) * 100}%` }}
           />
         </div>
       </div>
 
       {/* Question Taking Area */}
-      <div className="bg-white border border-[#CBD5E1] p-6 sm:p-8 shadow-sm space-y-6">
+      <div className="gma-card rounded-2xl p-6 sm:p-8 space-y-6">
         <div>
-          <span className="text-xs font-bold uppercase tracking-wider text-[#64748B] block mb-1">
+          <span className="text-xs font-bold uppercase tracking-wider text-gma-muted block mb-1">
             Question #{currentIdx + 1} • {currentQuestion.marks} {currentQuestion.marks === 1 ? 'Mark' : 'Marks'}
           </span>
           <h2 className="text-lg sm:text-xl font-bold text-[#0F172A] leading-relaxed">
@@ -578,14 +578,14 @@ export const LearnerQuizPlayer: React.FC = () => {
                   onClick={() => handleSelectAnswer(option.id)}
                   className={`w-full text-left p-4 sm:p-5 border text-sm sm:text-base font-medium transition-colors cursor-pointer flex items-center justify-between ${
                     isSelected
-                      ? 'bg-[#0B1F4B] text-white border-[#0B1F4B] font-semibold'
-                      : 'bg-white text-[#0F172A] border-[#CBD5E1] hover:bg-[#F7F7F4] hover:border-[#D6A21E]'
+                      ? 'bg-gma-navy text-white border-gma-navy font-semibold'
+                      : 'bg-white text-[#0F172A] border-gma-navy/10 hover:bg-gma-frost/60 hover:border-gma-gold'
                   }`}
                 >
                   <span>{option.text}</span>
                   <div
                     className={`w-5 h-5 border flex items-center justify-center shrink-0 ${
-                      isSelected ? 'border-white bg-[#D6A21E]' : 'border-[#CBD5E1] bg-white'
+                      isSelected ? 'border-white bg-gma-gold' : 'border-gma-navy/10 bg-white'
                     }`}
                   >
                     {isSelected && <span className="w-2 h-2 bg-white" />}
@@ -608,8 +608,8 @@ export const LearnerQuizPlayer: React.FC = () => {
                   onClick={() => handleSelectAnswer(val)}
                   className={`p-6 border text-base sm:text-lg font-bold text-center uppercase tracking-wider transition-colors cursor-pointer ${
                     isSelected
-                      ? 'bg-[#0B1F4B] text-white border-[#0B1F4B]'
-                      : 'bg-white text-[#0F172A] border-[#CBD5E1] hover:bg-[#F7F7F4] hover:border-[#D6A21E]'
+                      ? 'bg-gma-navy text-white border-gma-navy'
+                      : 'bg-white text-[#0F172A] border-gma-navy/10 hover:bg-gma-frost/60 hover:border-gma-gold'
                   }`}
                 >
                   {val}
@@ -622,7 +622,7 @@ export const LearnerQuizPlayer: React.FC = () => {
         {/* Answer Options — Short Answer */}
         {currentQuestion.type === 'short_answer' && (
           <div className="space-y-2">
-            <label className="block text-xs font-semibold uppercase tracking-wider text-[#0B1F4B]">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-gma-navy">
               Type Your Answer Below
             </label>
             <input
@@ -630,14 +630,14 @@ export const LearnerQuizPlayer: React.FC = () => {
               value={answers[currentQuestion.id] || ''}
               onChange={(e) => handleSelectAnswer(e.target.value)}
               placeholder="e.g. 1/4"
-              className="w-full px-4 py-3 text-base bg-white text-[#0F172A] border border-[#CBD5E1] focus:outline-hidden focus:border-[#D6A21E] focus:ring-1 focus:ring-[#D6A21E]"
+              className="w-full px-4 py-3 text-base bg-white text-[#0F172A] border border-gma-navy/10 focus:outline-hidden focus:border-gma-sky focus:ring-1 focus:ring-gma-sky"
             />
           </div>
         )}
       </div>
 
       {/* Navigation Buttons */}
-      <div className="flex items-center justify-between bg-white border border-[#CBD5E1] p-4 shadow-sm">
+      <div className="flex items-center justify-between gma-card rounded-2xl p-4">
         <OutlineButton
           onClick={handlePrev}
           disabled={currentIdx === 0}
@@ -675,8 +675,8 @@ export const LearnerQuizPlayer: React.FC = () => {
       </div>
 
       {/* Question Navigation Matrix Panel */}
-      <div className="bg-white border border-[#CBD5E1] p-4 shadow-sm">
-        <span className="text-[11px] font-bold uppercase tracking-wider text-[#64748B] block mb-2">
+      <div className="gma-card rounded-2xl p-4">
+        <span className="text-[11px] font-bold uppercase tracking-wider text-gma-muted block mb-2">
           Question Navigator
         </span>
         <div className="flex flex-wrap gap-2">
@@ -690,10 +690,10 @@ export const LearnerQuizPlayer: React.FC = () => {
                 onClick={() => setCurrentIdx(idx)}
                 className={`w-9 h-9 text-xs font-bold border transition-colors cursor-pointer ${
                   isCurrent
-                    ? 'border-[#0B1F4B] bg-[#0B1F4B] text-white ring-2 ring-[#D6A21E]'
+                    ? 'border-gma-navy bg-gma-navy text-white ring-2 ring-gma-gold'
                     : isAnswered
-                    ? 'border-[#D6A21E] bg-[#F7F7F4] text-[#0B1F4B]'
-                    : 'border-[#CBD5E1] bg-white text-[#64748B] hover:border-[#D6A21E]'
+                    ? 'border-gma-gold bg-gma-mist text-gma-navy'
+                    : 'border-gma-navy/10 bg-white text-gma-muted hover:border-gma-gold'
                 }`}
               >
                 {idx + 1}
@@ -706,25 +706,25 @@ export const LearnerQuizPlayer: React.FC = () => {
       {/* Review Dialog before final submission */}
       {isReviewOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0F172A]/50 backdrop-blur-xs">
-          <div className="bg-white border border-[#CBD5E1] shadow-xl max-w-md w-full p-6">
-            <h3 className="text-lg font-bold text-[#0B1F4B] uppercase tracking-wider pb-2 border-b border-[#CBD5E1]">
+          <div className="gma-card rounded-2xl max-w-md w-full p-6">
+            <h3 className="text-lg font-bold text-gma-navy uppercase tracking-wider pb-2 border-b border-gma-navy/10">
               Submission Summary Check
             </h3>
             <div className="py-4 space-y-3 text-xs">
-              <div className="flex justify-between py-1.5 border-b border-[#CBD5E1]/50">
-                <span className="text-[#64748B]">Assessment Title:</span>
+              <div className="flex justify-between py-1.5 border-b border-gma-navy/10">
+                <span className="text-gma-muted">Assessment Title:</span>
                 <span className="font-bold text-[#0F172A]">{quiz.title}</span>
               </div>
-              <div className="flex justify-between py-1.5 border-b border-[#CBD5E1]/50">
-                <span className="text-[#64748B]">Answered Questions:</span>
-                <span className="font-bold text-[#0B1F4B]">
+              <div className="flex justify-between py-1.5 border-b border-gma-navy/10">
+                <span className="text-gma-muted">Answered Questions:</span>
+                <span className="font-bold text-gma-navy">
                   {answeredCount} of {totalQuestions}
                 </span>
               </div>
               {timeLeftSeconds !== null && (
-                <div className="flex justify-between py-1.5 border-b border-[#CBD5E1]/50">
-                  <span className="text-[#64748B]">Time Remaining:</span>
-                  <span className={`font-bold ${isLowTime ? 'text-[#991B1B]' : 'text-[#0B1F4B]'}`}>
+                <div className="flex justify-between py-1.5 border-b border-gma-navy/10">
+                  <span className="text-gma-muted">Time Remaining:</span>
+                  <span className={`font-bold ${isLowTime ? 'text-[#991B1B]' : 'text-gma-navy'}`}>
                     {formatDuration(timeLeftSeconds)}
                   </span>
                 </div>
@@ -734,15 +734,15 @@ export const LearnerQuizPlayer: React.FC = () => {
                   You still have {totalQuestions - answeredCount} unanswered question{totalQuestions - answeredCount === 1 ? '' : 's'}. You can go back and complete them before submitting.
                 </div>
               )}
-              <div className="flex justify-between py-1.5 border-b border-[#CBD5E1]/50">
-                <span className="text-[#64748B]">Connection State:</span>
+              <div className="flex justify-between py-1.5 border-b border-gma-navy/10">
+                <span className="text-gma-muted">Connection State:</span>
                 <span className="font-semibold text-[#0F172A]">
                   {isOnline ? 'Connected (Syncs Instantly)' : 'Offline (Queued on Tablet)'}
                 </span>
               </div>
             </div>
 
-            <div className="flex items-center justify-end gap-3 pt-4 border-t border-[#CBD5E1]">
+            <div className="flex items-center justify-end gap-3 pt-4 border-t border-gma-navy/10">
               <OutlineButton onClick={() => setIsReviewOpen(false)}>
                 Return to Quiz
               </OutlineButton>

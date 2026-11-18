@@ -183,56 +183,56 @@ export const AdminAnalyticsPage: React.FC = () => {
 
       {/* Top Level Benchmark Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white border border-[#CBD5E1] p-5 shadow-sm">
-          <span className="text-xs font-semibold uppercase tracking-wider text-[#64748B] block mb-1">
+        <div className="gma-card rounded-2xl p-5">
+          <span className="text-xs font-semibold uppercase tracking-wider text-gma-muted block mb-1">
             School Mean Score
           </span>
-          <div className="text-3xl font-extrabold text-[#0B1F4B]">
+          <div className="text-3xl font-extrabold text-gma-navy">
             {schoolMean === null ? '—' : `${schoolMean}%`}
           </div>
-          <p className="text-xs text-[#64748B] mt-1">Across all recorded submissions</p>
+          <p className="text-xs text-gma-muted mt-1">Across all recorded submissions</p>
         </div>
 
-        <div className="bg-white border border-[#CBD5E1] p-5 shadow-sm">
-          <span className="text-xs font-semibold uppercase tracking-wider text-[#64748B] block mb-1">
+        <div className="gma-card rounded-2xl p-5">
+          <span className="text-xs font-semibold uppercase tracking-wider text-gma-muted block mb-1">
             Assessment Completion
           </span>
-          <div className="text-3xl font-extrabold text-[#0B1F4B]">
+          <div className="text-3xl font-extrabold text-gma-navy">
             {completionRate === null ? '—' : `${completionRate}%`}
           </div>
-          <p className="text-xs text-[#64748B] mt-1">Submitted results against enrolled learners</p>
+          <p className="text-xs text-gma-muted mt-1">Submitted results against enrolled learners</p>
         </div>
 
-        <div className="bg-white border border-[#CBD5E1] p-5 shadow-sm">
-          <span className="text-xs font-semibold uppercase tracking-wider text-[#64748B] block mb-1">
+        <div className="gma-card rounded-2xl p-5">
+          <span className="text-xs font-semibold uppercase tracking-wider text-gma-muted block mb-1">
             Offline Assessment Share
           </span>
-          <div className="text-3xl font-extrabold text-[#0B1F4B]">
+          <div className="text-3xl font-extrabold text-gma-navy">
             {offlineShare === null ? '—' : `${offlineShare}%`}
           </div>
-          <p className="text-xs text-[#64748B] mt-1">Queued and synced from tablets</p>
+          <p className="text-xs text-gma-muted mt-1">Queued and synced from tablets</p>
         </div>
 
-        <div className="bg-white border border-[#CBD5E1] p-5 shadow-sm">
-          <span className="text-xs font-semibold uppercase tracking-wider text-[#64748B] block mb-1">
+        <div className="gma-card rounded-2xl p-5">
+          <span className="text-xs font-semibold uppercase tracking-wider text-gma-muted block mb-1">
             Identified Revision Topics
           </span>
-          <div className="text-3xl font-extrabold text-[#0B1F4B]">
+          <div className="text-3xl font-extrabold text-gma-navy">
             {topicsNeedingRevision.length} Focus {topicsNeedingRevision.length === 1 ? 'Area' : 'Areas'}
           </div>
-          <p className="text-xs text-[#64748B] mt-1">Topics below the {settings.defaultPassMark}% mastery threshold</p>
+          <p className="text-xs text-gma-muted mt-1">Topics below the {settings.defaultPassMark}% mastery threshold</p>
         </div>
       </div>
 
       {/* Charts Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Cohort Averages by Grade */}
-        <div className="bg-white border border-[#CBD5E1] p-5 shadow-sm">
-          <div className="pb-3 mb-4 border-b border-[#CBD5E1]">
-            <h3 className="text-sm font-bold uppercase tracking-wider text-[#0B1F4B]">
+        <div className="gma-card rounded-2xl p-5">
+          <div className="pb-3 mb-4 border-b border-gma-navy/10">
+            <h3 className="text-sm font-bold uppercase tracking-wider text-gma-navy">
               Average Assessment Score by Grade Cohort
             </h3>
-            <p className="text-xs text-[#64748B]">
+            <p className="text-xs text-gma-muted">
               Aggregated results for all assessed cohorts
             </p>
           </div>
@@ -259,9 +259,9 @@ export const AdminAnalyticsPage: React.FC = () => {
               </ResponsiveContainer>
             </div>
           ) : (
-            <div className="h-64 w-full flex flex-col items-center justify-center text-center border border-dashed border-[#CBD5E1] bg-[#F7F7F4]">
+            <div className="h-64 w-full flex flex-col items-center justify-center text-center border border-dashed border-gma-navy/10 bg-gma-mist">
               <AlertCircle size={20} className="text-[#94A3B8] mb-2" />
-              <p className="text-xs font-semibold text-[#64748B]">No grade-level results recorded yet.</p>
+              <p className="text-xs font-semibold text-gma-muted">No grade-level results recorded yet.</p>
               <p className="text-[11px] text-[#94A3B8] mt-1">
                 Cohort averages appear once learners submit assessments.
               </p>
@@ -270,12 +270,12 @@ export const AdminAnalyticsPage: React.FC = () => {
         </div>
 
         {/* Subject Comparison */}
-        <div className="bg-white border border-[#CBD5E1] p-5 shadow-sm">
-          <div className="pb-3 mb-4 border-b border-[#CBD5E1]">
-            <h3 className="text-sm font-bold uppercase tracking-wider text-[#0B1F4B]">
+        <div className="gma-card rounded-2xl p-5">
+          <div className="pb-3 mb-4 border-b border-gma-navy/10">
+            <h3 className="text-sm font-bold uppercase tracking-wider text-gma-navy">
               Subject Performance vs School Benchmark
             </h3>
-            <p className="text-xs text-[#64748B]">
+            <p className="text-xs text-gma-muted">
               Comparison against the {settings.defaultPassMark}% school pass mark
             </p>
           </div>
@@ -306,9 +306,9 @@ export const AdminAnalyticsPage: React.FC = () => {
               </ResponsiveContainer>
             </div>
           ) : (
-            <div className="h-64 w-full flex flex-col items-center justify-center text-center border border-dashed border-[#CBD5E1] bg-[#F7F7F4]">
+            <div className="h-64 w-full flex flex-col items-center justify-center text-center border border-dashed border-gma-navy/10 bg-gma-mist">
               <AlertCircle size={20} className="text-[#94A3B8] mb-2" />
-              <p className="text-xs font-semibold text-[#64748B]">No subject results recorded yet.</p>
+              <p className="text-xs font-semibold text-gma-muted">No subject results recorded yet.</p>
               <p className="text-[11px] text-[#94A3B8] mt-1">
                 Subject comparisons appear once assessments are submitted.
               </p>
@@ -318,12 +318,12 @@ export const AdminAnalyticsPage: React.FC = () => {
       </div>
 
       {/* Assessment Activity Over Time Line Chart */}
-      <div className="bg-white border border-[#CBD5E1] p-5 shadow-sm">
-        <div className="pb-3 mb-4 border-b border-[#CBD5E1]">
-          <h3 className="text-sm font-bold uppercase tracking-wider text-[#0B1F4B]">
+      <div className="gma-card rounded-2xl p-5">
+        <div className="pb-3 mb-4 border-b border-gma-navy/10">
+          <h3 className="text-sm font-bold uppercase tracking-wider text-gma-navy">
             Assessment Volume & Tablet Offline Sync Activity
           </h3>
-          <p className="text-xs text-[#64748B]">Weekly quiz submissions from recorded results</p>
+          <p className="text-xs text-gma-muted">Weekly quiz submissions from recorded results</p>
         </div>
 
         {weeklyActivityData.length > 0 ? (
@@ -362,9 +362,9 @@ export const AdminAnalyticsPage: React.FC = () => {
             </ResponsiveContainer>
           </div>
         ) : (
-          <div className="h-56 w-full flex flex-col items-center justify-center text-center border border-dashed border-[#CBD5E1] bg-[#F7F7F4]">
+          <div className="h-56 w-full flex flex-col items-center justify-center text-center border border-dashed border-gma-navy/10 bg-gma-mist">
             <AlertCircle size={20} className="text-[#94A3B8] mb-2" />
-            <p className="text-xs font-semibold text-[#64748B]">No submission activity recorded yet.</p>
+            <p className="text-xs font-semibold text-gma-muted">No submission activity recorded yet.</p>
             <p className="text-[11px] text-[#94A3B8] mt-1">
               Volume trends appear as learners submit assessments over time.
             </p>
@@ -373,20 +373,20 @@ export const AdminAnalyticsPage: React.FC = () => {
       </div>
 
       {/* Diagnostic Signals: Topics Requiring Revision */}
-      <div className="bg-white border border-[#CBD5E1] p-5 shadow-sm">
-        <div className="pb-3 mb-4 border-b border-[#CBD5E1]">
-          <h3 className="text-sm font-bold uppercase tracking-wider text-[#0B1F4B] flex items-center gap-2">
-            <AlertCircle size={16} className="text-[#0B1F4B]" />
+      <div className="gma-card rounded-2xl p-5">
+        <div className="pb-3 mb-4 border-b border-gma-navy/10">
+          <h3 className="text-sm font-bold uppercase tracking-wider text-gma-navy flex items-center gap-2">
+            <AlertCircle size={16} className="text-gma-navy" />
             <span>Curriculum Topics Requiring Faculty Review</span>
           </h3>
-          <p className="text-xs text-[#64748B]">
+          <p className="text-xs text-gma-muted">
             Concepts where cohort accuracy fell below the {settings.defaultPassMark}% mastery threshold
           </p>
         </div>
 
         {topicsNeedingRevision.length === 0 ? (
-          <div className="p-6 text-center border border-dashed border-[#CBD5E1] bg-[#F7F7F4]">
-            <p className="text-xs font-semibold text-[#64748B]">
+          <div className="p-6 text-center border border-dashed border-gma-navy/10 bg-gma-mist">
+            <p className="text-xs font-semibold text-gma-muted">
               No topics currently below the mastery threshold.
             </p>
             <p className="text-[11px] text-[#94A3B8] mt-1">
@@ -397,7 +397,7 @@ export const AdminAnalyticsPage: React.FC = () => {
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs border-collapse">
               <thead>
-                <tr className="bg-[#0B1F4B] text-white">
+                <tr className="bg-gma-navy/95 text-white">
                   <th className="p-2.5 font-semibold uppercase">Topic Domain</th>
                   <th className="p-2.5 font-semibold uppercase">Subject & Grade</th>
                   <th className="p-2.5 font-semibold uppercase">Cohort Accuracy</th>
@@ -405,17 +405,17 @@ export const AdminAnalyticsPage: React.FC = () => {
                   <th className="p-2.5 font-semibold uppercase text-right">Pedagogical Recommendation</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#CBD5E1]/60">
+              <tbody className="divide-y divide-gma-navy/8">
                 {topicsNeedingRevision.map((item, idx) => (
-                  <tr key={idx} className="hover:bg-[#F7F7F4]">
+                  <tr key={idx} className="hover:bg-gma-frost/60">
                     <td className="p-2.5 font-semibold text-[#0F172A]">{item.topic}</td>
-                    <td className="p-2.5 text-[#64748B]">
+                    <td className="p-2.5 text-gma-muted">
                       {item.subject} — {item.grade}
                     </td>
-                    <td className="p-2.5 font-bold text-[#0B1F4B]">{item.accuracy}</td>
+                    <td className="p-2.5 font-bold text-gma-navy">{item.accuracy}</td>
                     <td className="p-2.5 text-[#0F172A]">{item.affectedCount} learners</td>
-                    <td className="p-2.5 text-right font-medium text-[#0B1F4B]">
-                      <span className="bg-[#F7F7F4] px-2 py-0.5 border border-[#D6A21E]/40">
+                    <td className="p-2.5 text-right font-medium text-gma-navy">
+                      <span className="bg-gma-mist px-2 py-0.5 border border-gma-gold/40">
                         {item.status}
                       </span>
                     </td>

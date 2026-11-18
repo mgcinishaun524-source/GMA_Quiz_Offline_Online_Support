@@ -60,7 +60,7 @@ export const TeacherDashboard: React.FC = () => {
           <div className="flex gap-2">
             <OutlineButton
               onClick={() => navigate('/teacher/quizzes/new?mode=ai')}
-              icon={<Sparkles size={14} className="text-[#0B1F4B]" />}
+              icon={<Sparkles size={14} className="text-gma-navy" />}
             >
               Generate with AI
             </OutlineButton>
@@ -76,9 +76,9 @@ export const TeacherDashboard: React.FC = () => {
 
       {/* Teacher Action Alerts: Urgent Next Steps */}
       {closedAwaitingRelease.length > 0 && (
-        <div className="bg-[#F7F7F4] border border-[#D6A21E] p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-sm">
+        <div className="bg-gma-mist border border-[gma-gold] p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-sm">
           <div>
-            <span className="text-[11px] font-bold text-[#0B1F4B] uppercase tracking-wider block">
+            <span className="text-[11px] font-bold text-gma-navy uppercase tracking-wider block">
               Action Required: Pending Result Release
             </span>
             <p className="text-xs text-[#0F172A] mt-0.5">
@@ -99,42 +99,42 @@ export const TeacherDashboard: React.FC = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div
           onClick={() => navigate('/teacher/quizzes?tab=drafts')}
-      className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm cursor-pointer hover:shadow-md hover:-translate-y-0.5 hover:border-[#0B1F4B]/30 transition-all duration-150"
+      className="gma-card rounded-2xl p-5 cursor-pointer hover:shadow-md hover:-translate-y-0.5 hover:border-gma-navy/30 transition-all duration-150"
         >
-          <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-wider text-[#64748B] mb-2">
+          <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-wider text-gma-muted mb-2">
             <span>Drafts Awaiting Review</span>
-            <HelpCircle size={16} className="text-[#64748B]" />
+            <HelpCircle size={16} className="text-gma-muted" />
           </div>
-          <div className="text-3xl font-extrabold text-[#0B1F4B]">{drafts.length}</div>
-          <div className="text-xs text-[#64748B] mt-1 font-medium">
+          <div className="text-3xl font-extrabold text-gma-navy">{drafts.length}</div>
+          <div className="text-xs text-gma-muted mt-1 font-medium">
             Quizzes needing question approval
           </div>
         </div>
 
         <div
           onClick={() => navigate('/teacher/quizzes?tab=in_progress')}
-      className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm cursor-pointer hover:shadow-md hover:-translate-y-0.5 hover:border-[#0B1F4B]/30 transition-all duration-150"
+      className="gma-card rounded-2xl p-5 cursor-pointer hover:shadow-md hover:-translate-y-0.5 hover:border-gma-navy/30 transition-all duration-150"
         >
-          <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-wider text-[#64748B] mb-2">
+          <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-wider text-gma-muted mb-2">
             <span>In-Progress Quizzes</span>
-            <Clock size={16} className="text-[#D6A21E]" />
+            <Clock size={16} className="text-[gma-gold]" />
           </div>
-          <div className="text-3xl font-extrabold text-[#0B1F4B]">{inProgressQuizzes.length}</div>
-          <div className="text-xs text-[#64748B] mt-1 font-medium">
+          <div className="text-3xl font-extrabold text-gma-navy">{inProgressQuizzes.length}</div>
+          <div className="text-xs text-gma-muted mt-1 font-medium">
             Currently accessible by learners
           </div>
         </div>
 
         <div
           onClick={() => navigate('/teacher/submissions')}
-      className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm cursor-pointer hover:shadow-md hover:-translate-y-0.5 hover:border-[#0B1F4B]/30 transition-all duration-150"
+      className="gma-card rounded-2xl p-5 cursor-pointer hover:shadow-md hover:-translate-y-0.5 hover:border-gma-navy/30 transition-all duration-150"
         >
-          <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-wider text-[#64748B] mb-2">
+          <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-wider text-gma-muted mb-2">
             <span>Total Submissions</span>
-            <FileCheck size={16} className="text-[#0B1F4B]" />
+            <FileCheck size={16} className="text-gma-navy" />
           </div>
-          <div className="text-3xl font-extrabold text-[#0B1F4B]">{submissions.length}</div>
-          <div className="text-xs text-[#64748B] mt-1 font-medium">
+          <div className="text-3xl font-extrabold text-gma-navy">{submissions.length}</div>
+          <div className="text-xs text-gma-muted mt-1 font-medium">
             {pendingOfflineSubmissions.length > 0 ? (
               <span className="text-[#B45309] font-bold">
                 {pendingOfflineSubmissions.length} pending tablet sync
@@ -147,14 +147,14 @@ export const TeacherDashboard: React.FC = () => {
 
         <div
           onClick={() => navigate('/teacher/results')}
-      className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm cursor-pointer hover:shadow-md hover:-translate-y-0.5 hover:border-[#0B1F4B]/30 transition-all duration-150"
+      className="gma-card rounded-2xl p-5 cursor-pointer hover:shadow-md hover:-translate-y-0.5 hover:border-gma-navy/30 transition-all duration-150"
         >
-          <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-wider text-[#64748B] mb-2">
+          <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-wider text-gma-muted mb-2">
             <span>Released Marksheets</span>
-            <CheckCircle2 size={16} className="text-[#0B1F4B]" />
+            <CheckCircle2 size={16} className="text-gma-navy" />
           </div>
-          <div className="text-3xl font-extrabold text-[#0B1F4B]">{releasedQuizzes.length}</div>
-          <div className="text-xs text-[#64748B] mt-1 font-medium">
+          <div className="text-3xl font-extrabold text-gma-navy">{releasedQuizzes.length}</div>
+          <div className="text-xs text-gma-muted mt-1 font-medium">
             Results published to learner portals
           </div>
         </div>
@@ -164,13 +164,13 @@ export const TeacherDashboard: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left 2 Cols: Active Assessments & Submissions */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="bg-white border border-[#CBD5E1] p-5 shadow-sm">
-            <div className="flex items-center justify-between pb-3 mb-4 border-b border-[#CBD5E1]">
+          <div className="gma-card rounded-2xl p-5">
+            <div className="flex items-center justify-between pb-3 mb-4 border-b border-gma-navy/10">
               <div>
-                <h2 className="text-sm font-bold uppercase tracking-wider text-[#0B1F4B]">
+                <h2 className="text-sm font-bold uppercase tracking-wider text-gma-navy">
                   Active Assessments in Progress
                 </h2>
-                <p className="text-xs text-[#64748B]">
+                <p className="text-xs text-gma-muted">
                   Live quizzes assigned to your student cohorts
                 </p>
               </div>
@@ -183,7 +183,7 @@ export const TeacherDashboard: React.FC = () => {
             </div>
 
             {inProgressQuizzes.length === 0 ? (
-              <div className="p-8 text-center bg-[#F7F7F4] border border-dashed border-[#CBD5E1] text-xs text-[#64748B]">
+              <div className="p-8 text-center bg-gma-mist border border-dashed border-gma-navy/10 text-xs text-gma-muted">
                 No assessments currently running. Create or publish a draft to begin.
               </div>
             ) : (
@@ -193,26 +193,26 @@ export const TeacherDashboard: React.FC = () => {
                   return (
                     <div
                       key={quiz.id}
-                      className="p-4 bg-[#F7F7F4] border border-[#CBD5E1] hover:border-[#D6A21E] transition-colors"
+                      className="p-4 bg-gma-mist border border-gma-navy/10 hover:border-[gma-gold] transition-colors"
                     >
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
                         <div>
-                          <span className="text-[11px] font-semibold text-[#D6A21E] uppercase tracking-wider block">
+                          <span className="text-[11px] font-semibold text-[gma-gold] uppercase tracking-wider block">
                             {quiz.subjectName} • {quiz.className} ({quiz.grade})
                           </span>
-                          <h4 className="text-sm font-bold text-[#0B1F4B]">{quiz.title}</h4>
+                          <h4 className="text-sm font-bold text-gma-navy">{quiz.title}</h4>
                         </div>
                         <StatusLabel status={quiz.status} />
                       </div>
 
-                      <div className="flex flex-wrap items-center gap-4 text-xs text-[#64748B] mt-3 pt-2 border-t border-[#CBD5E1]/60">
+                      <div className="flex flex-wrap items-center gap-4 text-xs text-gma-muted mt-3 pt-2 border-t border-gma-navy/10">
                         <span>{quiz.questions.length} Questions</span>
                         <span>•</span>
                         <span>{quiz.durationMinutes} Minutes</span>
                         <span>•</span>
                         <span>
                           {quiz.allowOffline ? (
-                            <span className="text-[#0B1F4B] font-medium">Offline Permitted</span>
+                            <span className="text-gma-navy font-medium">Offline Permitted</span>
                           ) : (
                             'Online Only'
                           )}
@@ -244,10 +244,10 @@ export const TeacherDashboard: React.FC = () => {
           </div>
 
           {/* Quick AI Question Generator Teaser */}
-          <div className="bg-[#0B1F4B] text-white p-5 shadow-sm border border-[#0B1F4B]">
+          <div className="bg-gma-navy text-white p-5 shadow-sm border border-gma-navy">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <span className="text-[11px] font-bold text-[#D6A21E] uppercase tracking-wider block">
+                <span className="text-[11px] font-bold text-[gma-gold] uppercase tracking-wider block">
                   AI Quiz Generation Engine
                 </span>
                 <h3 className="text-base font-bold text-white mt-1">
@@ -271,9 +271,9 @@ export const TeacherDashboard: React.FC = () => {
 
         {/* Right Col: Assigned Classes & Offline Status */}
         <div className="space-y-6">
-          <div className="bg-white border border-[#CBD5E1] p-5 shadow-sm">
-            <div className="flex items-center justify-between pb-3 mb-4 border-b border-[#CBD5E1]">
-              <h3 className="text-sm font-bold uppercase tracking-wider text-[#0B1F4B]">
+          <div className="gma-card rounded-2xl p-5">
+            <div className="flex items-center justify-between pb-3 mb-4 border-b border-gma-navy/10">
+              <h3 className="text-sm font-bold uppercase tracking-wider text-gma-navy">
                 Your Assigned Classes
               </h3>
               <OutlineButton
@@ -289,15 +289,15 @@ export const TeacherDashboard: React.FC = () => {
                 <div
                   key={cls.id}
                   onClick={() => navigate(`/teacher/classes?classId=${cls.id}`)}
-                  className="p-3 bg-[#F7F7F4] border border-[#CBD5E1] hover:border-[#D6A21E] cursor-pointer transition-colors"
+                  className="p-3 bg-gma-mist border border-gma-navy/10 hover:border-[gma-gold] cursor-pointer transition-colors"
                 >
                   <div className="flex justify-between items-center mb-1">
-                    <span className="font-bold text-xs text-[#0B1F4B]">{cls.name}</span>
-                    <span className="text-[11px] text-[#64748B] font-mono">{cls.grade}</span>
+                    <span className="font-bold text-xs text-gma-navy">{cls.name}</span>
+                    <span className="text-[11px] text-gma-muted font-mono">{cls.grade}</span>
                   </div>
-                  <div className="text-[11px] text-[#64748B] flex justify-between">
+                  <div className="text-[11px] text-gma-muted flex justify-between">
                     <span>{cls.learnerCount ?? 0} Enrolled Students</span>
-                    <span className="text-[#0B1F4B] font-semibold">{cls.room || 'Room not set'}</span>
+                    <span className="text-gma-navy font-semibold">{cls.room || 'Room not set'}</span>
                   </div>
                 </div>
               ))}
@@ -305,16 +305,16 @@ export const TeacherDashboard: React.FC = () => {
           </div>
 
           {/* Offline Sync Information Box */}
-          <div className="bg-white border border-[#CBD5E1] p-5 shadow-sm">
-            <h3 className="text-sm font-bold uppercase tracking-wider text-[#0B1F4B] pb-3 mb-3 border-b border-[#CBD5E1]">
+          <div className="gma-card rounded-2xl p-5">
+            <h3 className="text-sm font-bold uppercase tracking-wider text-gma-navy pb-3 mb-3 border-b border-gma-navy/10">
               Offline Assessment Policy
             </h3>
-            <p className="text-xs text-[#64748B] leading-relaxed mb-3">
+            <p className="text-xs text-gma-muted leading-relaxed mb-3">
               Learners with intermittent connectivity can download approved quizzes in advance.
               Answers are kept in the tablet's IndexedDB and synchronize automatically upon reconnection.
             </p>
-            <div className="p-3 bg-[#F7F7F4] border border-[#D6A21E]/40 text-xs">
-              <span className="font-bold text-[#0B1F4B] block mb-0.5">Note:</span>
+            <div className="p-3 bg-gma-mist border border-[gma-gold]/40 text-xs">
+              <span className="font-bold text-gma-navy block mb-0.5">Note:</span>
               <span>
                 Queued tablet submissions appear in the sync status bar at the top of the app and are uploaded automatically once connectivity returns.
               </span>

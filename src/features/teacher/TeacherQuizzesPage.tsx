@@ -119,7 +119,7 @@ export const TeacherQuizzesPage: React.FC = () => {
           <div className="flex gap-2">
             <OutlineButton
               onClick={() => navigate('/teacher/quizzes/new?mode=ai')}
-              icon={<Sparkles size={14} className="text-[#0B1F4B]" />}
+              icon={<Sparkles size={14} className="text-gma-navy" />}
             >
               Generate with AI
             </OutlineButton>
@@ -134,7 +134,7 @@ export const TeacherQuizzesPage: React.FC = () => {
       />
 
       {/* Status Filter Tabs */}
-      <div className="flex flex-wrap gap-2 border-b border-[#CBD5E1] pb-3">
+      <div className="flex flex-wrap gap-2 border-b border-gma-navy/10 pb-3">
         {[
           { key: 'ALL', label: 'All Quizzes' },
           { key: 'drafts', label: 'Drafts' },
@@ -147,8 +147,8 @@ export const TeacherQuizzesPage: React.FC = () => {
             onClick={() => setActiveTab(tab.key)}
             className={`px-3 py-1.5 text-xs font-bold uppercase tracking-wider border cursor-pointer transition-colors ${
               activeTab === tab.key
-                ? 'bg-[#0B1F4B] text-white border-[#0B1F4B]'
-                : 'bg-white text-[#64748B] border-[#CBD5E1] hover:text-[#0B1F4B] hover:border-[#D6A21E]'
+                ? 'bg-gma-navy text-white border-gma-navy'
+                : 'bg-white text-gma-muted border-gma-navy/10 hover:text-gma-navy hover:border-[gma-gold]'
             }`}
           >
             {tab.label}
@@ -157,9 +157,9 @@ export const TeacherQuizzesPage: React.FC = () => {
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="bg-white border border-[#CBD5E1] p-4 flex flex-col md:flex-row gap-3 items-center justify-between shadow-sm">
+      <div className="gma-card rounded-2xl p-4 flex flex-col md:flex-row gap-3 items-center justify-between">
         <div className="relative w-full md:w-80">
-          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#64748B]" />
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gma-muted" />
           <InputField
             type="text"
             placeholder="Search quizzes by title or topic..."
@@ -171,7 +171,7 @@ export const TeacherQuizzesPage: React.FC = () => {
 
         <div className="flex flex-wrap items-center gap-2.5 w-full md:w-auto">
           <div className="flex items-center gap-1.5 text-xs">
-            <span className="font-semibold text-[#64748B] uppercase">Subject:</span>
+            <span className="font-semibold text-gma-muted uppercase">Subject:</span>
             <SelectField
               value={selectedSubject}
               onChange={(e) => setSelectedSubject(e.target.value)}
@@ -187,7 +187,7 @@ export const TeacherQuizzesPage: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-1.5 text-xs">
-            <span className="font-semibold text-[#64748B] uppercase">Grade:</span>
+            <span className="font-semibold text-gma-muted uppercase">Grade:</span>
             <SelectField
               value={selectedGrade}
               onChange={(e) => setSelectedGrade(e.target.value)}
@@ -201,7 +201,7 @@ export const TeacherQuizzesPage: React.FC = () => {
             </SelectField>
           </div>
 
-          <span className="text-xs text-[#64748B] font-medium border-l border-[#CBD5E1] pl-2.5">
+          <span className="text-xs text-gma-muted font-medium border-l border-gma-navy/10 pl-2.5">
             {filtered.length} Assessments
           </span>
         </div>
@@ -209,9 +209,9 @@ export const TeacherQuizzesPage: React.FC = () => {
 
       {/* Quizzes List */}
       {filtered.length === 0 ? (
-        <div className="bg-white border border-[#CBD5E1] p-12 text-center shadow-sm">
-          <h3 className="text-base font-bold text-[#0B1F4B]">No Quizzes Found</h3>
-          <p className="text-xs text-[#64748B] mt-1 mb-4">
+        <div className="gma-card rounded-2xl p-12 text-center">
+          <h3 className="text-base font-bold text-gma-navy">No Quizzes Found</h3>
+          <p className="text-xs text-gma-muted mt-1 mb-4">
             Try adjusting your search query or status filter above.
           </p>
           <PrimaryButton onClick={() => navigate('/teacher/quizzes/new')} icon={<Plus size={14} />}>
@@ -223,23 +223,23 @@ export const TeacherQuizzesPage: React.FC = () => {
           {filtered.map((quiz) => (
             <div
               key={quiz.id}
-              className="bg-white border border-[#CBD5E1] p-5 shadow-sm hover:border-[#D6A21E] transition-colors"
+              className="gma-card rounded-2xl p-5 hover:border-gma-gold transition-colors"
             >
-              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 pb-3 border-b border-[#CBD5E1]/60">
+              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 pb-3 border-b border-gma-navy/10">
                 <div>
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="text-xs font-bold uppercase tracking-wider text-[#D6A21E]">
+                    <span className="text-xs font-bold uppercase tracking-wider text-[gma-gold]">
                       {quiz.subjectName} • {quiz.className} ({quiz.grade})
                     </span>
-                    <span className="text-[#CBD5E1]">•</span>
-                    <span className="text-xs text-[#64748B] capitalize">{quiz.difficulty} Difficulty</span>
+                    <span className="text-gma-navy/20">•</span>
+                    <span className="text-xs text-gma-muted capitalize">{quiz.difficulty} Difficulty</span>
                   </div>
-                  <h3 className="text-base font-bold text-[#0B1F4B]">{quiz.title}</h3>
+                  <h3 className="text-base font-bold text-gma-navy">{quiz.title}</h3>
                   <div className="flex flex-wrap gap-1 mt-2">
                     {quiz.topicsCovered.map((topic, i) => (
                       <span
                         key={i}
-                        className="bg-[#F7F7F4] text-[#475569] text-[10px] font-medium px-2 py-0.5 border border-[#CBD5E1]"
+                        className="bg-gma-mist text-[#475569] text-[10px] font-medium px-2 py-0.5 border border-gma-navy/10"
                       >
                         {topic}
                       </span>
@@ -254,7 +254,7 @@ export const TeacherQuizzesPage: React.FC = () => {
 
               {/* Assessment Metrics & Quick Actions Footer */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-3 mt-1 text-xs">
-                <div className="flex flex-wrap items-center gap-4 text-[#64748B]">
+                <div className="flex flex-wrap items-center gap-4 text-gma-muted">
                   <span>
                     Questions: <strong className="text-[#0F172A]">{quiz.questions.length}</strong>
                   </span>
@@ -265,7 +265,7 @@ export const TeacherQuizzesPage: React.FC = () => {
                   <span>•</span>
                   <span>
                     Release Policy:{' '}
-                    <strong className="text-[#0B1F4B] uppercase">{quiz.releasePolicy}</strong>
+                    <strong className="text-gma-navy uppercase">{quiz.releasePolicy}</strong>
                   </span>
                   <span>•</span>
                   <span>

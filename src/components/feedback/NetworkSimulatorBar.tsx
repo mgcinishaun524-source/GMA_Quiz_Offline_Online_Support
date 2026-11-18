@@ -31,18 +31,18 @@ export const NetworkSimulatorBar: React.FC = () => {
   return (
     <div
       className={[
-        'text-xs px-4 py-1 flex flex-wrap items-center justify-between gap-2',
+        'text-xs px-4 py-1.5 flex flex-wrap items-center justify-between gap-2',
         'border-b transition-colors duration-300',
         isOnline
-          ? 'bg-[#0B1F4B] border-white/[0.06]'
-          : 'bg-amber-950/80 border-amber-400/20',
+          ? 'bg-gma-navy/92 border-white/[0.06]'
+          : 'bg-amber-950/85 border-amber-400/20',
       ].join(' ')}
     >
       {/* ── Left: status ──────────────────────────────────────────────── */}
       <div className="flex items-center gap-3 flex-wrap">
         {isOnline ? (
-          <span className="flex items-center gap-1.5 text-slate-400 font-medium">
-            <Wifi size={11} className="text-[#D6A21E]/70 shrink-0" aria-hidden="true" />
+          <span className="flex items-center gap-1.5 text-slate-300 font-medium">
+            <Wifi size={11} className="text-gma-sky shrink-0" aria-hidden="true" />
             <span>Connected</span>
           </span>
         ) : (
@@ -61,7 +61,7 @@ export const NetworkSimulatorBar: React.FC = () => {
 
         {/* Syncing */}
         {syncState.isSyncing && (
-          <span className="flex items-center gap-1 text-[#D6A21E]/60 text-[10px]">
+          <span className="flex items-center gap-1 text-gma-sky/80 text-[10px]">
             <RefreshCw size={10} className="animate-spin" aria-hidden="true" />
             Syncing…
           </span>
@@ -75,12 +75,12 @@ export const NetworkSimulatorBar: React.FC = () => {
             onClick={handleToggleOffline}
             type="button"
             className={[
-              'px-2.5 py-0.5 text-[10px] font-semibold rounded-md border',
+              'px-2.5 py-0.5 text-[10px] font-semibold rounded-lg border',
               'cursor-pointer transition-all duration-150',
-              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D6A21E]/50',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gma-sky/60',
               isSimulated
-                ? 'bg-[#D6A21E] text-[#0B1F4B] border-[#D6A21E] hover:bg-[#C4941C] active:scale-[0.97]'
-                : 'bg-transparent text-slate-500 border-white/[0.12] hover:border-white/25 hover:text-slate-300 active:scale-[0.97]',
+                ? 'bg-gma-sky text-gma-navy-deep border-gma-sky hover:bg-gma-sky-deep hover:text-white active:scale-[0.97]'
+                : 'bg-transparent text-slate-400 border-white/[0.12] hover:border-white/25 hover:text-slate-200 active:scale-[0.97]',
             ].join(' ')}
           >
             {isSimulated ? 'Go Online' : 'Simulate Offline'}
@@ -93,8 +93,8 @@ export const NetworkSimulatorBar: React.FC = () => {
             disabled={syncState.isSyncing}
             type="button"
             className="flex items-center gap-1 px-2.5 py-0.5 text-[10px] font-semibold
-              bg-[#D6A21E]/90 text-[#0B1F4B] rounded-md border border-[#D6A21E]
-              hover:bg-[#D6A21E] active:scale-[0.97]
+              bg-gma-sky/90 text-gma-navy-deep rounded-lg border border-gma-sky
+              hover:bg-gma-sky active:scale-[0.97]
               disabled:opacity-50 disabled:cursor-not-allowed
               transition-all duration-150 cursor-pointer"
           >

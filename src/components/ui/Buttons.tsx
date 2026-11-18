@@ -14,7 +14,21 @@ const Spinner: React.FC<{ color?: string }> = ({ color = 'border-white' }) => (
   />
 );
 
-/* ── Primary — Navy bg, white text ───────────────────────────────────────── */
+/**
+ * Shared button set for the redesigned GMA interface.
+ *
+ * Sky-inspired glassmorphism: navy primary actions, translucent white
+ * secondary surfaces and a refined gold highlight that matches the school
+ * crest. Sizing keeps a comfortable (≈40px) touch target, and every variant
+ * preserves the same disabled/loading semantics as before.
+ */
+
+const base =
+  'inline-flex items-center justify-center gap-2 px-4 py-2 min-h-[40px] text-sm ' +
+  'rounded-xl transition-all duration-150 cursor-pointer ' +
+  'focus-visible:outline-none disabled:opacity-55 disabled:cursor-not-allowed disabled:active:scale-100';
+
+/* ── Primary — navy, white text ──────────────────────────────────────────── */
 export const PrimaryButton: React.FC<ButtonProps> = ({
   children,
   icon,
@@ -25,16 +39,12 @@ export const PrimaryButton: React.FC<ButtonProps> = ({
 }) => (
   <button
     className={`
-      inline-flex items-center justify-center gap-2
-      px-4 py-2 min-h-[36px]
-      text-sm font-semibold text-white
-      bg-[#0B1F4B] hover:bg-[#142860] active:bg-[#091630] active:scale-[0.98]
-      rounded-lg
-      shadow-sm hover:shadow-md
-      border border-[#0B1F4B]
-      disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100
-      transition-all duration-150
-      cursor-pointer
+      ${base}
+      font-semibold text-white
+      bg-gma-navy hover:bg-gma-navy-deep active:bg-[#101A36] active:scale-[0.985]
+      border border-[#16224A]/70
+      shadow-[0_14px_30px_-16px_rgba(28,44,91,0.85),inset_0_1px_0_rgba(255,255,255,0.16)]
+      hover:shadow-[0_18px_36px_-16px_rgba(28,44,91,0.9),inset_0_1px_0_rgba(255,255,255,0.2)]
       ${className}
     `}
     disabled={disabled || isLoading}
@@ -45,7 +55,7 @@ export const PrimaryButton: React.FC<ButtonProps> = ({
   </button>
 );
 
-/* ── Secondary / Outline — white bg, navy border ─────────────────────────── */
+/* ── Secondary / Outline — translucent white on glass ────────────────────── */
 export const OutlineButton: React.FC<ButtonProps> = ({
   children,
   icon,
@@ -56,27 +66,23 @@ export const OutlineButton: React.FC<ButtonProps> = ({
 }) => (
   <button
     className={`
-      inline-flex items-center justify-center gap-2
-      px-4 py-2 min-h-[36px]
-      text-sm font-medium text-[#0B1F4B]
-      bg-white hover:bg-[#F7F7F4] active:bg-[#EEF0F8] active:scale-[0.98]
-      rounded-lg
-      border border-[#0B1F4B]/30 hover:border-[#0B1F4B]
-      shadow-sm
-      disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100
-      transition-all duration-150
-      cursor-pointer
+      ${base}
+      font-medium text-gma-navy
+      bg-white/80 hover:bg-white active:bg-gma-frost active:scale-[0.985]
+      border border-gma-navy/20 hover:border-gma-navy/45
+      shadow-[0_10px_26px_-20px_rgba(28,44,91,0.55)]
+      backdrop-blur-sm
       ${className}
     `}
     disabled={disabled || isLoading}
     {...props}
   >
-    {isLoading ? <Spinner color="border-[#0B1F4B]" /> : icon && <span className="inline-flex shrink-0 text-[#0B1F4B]/70">{icon}</span>}
+    {isLoading ? <Spinner color="border-gma-navy" /> : icon && <span className="inline-flex shrink-0 text-gma-navy/75">{icon}</span>}
     <span>{children}</span>
   </button>
 );
 
-/* ── Secondary — solid navy (for header / dark-surface actions) ───────────── */
+/* ── Secondary — solid navy (for dark-surface / header actions) ───────────── */
 export const SecondaryButton: React.FC<ButtonProps> = ({
   children,
   icon,
@@ -87,16 +93,11 @@ export const SecondaryButton: React.FC<ButtonProps> = ({
 }) => (
   <button
     className={`
-      inline-flex items-center justify-center gap-2
-      px-4 py-2 min-h-[36px]
-      text-sm font-semibold text-white
-      bg-[#0B1F4B] hover:bg-[#142860] active:bg-[#091630] active:scale-[0.98]
-      rounded-lg
-      shadow-sm hover:shadow-md
-      border border-[#0B1F4B]
-      disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100
-      transition-all duration-150
-      cursor-pointer
+      ${base}
+      font-semibold text-white
+      bg-gma-navy hover:bg-gma-navy-deep active:bg-[#101A36] active:scale-[0.985]
+      border border-[#16224A]/70
+      shadow-[0_14px_30px_-16px_rgba(28,44,91,0.85),inset_0_1px_0_rgba(255,255,255,0.16)]
       ${className}
     `}
     disabled={disabled || isLoading}
@@ -107,7 +108,7 @@ export const SecondaryButton: React.FC<ButtonProps> = ({
   </button>
 );
 
-/* ── Gold — important / highlighted CTAs only ────────────────────────────── */
+/* ── Gold — sparing brand highlight, matched to the school crest ─────────── */
 export const GoldButton: React.FC<ButtonProps> = ({
   children,
   icon,
@@ -118,22 +119,17 @@ export const GoldButton: React.FC<ButtonProps> = ({
 }) => (
   <button
     className={`
-      inline-flex items-center justify-center gap-2
-      px-4 py-2 min-h-[36px]
-      text-sm font-semibold text-[#0B1F4B]
-      bg-[#D6A21E] hover:bg-[#C4941C] active:bg-[#B8891A] active:scale-[0.98]
-      rounded-lg
-      shadow-sm hover:shadow-md
-      border border-[#D6A21E]
-      disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100
-      transition-all duration-150
-      cursor-pointer
+      ${base}
+      font-semibold text-[#3B2C08]
+      bg-gma-gold hover:bg-[#C4941C] active:bg-[#B8891A] active:scale-[0.985]
+      border border-[#C4941C]/70
+      shadow-[0_14px_30px_-16px_rgba(184,137,26,0.75),inset_0_1px_0_rgba(255,255,255,0.35)]
       ${className}
     `}
     disabled={disabled || isLoading}
     {...props}
   >
-    {isLoading ? <Spinner color="border-[#0B1F4B]" /> : icon && <span className="inline-flex shrink-0">{icon}</span>}
+    {isLoading ? <Spinner color="border-[#3B2C08]" /> : icon && <span className="inline-flex shrink-0">{icon}</span>}
     <span>{children}</span>
   </button>
 );
@@ -149,16 +145,11 @@ export const DangerButton: React.FC<ButtonProps> = ({
 }) => (
   <button
     className={`
-      inline-flex items-center justify-center gap-2
-      px-4 py-2 min-h-[36px]
-      text-sm font-medium text-white
-      bg-red-700 hover:bg-red-800 active:bg-red-900 active:scale-[0.98]
-      rounded-lg
-      border border-red-700
-      shadow-sm
-      disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100
-      transition-all duration-150
-      cursor-pointer
+      ${base}
+      font-semibold text-white
+      bg-red-600 hover:bg-red-700 active:bg-red-800 active:scale-[0.985]
+      border border-red-700/70
+      shadow-[0_14px_30px_-18px_rgba(185,28,28,0.8)]
       ${className}
     `}
     disabled={disabled || isLoading}
@@ -177,13 +168,11 @@ export const IconButton: React.FC<
     aria-label={label}
     title={label}
     className={`
-      inline-flex items-center justify-center
-      w-9 h-9
-      text-[#0B1F4B]/70 hover:text-[#0B1F4B]
-      hover:bg-[#0B1F4B]/8 active:bg-[#0B1F4B]/15 active:scale-[0.95]
-      rounded-lg
-      transition-all duration-150
-      cursor-pointer
+      inline-flex items-center justify-center w-9 h-9
+      text-gma-navy/70 hover:text-gma-navy
+      hover:bg-gma-navy/8 active:bg-gma-navy/15 active:scale-[0.95]
+      rounded-xl border border-transparent hover:border-gma-navy/10
+      transition-all duration-150 cursor-pointer
       ${className}
     `}
     {...props}

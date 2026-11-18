@@ -1,20 +1,50 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../app/AuthContext';
-import { FormField, InputField } from '../../components/ui/FormControls';
-import { PrimaryButton } from '../../components/ui/Buttons';
-import { Eye, EyeOff } from 'lucide-react';
+import { AuthModeSwitch, type AuthMode } from './components/AuthModeSwitch';
+import { AuthSubmitButton } from './components/AuthSubmitButton';
+import { AuthTextField } from './components/AuthTextField';
+import { LoginBrandPanel } from './components/LoginBrandPanel';
+import {
+  AlertCircle,
+  BadgeCheck,
+  Eye,
+  EyeOff,
+  Lock,
+  ShieldCheck,
+  UserRound,
+} from 'lucide-react';
+
+/** Small icon button that toggles the visibility of a password / PIN field. */
+const VisibilityToggle: React.FC<{
+  shown: boolean;
+  onToggle: () => void;
+  labelShow: string;
+  labelHide: string;
+}> = ({ shown, onToggle, labelShow, labelHide }) => (
+  <button
+    type="button"
+    onClick={onToggle}
+    aria-label={shown ? labelHide : labelShow}
+    aria-pressed={shown}
+    title={shown ? labelHide : labelShow}
+    className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-gma-navy/50 transition-colors duration-150 hover:bg-gma-navy/8 hover:text-gma-navy cursor-pointer"
+  >
+    {shown ? <EyeOff size={17} /> : <Eye size={17} />}
+  </button>
+);
 
 export const LoginPage: React.FC = () => {
   const { loginStaff, loginLearner } = useAuth();
   const navigate = useNavigate();
 
-  const [activeTab, setActiveTab] = useState<'staff' | 'learner'>('staff');
+  const [activeTab, setActiveTab] = useState<AuthMode>('staff');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [learnerId, setLearnerId] = useState('');
   const [pin, setPin] = useState('');
   const [showPin, setShowPin] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -49,124 +79,164 @@ export const LoginPage: React.FC = () => {
     }
   };
 
+  const handleModeChange = (mode: AuthMode) => {
+    setActiveTab(mode);
+    setErrorMessage('');
+  };
+
   return (
-    <div className="min-h-screen bg-[#F7F7F4] flex flex-col justify-center items-center py-12 px-4 sm:px-6">
-      {/* Brand */}
-      <div className="text-center mb-8">
-        <img
-          src="/assets/Logo.png"
-          alt="Growing Minds Academy"
-          className="h-32 sm:h-40 w-auto mx-auto mb-4 drop-shadow-lg"
-        />
-        <p className="text-xs font-semibold text-[#D6A21E] tracking-widest uppercase mt-1">
-          AI-Powered Quiz &amp; Learning Analytics
-        </p>
+    <div className="gma-auth relative min-h-screen w-full">
+      {/* Decorative background: dotted grid + slow ambient orbs */}
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="gma-auth-grid absolute inset-0" />
+        <div className="gma-orb h-64 w-64 bg-gma-sky/60" style={{ top: '-6rem', left: '-4rem' }} />
+        <div className="gma-orb gma-orb-b h-72 w-72 bg-gma-navy/25" style={{ bottom: '-9rem', right: '-6rem' }} />
+        <div className="gma-orb gma-orb-c h-56 w-56 bg-[#9FC8E9]/60" style={{ top: '38%', right: '20%' }} />
       </div>
 
-      {/* Card */}
-      <div className="bg-white rounded-2xl shadow-xl border border-slate-200 w-full max-w-md p-6 sm:p-8">
-        <div className="mb-6 pb-4 border-b border-slate-100">
-          <h2 className="text-lg font-bold text-slate-900">Sign In to Your School Portal</h2>
-          <p className="text-xs text-slate-500 mt-0.5">
-            Select your role to access quizzes, results, and learning tools.
-          </p>
-        </div>
+      <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-[92rem] items-stretch gap-8 px-4 py-6 sm:px-6 lg:px-10 lg:py-10">
+        {/* Left: brand + illustration (desktop / large tablet only) */}
+        <section className="hidden min-w-0 flex-1 lg:block">
+          <LoginBrandPanel />
+        </section>
 
-        {/* Tab selector */}
-        <div className="grid grid-cols-2 gap-2 mb-6 bg-[#F7F7F4] rounded-xl p-1">
-          {(['staff', 'learner'] as const).map((tab) => (
-            <button
-              key={tab}
-              type="button"
-              onClick={() => { setActiveTab(tab); setErrorMessage(''); }}
-              className={`
-                py-2 px-3 text-xs font-bold uppercase tracking-wider rounded-lg cursor-pointer transition-all duration-150
-                ${activeTab === tab
-                  ? 'bg-[#0B1F4B] text-white shadow-sm'
-                  : 'text-slate-500 hover:text-[#0B1F4B]'
-                }
-              `}
+        {/* Right: login panel */}
+        <section className="flex w-full min-w-0 flex-1 items-center justify-center lg:w-[28rem] lg:flex-none xl:w-[32rem]">
+          <div className="w-full max-w-md">
+            {/* Compact brand lockup for phone & tablet, where the art is hidden */}
+            <div className="mb-6 flex flex-col items-center text-center lg:hidden">
+              <img
+                src="/assets/Logo.png"
+                alt="Growing Minds Academy"
+                className="h-20 w-auto sm:h-24"
+              />
+              <p className="mt-3 text-[0.65rem] font-bold uppercase tracking-[0.28em] text-gma-navy/70">
+                AI-Powered Quiz &amp; Learning Analytics
+              </p>
+            </div>
+
+            <div
+              className="gma-glass gma-glass-strong rounded-[1.75rem] p-6 sm:p-8"
+              style={{ animation: 'gma-rise 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both' }}
             >
-              {tab === 'staff' ? 'Teacher / Admin' : 'Learner (Tablet)'}
-            </button>
-          ))}
-        </div>
+              <header className="mb-6">
+                <h1 className="text-xl font-extrabold tracking-tight text-gma-navy sm:text-2xl">
+                  Sign in to your portal
+                </h1>
+                <p className="mt-1.5 text-sm text-slate-600">
+                  Choose how you want to access quizzes, results and learning tools.
+                </p>
+              </header>
 
-        {/* Error */}
-        {errorMessage && (
-          <div className="mb-5 p-3 bg-red-50 border border-red-200 text-red-700 text-xs font-medium rounded-lg">
-            {errorMessage}
-          </div>
-        )}
+              <AuthModeSwitch value={activeTab} onChange={handleModeChange} />
 
-        {/* Staff form */}
-        {activeTab === 'staff' && (
-          <form onSubmit={handleStaffSubmit} className="space-y-4">
-            <FormField label="School Email Address or Username" required>
-              <InputField
-                type="text"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="your.name@school.edu or username"
-                required
-                autoComplete="username"
-              />
-            </FormField>
-            <FormField label="Password" required>
-              <InputField
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter password"
-                required
-                autoComplete="current-password"
-              />
-            </FormField>
-            <PrimaryButton type="submit" isLoading={isLoading} className="w-full mt-2 py-2.5">
-              Sign In to Staff Workspace
-            </PrimaryButton>
-          </form>
-        )}
-
-        {/* Learner form */}
-        {activeTab === 'learner' && (
-          <form onSubmit={handleLearnerSubmit} className="space-y-4">
-            <FormField label="Learner ID / Student Number" required helperText="e.g. GMA-2026-0301">
-              <InputField
-                type="text"
-                value={learnerId}
-                onChange={(e) => setLearnerId(e.target.value)}
-                placeholder="GMA-2026-0301"
-                required
-              />
-            </FormField>
-            <FormField label="4-Digit Tablet PIN" required>
-              <div className="relative">
-                <InputField
-                  type={showPin ? 'text' : 'password'}
-                  maxLength={4}
-                  value={pin}
-                  onChange={(e) => setPin(e.target.value)}
-                  placeholder="••••"
-                  className="pr-10 text-center tracking-widest font-mono text-base"
-                  required
-                  autoComplete="current-password"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPin(!showPin)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#0B1F4B] transition-colors cursor-pointer"
-                  aria-label={showPin ? 'Hide PIN' : 'Show PIN'}
+              {errorMessage && (
+                <div
+                  role="alert"
+                  className="mt-5 flex items-start gap-2.5 rounded-xl border border-red-300/70 bg-red-50/90 px-3.5 py-3 text-sm font-medium text-red-700"
                 >
-                  {showPin ? <EyeOff size={16} /> : <Eye size={16} />}
-                </button>
-              </div>
-            </FormField>
-            <PrimaryButton type="submit" isLoading={isLoading} className="w-full mt-2 py-2.5">
-              Start Quiz Portal
-            </PrimaryButton>
-          </form>
-        )}
+                  <AlertCircle size={16} className="mt-0.5 shrink-0" aria-hidden="true" />
+                  <span>{errorMessage}</span>
+                </div>
+              )}
+
+              {activeTab === 'staff' ? (
+                /* ── Staff sign-in ───────────────────────────────────────── */
+                <form
+                  onSubmit={handleStaffSubmit}
+                  role="tabpanel"
+                  id="gma-login-panel-staff"
+                  aria-labelledby="gma-login-tab-staff"
+                  className="mt-6 space-y-4"
+                >
+                  <AuthTextField
+                    label="School Email or Username"
+                    icon={<UserRound size={17} />}
+                    type="text"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="your.name@school.edu"
+                    autoComplete="username"
+                    spellCheck={false}
+                    required
+                    disabled={isLoading}
+                  />
+                  <AuthTextField
+                    label="Password"
+                    icon={<Lock size={17} />}
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Enter your password"
+                    autoComplete="current-password"
+                    required
+                    disabled={isLoading}
+                    trailing={
+                      <VisibilityToggle
+                        shown={showPassword}
+                        onToggle={() => setShowPassword((v) => !v)}
+                        labelShow="Show password"
+                        labelHide="Hide password"
+                      />
+                    }
+                  />
+                  <AuthSubmitButton isLoading={isLoading}>Sign In to Staff Workspace</AuthSubmitButton>
+                </form>
+              ) : (
+                /* ── Learner sign-in ─────────────────────────────────────── */
+                <form
+                  onSubmit={handleLearnerSubmit}
+                  role="tabpanel"
+                  id="gma-login-panel-learner"
+                  aria-labelledby="gma-login-tab-learner"
+                  className="mt-6 space-y-4"
+                >
+                  <AuthTextField
+                    label="Learner ID / Student Number"
+                    icon={<BadgeCheck size={17} />}
+                    type="text"
+                    value={learnerId}
+                    onChange={(e) => setLearnerId(e.target.value)}
+                    placeholder="GMA-2026-0301"
+                    autoComplete="username"
+                    spellCheck={false}
+                    hint="e.g. GMA-2026-0301"
+                    required
+                    disabled={isLoading}
+                  />
+                  <AuthTextField
+                    label="4-Digit Tablet PIN"
+                    icon={<Lock size={17} />}
+                    type={showPin ? 'text' : 'password'}
+                    inputMode="numeric"
+                    maxLength={4}
+                    value={pin}
+                    onChange={(e) => setPin(e.target.value)}
+                    placeholder="••••"
+                    className="text-center font-semibold tracking-[0.55em]"
+                    autoComplete="current-password"
+                    required
+                    disabled={isLoading}
+                    trailing={
+                      <VisibilityToggle
+                        shown={showPin}
+                        onToggle={() => setShowPin((v) => !v)}
+                        labelShow="Show PIN"
+                        labelHide="Hide PIN"
+                      />
+                    }
+                  />
+                  <AuthSubmitButton isLoading={isLoading}>Start Quiz Portal</AuthSubmitButton>
+                </form>
+              )}
+            </div>
+
+            <p className="mt-6 flex items-center justify-center gap-1.5 text-center text-xs text-slate-500">
+              <ShieldCheck size={14} aria-hidden="true" className="text-gma-sky" />
+              Secure access · Growing Minds Academy
+            </p>
+          </div>
+        </section>
       </div>
     </div>
   );

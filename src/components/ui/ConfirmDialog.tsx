@@ -27,29 +27,22 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   if (!isOpen) return null;
 
   return (
-    /* Backdrop with subtle blur — glassmorphism only here */
+    /* Translucent backdrop with blur — glassmodal */
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gma-navy/35 backdrop-blur-sm"
       onClick={isLoading ? undefined : onCancel}
     >
       <div
-        className="
-          bg-white rounded-2xl shadow-2xl
-          max-w-md w-full p-6
-          animate-in fade-in zoom-in-95 duration-150
-        "
+        className="gma-glass gma-glass-strong rounded-[1.5rem] max-w-md w-full p-6 sm:p-7 shadow-gma-float"
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
         aria-labelledby="confirm-dialog-title"
       >
-        <h3
-          id="confirm-dialog-title"
-          className="text-lg font-bold text-[#0B1F4B]"
-        >
+        <h3 id="confirm-dialog-title" className="text-lg font-extrabold tracking-tight text-gma-navy">
           {title}
         </h3>
-        <p className="text-sm text-slate-500 mt-2 mb-6 leading-relaxed">{message}</p>
+        <p className="text-sm text-gma-muted mt-2 mb-6 leading-relaxed">{message}</p>
         <div className="flex items-center justify-end gap-3 flex-wrap">
           <OutlineButton onClick={onCancel} disabled={isLoading}>
             {cancelLabel}

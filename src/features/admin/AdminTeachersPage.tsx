@@ -126,14 +126,14 @@ export const AdminTeachersPage: React.FC = () => {
       accessor: (t) => (
         <div>
           <span className="font-semibold text-xs text-[#0F172A] block">{t.name}</span>
-          <span className="text-[11px] text-[#64748B] block font-mono">{t.email}</span>
+          <span className="text-[11px] text-gma-muted block font-mono">{t.email}</span>
         </div>
       ),
     },
     {
       header: 'Faculty Role',
       accessor: (t) => (
-        <span className="text-xs font-medium text-[#0B1F4B] bg-[#F7F7F4] px-2 py-0.5 border border-[#D6A21E]/30">
+        <span className="text-xs font-medium text-gma-navy bg-gma-mist px-2 py-0.5 border border-gma-gold/30">
           {t.role}
         </span>
       ),
@@ -153,7 +153,7 @@ export const AdminTeachersPage: React.FC = () => {
         const subjNames = t.assignedSubjects
           .map((id) => subjects.find((s) => s.id === id)?.name || id)
           .join(', ');
-        return <span className="text-xs text-[#64748B]">{subjNames || 'None'}</span>;
+        return <span className="text-xs text-gma-muted">{subjNames || 'None'}</span>;
       },
     },
     {
@@ -167,14 +167,14 @@ export const AdminTeachersPage: React.FC = () => {
         <div className="flex items-center justify-end gap-1.5">
           <button
             onClick={() => openEditModal(t)}
-            className="p-1.5 text-[#64748B] hover:text-[#0B1F4B] hover:bg-[#F7F7F4]"
+            className="p-1.5 text-gma-muted hover:text-gma-navy hover:bg-gma-frost/60"
             title="Edit Teacher"
           >
             <Edit2 size={14} />
           </button>
           <button
             onClick={() => handleToggleActive(t)}
-            className="p-1.5 text-[#64748B] hover:text-[#0B1F4B] hover:bg-[#F7F7F4]"
+            className="p-1.5 text-gma-muted hover:text-gma-navy hover:bg-gma-frost/60"
             title={t.isActive ? 'Deactivate' : 'Activate'}
           >
             {t.isActive ? <UserX size={14} /> : <UserCheck size={14} />}
@@ -196,9 +196,9 @@ export const AdminTeachersPage: React.FC = () => {
         }
       />
 
-      <div className="bg-white border border-[#CBD5E1] p-4 flex items-center justify-between shadow-sm">
+      <div className="gma-card rounded-2xl p-4 flex items-center justify-between">
         <div className="relative w-full max-w-sm">
-          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#64748B]" />
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gma-muted" />
           <InputField
             type="text"
             placeholder="Search teachers by name or email..."
@@ -207,7 +207,7 @@ export const AdminTeachersPage: React.FC = () => {
             className="pl-9 text-xs"
           />
         </div>
-        <span className="text-xs text-[#64748B] font-medium">
+        <span className="text-xs text-gma-muted font-medium">
           {filtered.length} faculty registered
         </span>
       </div>
@@ -227,12 +227,12 @@ export const AdminTeachersPage: React.FC = () => {
 
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0F172A]/40 backdrop-blur-xs">
-          <div className="bg-white border border-[#CBD5E1] shadow-lg max-w-lg w-full p-6">
-            <div className="flex items-center justify-between pb-3 mb-4 border-b border-[#CBD5E1]">
-              <h3 className="text-base font-bold uppercase tracking-wider text-[#0B1F4B]">
+          <div className="gma-card rounded-2xl max-w-lg w-full p-6">
+            <div className="flex items-center justify-between pb-3 mb-4 border-b border-gma-navy/10">
+              <h3 className="text-base font-bold uppercase tracking-wider text-gma-navy">
                 {editingTeacher ? `Edit Faculty: ${editingTeacher.name}` : 'Add Faculty Member'}
               </h3>
-              <button onClick={() => setIsModalOpen(false)} className="text-[#64748B] hover:text-[#0B1F4B]">
+              <button onClick={() => setIsModalOpen(false)} className="text-gma-muted hover:text-gma-navy">
                 <X size={18} />
               </button>
             </div>
@@ -297,10 +297,10 @@ export const AdminTeachersPage: React.FC = () => {
               </FormField>
 
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-[#0B1F4B] mb-2">
+                <label className="block text-xs font-semibold uppercase tracking-wider text-gma-navy mb-2">
                   Assigned Classes
                 </label>
-                <div className="grid grid-cols-2 gap-2 p-3 bg-[#F7F7F4] border border-[#CBD5E1] max-h-36 overflow-y-auto">
+                <div className="grid grid-cols-2 gap-2 p-3 bg-gma-mist border border-gma-navy/10 max-h-36 overflow-y-auto">
                   {classes.map((cls) => {
                     const isChecked = assignedClasses.includes(cls.id);
                     return (
@@ -315,7 +315,7 @@ export const AdminTeachersPage: React.FC = () => {
                               setAssignedClasses(assignedClasses.filter((id) => id !== cls.id));
                             }
                           }}
-                          className="accent-[#0B1F4B]"
+                          className="accent-gma-navy"
                         />
                         <span>{cls.name}</span>
                       </label>
@@ -325,10 +325,10 @@ export const AdminTeachersPage: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-[#0B1F4B] mb-2">
+                <label className="block text-xs font-semibold uppercase tracking-wider text-gma-navy mb-2">
                   Assigned Subjects
                 </label>
-                <div className="grid grid-cols-2 gap-2 p-3 bg-[#F7F7F4] border border-[#CBD5E1] max-h-36 overflow-y-auto">
+                <div className="grid grid-cols-2 gap-2 p-3 bg-gma-mist border border-gma-navy/10 max-h-36 overflow-y-auto">
                   {subjects.map((s) => {
                     const isChecked = assignedSubjects.includes(s.id);
                     return (
@@ -343,7 +343,7 @@ export const AdminTeachersPage: React.FC = () => {
                               setAssignedSubjects(assignedSubjects.filter((id) => id !== s.id));
                             }
                           }}
-                          className="accent-[#0B1F4B]"
+                          className="accent-gma-navy"
                         />
                         <span>{s.name}</span>
                       </label>
@@ -352,7 +352,7 @@ export const AdminTeachersPage: React.FC = () => {
                 </div>
               </div>
 
-              <div className="flex items-center justify-end gap-3 pt-3 border-t border-[#CBD5E1]">
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-gma-navy/10">
                 <OutlineButton type="button" onClick={() => setIsModalOpen(false)}>
                   Cancel
                 </OutlineButton>

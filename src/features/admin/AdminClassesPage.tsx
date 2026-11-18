@@ -112,19 +112,19 @@ export const AdminClassesPage: React.FC = () => {
           return (
             <div
               key={cls.id}
-              className="bg-white border border-[#CBD5E1] p-5 shadow-sm flex flex-col justify-between"
+              className="gma-card rounded-2xl p-5 flex flex-col justify-between"
             >
               <div>
-                <div className="flex items-center justify-between pb-3 mb-3 border-b border-[#CBD5E1]/70">
+                <div className="flex items-center justify-between pb-3 mb-3 border-b border-gma-navy/10">
                   <div>
-                    <span className="text-xs font-bold uppercase tracking-wider text-[#D6A21E] block">
+                    <span className="text-xs font-bold uppercase tracking-wider text-gma-gold block">
                       {cls.grade}
                     </span>
-                    <h3 className="text-lg font-bold text-[#0B1F4B]">{cls.name}</h3>
+                    <h3 className="text-lg font-bold text-gma-navy">{cls.name}</h3>
                   </div>
                   <button
                     onClick={() => openEditModal(cls)}
-                    className="p-1.5 text-[#64748B] hover:text-[#0B1F4B] hover:bg-[#F7F7F4] transition-colors"
+                    className="p-1.5 text-gma-muted hover:text-gma-navy hover:bg-gma-mist transition-colors"
                     title="Edit Class"
                   >
                     <Edit2 size={15} />
@@ -133,35 +133,35 @@ export const AdminClassesPage: React.FC = () => {
 
                 <div className="space-y-2 text-xs mb-4">
                   <div className="flex items-center justify-between">
-                    <span className="text-[#64748B]">Class Form Teacher:</span>
+                    <span className="text-gma-muted">Class Form Teacher:</span>
                     <span className="font-semibold text-[#0F172A]">{cls.classTeacherName}</span>
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <span className="text-[#64748B]">Assigned Room:</span>
+                    <span className="text-gma-muted">Assigned Room:</span>
                     <span className="text-[#0F172A] font-medium flex items-center gap-1">
-                      <MapPin size={12} className="text-[#D6A21E]" />
+                      <MapPin size={12} className="text-gma-gold" />
                       {cls.room || 'General Classroom'}
                     </span>
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <span className="text-[#64748B]">Curriculum Subjects:</span>
+                    <span className="text-gma-muted">Curriculum Subjects:</span>
                     <span className="text-[#0F172A] font-medium">
                       {cls.subjectIds.length} Subjects
                     </span>
                   </div>
 
-                  <div className="flex items-center justify-between pt-2 border-t border-[#CBD5E1]/50">
-                    <span className="text-[#64748B]">Enrolled Learners:</span>
-                    <span className="font-bold text-[#0B1F4B] bg-[#F7F7F4] px-2 py-0.5 border border-[#D6A21E]/30">
+                  <div className="flex items-center justify-between pt-2 border-t border-gma-navy/10">
+                    <span className="text-gma-muted">Enrolled Learners:</span>
+                    <span className="font-bold text-gma-navy bg-gma-mist px-2 py-0.5 border border-gma-gold/30">
                       {enrolled.length} Learners
                     </span>
                   </div>
                 </div>
               </div>
 
-              <div className="pt-3 border-t border-[#CBD5E1]">
+              <div className="pt-3 border-t border-gma-navy/10">
                 <OutlineButton
                   onClick={() => setViewingClassLearners(cls)}
                   className="w-full text-xs py-1.5 justify-center"
@@ -178,30 +178,30 @@ export const AdminClassesPage: React.FC = () => {
       {/* Enrolled Learners Viewer Modal */}
       {viewingClassLearners && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0F172A]/40 backdrop-blur-xs">
-          <div className="bg-white border border-[#CBD5E1] shadow-lg max-w-lg w-full p-6">
-            <div className="flex items-center justify-between pb-3 mb-4 border-b border-[#CBD5E1]">
+          <div className="gma-card rounded-2xl max-w-lg w-full p-6">
+            <div className="flex items-center justify-between pb-3 mb-4 border-b border-gma-navy/10">
               <div>
-                <h3 className="text-base font-bold text-[#0B1F4B]">
+                <h3 className="text-base font-bold text-gma-navy">
                   Roster: {viewingClassLearners.name} ({viewingClassLearners.grade})
                 </h3>
-                <p className="text-xs text-[#64748B]">
+                <p className="text-xs text-gma-muted">
                   Form Teacher: {viewingClassLearners.classTeacherName}
                 </p>
               </div>
               <button
                 onClick={() => setViewingClassLearners(null)}
-                className="text-[#64748B] hover:text-[#0B1F4B]"
+                className="text-gma-muted hover:text-gma-navy"
               >
                 <X size={18} />
               </button>
             </div>
 
             {learners.filter((l) => l.classId === viewingClassLearners.id).length === 0 ? (
-              <div className="py-8 text-center text-xs text-[#64748B] bg-[#F7F7F4] border border-dashed border-[#CBD5E1]">
+              <div className="py-8 text-center text-xs text-gma-muted bg-gma-mist border border-dashed border-gma-navy/10">
                 No learners currently enrolled in this class. Use Learner Registration to assign.
               </div>
             ) : (
-              <div className="max-h-72 overflow-y-auto divide-y divide-[#CBD5E1]/60">
+              <div className="max-h-72 overflow-y-auto divide-y divide-gma-navy/8">
                 {learners
                   .filter((l) => l.classId === viewingClassLearners.id)
                   .map((l) => (
@@ -210,15 +210,15 @@ export const AdminClassesPage: React.FC = () => {
                         <span className="font-semibold text-[#0F172A] block">
                           {l.firstName} {l.lastName}
                         </span>
-                        <span className="font-mono text-[11px] text-[#64748B]">{l.id}</span>
+                        <span className="font-mono text-[11px] text-gma-muted">{l.id}</span>
                       </div>
                       <div className="flex items-center gap-3">
-                        <span className="font-mono text-xs text-[#0B1F4B] bg-[#F7F7F4] px-1.5 py-0.5 border border-[#CBD5E1]">
+                        <span className="font-mono text-xs text-gma-navy bg-gma-mist px-1.5 py-0.5 border border-gma-navy/10">
                           PIN: {l.pin}
                         </span>
                         <span
                           className={`w-2 h-2 ${
-                            l.isActive ? 'bg-[#0B1F4B]' : 'bg-[#CBD5E1]'
+                            l.isActive ? 'bg-gma-navy' : 'bg-gma-navy/10'
                           }`}
                         />
                       </div>
@@ -227,7 +227,7 @@ export const AdminClassesPage: React.FC = () => {
               </div>
             )}
 
-            <div className="flex justify-end pt-4 mt-4 border-t border-[#CBD5E1]">
+            <div className="flex justify-end pt-4 mt-4 border-t border-gma-navy/10">
               <PrimaryButton onClick={() => setViewingClassLearners(null)}>Close Roster</PrimaryButton>
             </div>
           </div>
@@ -237,12 +237,12 @@ export const AdminClassesPage: React.FC = () => {
       {/* Add / Edit Class Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0F172A]/40 backdrop-blur-xs">
-          <div className="bg-white border border-[#CBD5E1] shadow-lg max-w-lg w-full p-6">
-            <div className="flex items-center justify-between pb-3 mb-4 border-b border-[#CBD5E1]">
-              <h3 className="text-base font-bold uppercase tracking-wider text-[#0B1F4B]">
+          <div className="gma-card rounded-2xl max-w-lg w-full p-6">
+            <div className="flex items-center justify-between pb-3 mb-4 border-b border-gma-navy/10">
+              <h3 className="text-base font-bold uppercase tracking-wider text-gma-navy">
                 {editingClass ? `Edit Class: ${editingClass.name}` : 'Create New Class Group'}
               </h3>
-              <button onClick={() => setIsModalOpen(false)} className="text-[#64748B] hover:text-[#0B1F4B]">
+              <button onClick={() => setIsModalOpen(false)} className="text-gma-muted hover:text-gma-navy">
                 <X size={18} />
               </button>
             </div>
@@ -300,10 +300,10 @@ export const AdminClassesPage: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-[#0B1F4B] mb-2">
+                <label className="block text-xs font-semibold uppercase tracking-wider text-gma-navy mb-2">
                   Curriculum Subjects Taught
                 </label>
-                <div className="grid grid-cols-2 gap-2 p-3 bg-[#F7F7F4] border border-[#CBD5E1] max-h-36 overflow-y-auto">
+                <div className="grid grid-cols-2 gap-2 p-3 bg-gma-mist border border-gma-navy/10 max-h-36 overflow-y-auto">
                   {subjects.map((s) => {
                     const isChecked = selectedSubjects.includes(s.id);
                     return (
@@ -318,7 +318,7 @@ export const AdminClassesPage: React.FC = () => {
                               setSelectedSubjects(selectedSubjects.filter((id) => id !== s.id));
                             }
                           }}
-                          className="accent-[#0B1F4B]"
+                          className="accent-gma-navy"
                         />
                         <span>{s.name}</span>
                       </label>
@@ -327,7 +327,7 @@ export const AdminClassesPage: React.FC = () => {
                 </div>
               </div>
 
-              <div className="flex items-center justify-end gap-3 pt-3 border-t border-[#CBD5E1]">
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-gma-navy/10">
                 <OutlineButton type="button" onClick={() => setIsModalOpen(false)}>
                   Cancel
                 </OutlineButton>

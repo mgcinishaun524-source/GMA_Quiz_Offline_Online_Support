@@ -23,8 +23,8 @@ export function DataTable<T>({
 }: DataTableProps<T>) {
   if (data.length === 0) {
     return (
-      <div className="bg-white border border-slate-200 rounded-xl p-10 text-center shadow-sm">
-        <p className="text-sm font-medium text-slate-500">{emptyMessage}</p>
+      <div className="gma-card rounded-2xl p-12 text-center">
+        <p className="text-sm font-medium text-gma-muted">{emptyMessage}</p>
       </div>
     );
   }
@@ -38,30 +38,30 @@ export function DataTable<T>({
   return (
     <>
       {/* ── Desktop table (md+) ──────────────────────────────────────────── */}
-      <div className="hidden md:block bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+      <div className="hidden md:block gma-card rounded-2xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm border-collapse">
             <thead>
-              <tr className="bg-[#0B1F4B] text-white">
+              <tr className="bg-gma-navy/95 text-white">
                 {columns.map((col, idx) => (
                   <th
                     key={idx}
-                    className={`px-4 py-3 text-xs font-semibold uppercase tracking-wider ${col.className || ''}`}
+                    className={`px-4 py-3 text-[0.7rem] font-semibold uppercase tracking-[0.08em] ${col.className || ''}`}
                   >
                     {col.header}
                   </th>
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-gma-navy/8">
               {data.map((row) => (
                 <tr
                   key={keyExtractor(row)}
                   onClick={() => onRowClick && onRowClick(row)}
                   className={`transition-colors ${
                     onRowClick
-                      ? 'cursor-pointer hover:bg-[#F7F7F4] active:bg-[#0B1F4B]/5'
-                      : 'hover:bg-[#F7F7F4]'
+                      ? 'cursor-pointer hover:bg-gma-frost/70 active:bg-gma-sky/10'
+                      : 'hover:bg-gma-frost/50'
                   }`}
                 >
                   {columns.map((col, idx) => (
@@ -83,16 +83,16 @@ export function DataTable<T>({
             key={keyExtractor(row)}
             onClick={() => onRowClick && onRowClick(row)}
             className={`
-              bg-white border border-slate-200 rounded-xl p-4 shadow-sm
-              ${onRowClick ? 'cursor-pointer hover:border-[#0B1F4B]/40 hover:shadow-md active:scale-[0.99] transition-all duration-150' : ''}
+              gma-card rounded-2xl p-4
+              ${onRowClick ? 'cursor-pointer hover:border-gma-sky/40 active:scale-[0.99] transition-all duration-150' : ''}
             `}
           >
             {columns.map((col, idx) => {
               const content = getCellContent(col, row);
               if (content === null || content === '') return null;
               return (
-                <div key={idx} className="flex items-start justify-between gap-3 py-1.5 border-b border-slate-100 last:border-0">
-                  <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 shrink-0 pt-0.5">
+                <div key={idx} className="flex items-start justify-between gap-3 py-1.5 border-b border-gma-navy/8 last:border-0">
+                  <span className="text-[0.68rem] font-semibold uppercase tracking-[0.08em] text-gma-muted shrink-0 pt-0.5">
                     {col.header}
                   </span>
                   <span className="text-sm text-slate-800 text-right">{content}</span>

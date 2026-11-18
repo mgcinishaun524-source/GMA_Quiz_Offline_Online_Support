@@ -55,13 +55,13 @@ export const LearnerQuizzesPage: React.FC = () => {
       />
 
       {/* Clean Tab Switcher */}
-      <div className="grid grid-cols-2 gap-2 border-b border-[#CBD5E1] pb-3">
+      <div className="grid grid-cols-2 gap-2 border-b border-gma-navy/10 pb-3">
         <button
           onClick={() => setActiveTab('available')}
           className={`py-3 px-4 text-xs font-bold uppercase tracking-wider border cursor-pointer transition-colors ${
             activeTab === 'available'
-              ? 'bg-[#0B1F4B] text-white border-[#0B1F4B]'
-              : 'bg-white text-[#64748B] border-[#CBD5E1] hover:text-[#0B1F4B]'
+              ? 'bg-gma-navy text-white border-gma-navy'
+              : 'bg-white text-gma-muted border-gma-navy/10 hover:text-gma-navy'
           }`}
         >
           Available to Take ({availableQuizzes.length})
@@ -70,8 +70,8 @@ export const LearnerQuizzesPage: React.FC = () => {
           onClick={() => setActiveTab('completed')}
           className={`py-3 px-4 text-xs font-bold uppercase tracking-wider border cursor-pointer transition-colors ${
             activeTab === 'completed'
-              ? 'bg-[#0B1F4B] text-white border-[#0B1F4B]'
-              : 'bg-white text-[#64748B] border-[#CBD5E1] hover:text-[#0B1F4B]'
+              ? 'bg-gma-navy text-white border-gma-navy'
+              : 'bg-white text-gma-muted border-gma-navy/10 hover:text-gma-navy'
           }`}
         >
           Completed Submissions ({completedQuizzes.length})
@@ -81,10 +81,10 @@ export const LearnerQuizzesPage: React.FC = () => {
       {activeTab === 'available' && (
         <div className="space-y-4">
           {availableQuizzes.length === 0 ? (
-            <div className="bg-white border border-[#CBD5E1] p-10 text-center shadow-sm">
-              <CheckCircle2 size={32} className="text-[#0B1F4B] mx-auto mb-2" />
-              <h3 className="text-base font-bold text-[#0B1F4B]">No Pending Quizzes</h3>
-              <p className="text-xs text-[#64748B] mt-1">
+            <div className="gma-card rounded-2xl p-10 text-center">
+              <CheckCircle2 size={32} className="text-gma-navy mx-auto mb-2" />
+              <h3 className="text-base font-bold text-gma-navy">No Pending Quizzes</h3>
+              <p className="text-xs text-gma-muted mt-1">
                 You have completed all currently active assessments.
               </p>
             </div>
@@ -92,18 +92,18 @@ export const LearnerQuizzesPage: React.FC = () => {
             availableQuizzes.map((quiz) => (
               <div
                 key={quiz.id}
-                className="bg-white border border-[#CBD5E1] p-6 shadow-sm hover:border-[#D6A21E] transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                className="gma-card rounded-2xl p-6 hover:border-gma-gold transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-4"
               >
                 <div>
                   <div className="flex items-center gap-2 mb-1.5">
-                    <span className="text-xs font-bold text-[#D6A21E] uppercase tracking-wider">
+                    <span className="text-xs font-bold text-gma-gold uppercase tracking-wider">
                       {quiz.subjectName}
                     </span>
-                    <span className="text-[#CBD5E1]">•</span>
-                    <span className="text-xs text-[#64748B]">{quiz.durationMinutes} Minutes</span>
+                    <span className="text-gma-navy/10">•</span>
+                    <span className="text-xs text-gma-muted">{quiz.durationMinutes} Minutes</span>
                   </div>
-                  <h3 className="text-base font-bold text-[#0B1F4B]">{quiz.title}</h3>
-                  <p className="text-xs text-[#64748B] mt-1">
+                  <h3 className="text-base font-bold text-gma-navy">{quiz.title}</h3>
+                  <p className="text-xs text-gma-muted mt-1">
                     {quiz.questions.length} Questions • Topics:{' '}
                     {quiz.topicsCovered.slice(0, 3).join(', ')}
                   </p>
@@ -127,8 +127,8 @@ export const LearnerQuizzesPage: React.FC = () => {
       {activeTab === 'completed' && (
         <div className="space-y-4">
           {completedQuizzes.length === 0 ? (
-            <div className="bg-white border border-[#CBD5E1] p-10 text-center shadow-sm">
-              <p className="text-xs text-[#64748B]">You haven't completed any quizzes yet.</p>
+            <div className="gma-card rounded-2xl p-10 text-center">
+              <p className="text-xs text-gma-muted">You haven't completed any quizzes yet.</p>
             </div>
           ) : (
             completedQuizzes.map((quiz) => {
@@ -138,14 +138,14 @@ export const LearnerQuizzesPage: React.FC = () => {
               return (
                 <div
                   key={quiz.id}
-                  className="bg-white border border-[#CBD5E1] p-6 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                  className="gma-card rounded-2xl p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
                 >
                   <div>
-                    <span className="text-xs font-bold text-[#D6A21E] uppercase tracking-wider block mb-1">
+                    <span className="text-xs font-bold text-gma-gold uppercase tracking-wider block mb-1">
                       {quiz.subjectName}
                     </span>
-                    <h3 className="text-base font-bold text-[#0B1F4B]">{quiz.title}</h3>
-                    <div className="text-xs text-[#64748B] mt-1 flex items-center gap-2">
+                    <h3 className="text-base font-bold text-gma-navy">{quiz.title}</h3>
+                    <div className="text-xs text-gma-muted mt-1 flex items-center gap-2">
                       <span>Submitted: {sub?.submittedAt ? new Date(sub.submittedAt).toLocaleDateString() : 'Recorded'}</span>
                       <span>•</span>
                       <span>
@@ -163,9 +163,9 @@ export const LearnerQuizzesPage: React.FC = () => {
                         View Marksheet
                       </PrimaryButton>
                     ) : (
-                      <div className="p-2.5 bg-[#F7F7F4] border border-[#CBD5E1] text-xs text-right">
-                        <span className="font-bold text-[#0B1F4B] block">Marks Awaiting Release</span>
-                        <span className="text-[10px] text-[#64748B]">Teacher reviewing cohort</span>
+                      <div className="p-2.5 bg-gma-mist border border-gma-navy/10 text-xs text-right">
+                        <span className="font-bold text-gma-navy block">Marks Awaiting Release</span>
+                        <span className="text-[10px] text-gma-muted">Teacher reviewing cohort</span>
                       </div>
                     )}
                   </div>

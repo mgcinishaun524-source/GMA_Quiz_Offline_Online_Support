@@ -10,9 +10,10 @@
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
     <link rel="manifest" href="/manifest.json" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Plus Jakarta Sans is self-hosted (public/fonts) so the login screen renders
+         identically offline in the PWA with no third-party font request. -->
+    <link rel="preload" href="/fonts/plus-jakarta-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/fonts/plus-jakarta-sans-latin-ext.woff2" as="font" type="font/woff2" crossorigin>
   </head>
   <body class="bg-[#F5F8FC] text-[#0F172A] antialiased selection:bg-[#6CABDD]/20 selection:text-[#1C2C5B]">
     <div id="root"></div>

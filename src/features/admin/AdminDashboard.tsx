@@ -76,8 +76,8 @@ export const AdminDashboard: React.FC = () => {
           title="School Administrative Overview"
           subtitle="Loading the live school state from the server…"
         />
-        <div className="bg-white border border-[#CBD5E1] p-10 text-center text-sm text-[#64748B]">
-          <RefreshCw size={20} className="mx-auto mb-3 animate-spin text-[#0B1F4B]" aria-hidden="true" />
+        <div className="gma-card rounded-2xl p-10 text-center text-sm text-gma-muted">
+          <RefreshCw size={20} className="mx-auto mb-3 animate-spin text-gma-navy" aria-hidden="true" />
           Connecting to the school database…
         </div>
       </div>
@@ -96,7 +96,7 @@ export const AdminDashboard: React.FC = () => {
             <AlertTriangle size={18} className="mt-0.5 shrink-0" aria-hidden="true" />
             <div>
               <p className="font-bold">Unable to load the live dashboard</p>
-              <p className="mt-1 text-[#64748B]">{error}</p>
+              <p className="mt-1 text-gma-muted">{error}</p>
             </div>
           </div>
           <div className="mt-4">
@@ -151,46 +151,46 @@ export const AdminDashboard: React.FC = () => {
 
       {/* Structural Summary Metrics — Clean Rectangular Cards, Strict Brand Colours */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white border border-[#CBD5E1] p-5 shadow-sm">
-          <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-wider text-[#64748B] mb-2">
+        <div className="gma-card rounded-2xl p-5">
+          <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-wider text-gma-muted mb-2">
             <span>Total Enrolled Learners</span>
-            <Users size={16} className="text-[#0B1F4B]" aria-hidden="true" />
+            <Users size={16} className="text-gma-navy" aria-hidden="true" />
           </div>
-          <div className="text-3xl font-extrabold text-[#0B1F4B]">{formatCount(metrics.learnersTotal)}</div>
-          <div className="text-xs text-[#64748B] mt-1 font-medium">
+          <div className="text-3xl font-extrabold text-gma-navy">{formatCount(metrics.learnersTotal)}</div>
+          <div className="text-xs text-gma-muted mt-1 font-medium">
             {formatCount(metrics.learnersActive)} active accounts across {formatCount(metrics.classesTotal)} classes
           </div>
         </div>
 
-        <div className="bg-white border border-[#CBD5E1] p-5 shadow-sm">
-          <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-wider text-[#64748B] mb-2">
+        <div className="gma-card rounded-2xl p-5">
+          <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-wider text-gma-muted mb-2">
             <span>Teaching Faculty</span>
-            <GraduationCap size={16} className="text-[#0B1F4B]" aria-hidden="true" />
+            <GraduationCap size={16} className="text-gma-navy" aria-hidden="true" />
           </div>
-          <div className="text-3xl font-extrabold text-[#0B1F4B]">{formatCount(metrics.teachersTotal)}</div>
-          <div className="text-xs text-[#64748B] mt-1 font-medium">
+          <div className="text-3xl font-extrabold text-gma-navy">{formatCount(metrics.teachersTotal)}</div>
+          <div className="text-xs text-gma-muted mt-1 font-medium">
             {formatCount(metrics.teachersActive)} certified educators active
           </div>
         </div>
 
-        <div className="bg-white border border-[#CBD5E1] p-5 shadow-sm">
-          <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-wider text-[#64748B] mb-2">
+        <div className="gma-card rounded-2xl p-5">
+          <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-wider text-gma-muted mb-2">
             <span>Assessments Created</span>
-            <HelpCircle size={16} className="text-[#D6A21E]" aria-hidden="true" />
+            <HelpCircle size={16} className="text-gma-gold" aria-hidden="true" />
           </div>
-          <div className="text-3xl font-extrabold text-[#0B1F4B]">{formatCount(metrics.quizzesTotal)}</div>
-          <div className="text-xs text-[#64748B] mt-1 font-medium">
+          <div className="text-3xl font-extrabold text-gma-navy">{formatCount(metrics.quizzesTotal)}</div>
+          <div className="text-xs text-gma-muted mt-1 font-medium">
             {formatCount(metrics.quizzesOpen)} open · {formatCount(metrics.quizzesDraft)} draft · {formatCount(metrics.quizzesClosed)} closed
           </div>
         </div>
 
-        <div className="bg-white border border-[#CBD5E1] p-5 shadow-sm">
-          <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-wider text-[#64748B] mb-2">
+        <div className="gma-card rounded-2xl p-5">
+          <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-wider text-gma-muted mb-2">
             <span>Submissions Received</span>
-            <RefreshCw size={16} className="text-[#0B1F4B]" aria-hidden="true" />
+            <RefreshCw size={16} className="text-gma-navy" aria-hidden="true" />
           </div>
-          <div className="text-3xl font-extrabold text-[#0B1F4B]">{formatCount(metrics.submissionsTotal)}</div>
-          <div className="text-xs mt-1 font-medium text-[#64748B]">
+          <div className="text-3xl font-extrabold text-gma-navy">{formatCount(metrics.submissionsTotal)}</div>
+          <div className="text-xs mt-1 font-medium text-gma-muted">
             {metrics.pendingServerSync > 0 ? (
               <span className="text-[#B45309] font-bold">
                 {formatCount(metrics.pendingServerSync)} awaiting server sync
@@ -206,13 +206,13 @@ export const AdminDashboard: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left 2 Cols: School Assessment Registry & Status */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="bg-white border border-[#CBD5E1] p-5 shadow-sm">
-            <div className="flex items-center justify-between pb-3 mb-4 border-b border-[#CBD5E1]">
+          <div className="gma-card rounded-2xl p-5">
+            <div className="flex items-center justify-between pb-3 mb-4 border-b border-gma-navy/10">
               <div>
-                <h2 className="text-sm font-bold uppercase tracking-wider text-[#0B1F4B]">
+                <h2 className="text-sm font-bold uppercase tracking-wider text-gma-navy">
                   Recent School-Wide Assessments
                 </h2>
-                <p className="text-xs text-[#64748B]">
+                <p className="text-xs text-gma-muted">
                   The most recently created quizzes across all grades
                 </p>
               </div>
@@ -224,7 +224,7 @@ export const AdminDashboard: React.FC = () => {
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs border-collapse">
                 <thead>
-                  <tr className="bg-[#0B1F4B] text-white">
+                  <tr className="bg-gma-navy/95 text-white">
                     <th className="p-2.5 font-semibold uppercase">Assessment Title</th>
                     <th className="p-2.5 font-semibold uppercase">Grade / Class</th>
                     <th className="p-2.5 font-semibold uppercase">Subject</th>
@@ -232,19 +232,19 @@ export const AdminDashboard: React.FC = () => {
                     <th className="p-2.5 font-semibold uppercase text-right">Offline Support</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#CBD5E1]/60">
+                <tbody className="divide-y divide-gma-navy/8">
                   {recentQuizzes.length === 0 ? (
                     <tr>
-                      <td colSpan={5} className="p-6 text-center text-[#64748B]">
+                      <td colSpan={5} className="p-6 text-center text-gma-muted">
                         No assessments have been created yet.
                       </td>
                     </tr>
                   ) : (
                     recentQuizzes.map((quiz) => (
-                      <tr key={quiz.id} className="hover:bg-[#F7F7F4]">
+                      <tr key={quiz.id} className="hover:bg-gma-frost/60">
                         <td className="p-2.5 font-medium text-[#0F172A]">
                           {quiz.title}
-                          <span className="block text-[11px] text-[#64748B]">
+                          <span className="block text-[11px] text-gma-muted">
                             Created by {quiz.authorName}
                           </span>
                         </td>
@@ -255,9 +255,9 @@ export const AdminDashboard: React.FC = () => {
                         </td>
                         <td className="p-2.5 text-right font-medium">
                           {quiz.allowOffline ? (
-                            <span className="text-[#0B1F4B]">Enabled (Cached)</span>
+                            <span className="text-gma-navy">Enabled (Cached)</span>
                           ) : (
-                            <span className="text-[#64748B]">Online Only</span>
+                            <span className="text-gma-muted">Online Only</span>
                           )}
                         </td>
                       </tr>
@@ -269,11 +269,11 @@ export const AdminDashboard: React.FC = () => {
           </div>
 
           {/* Quick Action Hub */}
-          <div className="bg-[#F7F7F4] border border-[#D6A21E]/50 p-5">
-            <h3 className="text-sm font-bold uppercase tracking-wider text-[#0B1F4B] mb-2">
+          <div className="bg-gma-mist border border-gma-gold/50 p-5">
+            <h3 className="text-sm font-bold uppercase tracking-wider text-gma-navy mb-2">
               Administrative Quick Actions
             </h3>
-            <p className="text-xs text-[#64748B] mb-4">
+            <p className="text-xs text-gma-muted mb-4">
               Direct access to configure classes, assign staff members, and register student cohorts.
             </p>
             <div className="flex flex-wrap gap-2.5">
@@ -295,37 +295,37 @@ export const AdminDashboard: React.FC = () => {
 
         {/* Right Col: Live Device & Sync Panel */}
         <div className="space-y-6">
-          <div className="bg-white border border-[#CBD5E1] p-5 shadow-sm">
-            <div className="pb-3 mb-4 border-b border-[#CBD5E1]">
-              <h3 className="text-sm font-bold uppercase tracking-wider text-[#0B1F4B]">
+          <div className="gma-card rounded-2xl p-5">
+            <div className="pb-3 mb-4 border-b border-gma-navy/10">
+              <h3 className="text-sm font-bold uppercase tracking-wider text-gma-navy">
                 Device &amp; Sync Status
               </h3>
-              <p className="text-xs text-[#64748B]">Live learner tablet presence</p>
+              <p className="text-xs text-gma-muted">Live learner tablet presence</p>
             </div>
 
             <div className="space-y-3 text-xs">
-              <div className="flex justify-between items-center p-2.5 bg-[#F7F7F4] border border-[#CBD5E1]/60">
-                <span className="flex items-center gap-1.5 text-[#64748B]">
+              <div className="flex justify-between items-center p-2.5 bg-gma-mist border border-gma-navy/10">
+                <span className="flex items-center gap-1.5 text-gma-muted">
                   <Wifi size={13} aria-hidden="true" /> Online Learner Tablets:
                 </span>
                 <span className="font-bold text-[#0F172A]">
                   {onlineTablets === null ? '—' : onlineTablets}
                 </span>
               </div>
-              <div className="flex justify-between items-center p-2.5 bg-[#F7F7F4] border border-[#CBD5E1]/60">
-                <span className="flex items-center gap-1.5 text-[#64748B]">
+              <div className="flex justify-between items-center p-2.5 bg-gma-mist border border-gma-navy/10">
+                <span className="flex items-center gap-1.5 text-gma-muted">
                   <Server size={13} aria-hidden="true" /> Awaiting Server Sync:
                 </span>
                 <span className="font-bold text-[#0F172A]">
                   {formatCount(metrics.pendingServerSync)} record{metrics.pendingServerSync === 1 ? '' : 's'}
                 </span>
               </div>
-              <div className="flex justify-between items-center p-2.5 bg-[#F7F7F4] border border-[#CBD5E1]/60">
-                <span className="text-[#64748B]">Offline Submissions Recorded:</span>
+              <div className="flex justify-between items-center p-2.5 bg-gma-mist border border-gma-navy/10">
+                <span className="text-gma-muted">Offline Submissions Recorded:</span>
                 <span className="font-bold text-[#0F172A]">{formatCount(metrics.offlineSubmissions)}</span>
               </div>
-              <div className="flex justify-between items-center p-2.5 bg-[#F7F7F4] border border-[#CBD5E1]/60">
-                <span className="text-[#64748B]">Presence Window:</span>
+              <div className="flex justify-between items-center p-2.5 bg-gma-mist border border-gma-navy/10">
+                <span className="text-gma-muted">Presence Window:</span>
                 <span className="font-medium text-[#0F172A]">{devices.onlineWindowSeconds}s heartbeat</span>
               </div>
 
@@ -341,25 +341,25 @@ export const AdminDashboard: React.FC = () => {
           </div>
 
           {/* School Term Details */}
-          <div className="bg-white border border-[#CBD5E1] p-5 shadow-sm">
-            <h3 className="text-sm font-bold uppercase tracking-wider text-[#0B1F4B] pb-3 mb-3 border-b border-[#CBD5E1] flex items-center gap-1.5">
+          <div className="gma-card rounded-2xl p-5">
+            <h3 className="text-sm font-bold uppercase tracking-wider text-gma-navy pb-3 mb-3 border-b border-gma-navy/10 flex items-center gap-1.5">
               <CalendarDays size={14} aria-hidden="true" /> Academic Calendar
             </h3>
             <div className="space-y-2 text-xs">
               <div className="flex justify-between">
-                <span className="text-[#64748B]">School:</span>
+                <span className="text-gma-muted">School:</span>
                 <span className="font-semibold text-[#0F172A]">{school.name}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-[#64748B]">Academic Year:</span>
+                <span className="text-gma-muted">Academic Year:</span>
                 <span className="font-semibold text-[#0F172A]">{school.academicYear}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-[#64748B]">Current Term:</span>
-                <span className="font-semibold text-[#0B1F4B]">{school.currentTerm}</span>
+                <span className="text-gma-muted">Current Term:</span>
+                <span className="font-semibold text-gma-navy">{school.currentTerm}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-[#64748B]">Term Assessment Close:</span>
+                <span className="text-gma-muted">Term Assessment Close:</span>
                 <span className="font-medium text-[#0F172A]">
                   {school.termEndDate
                     ? new Date(school.termEndDate).toLocaleDateString(undefined, {
@@ -371,7 +371,7 @@ export const AdminDashboard: React.FC = () => {
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-[#64748B]">Pass Mark:</span>
+                <span className="text-gma-muted">Pass Mark:</span>
                 <span className="font-semibold text-[#0F172A]">{school.passMark}%</span>
               </div>
             </div>

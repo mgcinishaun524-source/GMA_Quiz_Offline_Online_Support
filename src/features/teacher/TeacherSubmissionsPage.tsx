@@ -72,7 +72,7 @@ export const TeacherSubmissionsPage: React.FC = () => {
       accessor: (s) => (
         <div>
           <span className="font-semibold text-xs text-[#0F172A] block">{s.learnerName}</span>
-          <span className="font-mono text-[11px] text-[#64748B]">{s.learnerId}</span>
+          <span className="font-mono text-[11px] text-gma-muted">{s.learnerId}</span>
           {s.isFlagged && (
             <span className="inline-flex items-center gap-1 text-[10px] font-bold text-[#991B1B] bg-[#FEF2F2] px-1.5 py-0.5 border border-[#EF4444]/40 mt-1">
               <ShieldAlert size={10} /> Flagged — integrity violation
@@ -90,15 +90,15 @@ export const TeacherSubmissionsPage: React.FC = () => {
       header: 'Assessment Title',
       accessor: (s) => (
         <div>
-          <span className="font-medium text-xs text-[#0B1F4B] block">{s.quizTitle}</span>
-          <span className="text-[11px] text-[#64748B]">{s.subjectName} • {s.className}</span>
+          <span className="font-medium text-xs text-gma-navy block">{s.quizTitle}</span>
+          <span className="text-[11px] text-gma-muted">{s.subjectName} • {s.className}</span>
         </div>
       ),
     },
     {
       header: 'Submission Time',
       accessor: (s) => (
-        <span className="text-xs text-[#64748B]">
+        <span className="text-xs text-gma-muted">
           {s.submittedAt ? new Date(s.submittedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Pending'}
         </span>
       ),
@@ -114,7 +114,7 @@ export const TeacherSubmissionsPage: React.FC = () => {
           );
         }
         return (
-          <span className="inline-flex items-center gap-1 text-[11px] font-medium text-[#0B1F4B] bg-[#F7F7F4] px-2 py-0.5 border border-[#D6A21E]/40">
+          <span className="inline-flex items-center gap-1 text-[11px] font-medium text-gma-navy bg-gma-mist px-2 py-0.5 border border-[gma-gold]/40">
             <Wifi size={11} /> Synced with Server
           </span>
         );
@@ -132,9 +132,9 @@ export const TeacherSubmissionsPage: React.FC = () => {
         return (
           <span className="text-xs font-semibold">
             {isReleased ? (
-              <span className="text-[#0B1F4B]">Visible to Learner ({s.percentage}%)</span>
+              <span className="text-gma-navy">Visible to Learner ({s.percentage}%)</span>
             ) : (
-              <span className="text-[#64748B]">Hidden (Pending Release)</span>
+              <span className="text-gma-muted">Hidden (Pending Release)</span>
             )}
           </span>
         );
@@ -172,9 +172,9 @@ export const TeacherSubmissionsPage: React.FC = () => {
       )}
 
       {/* Filters Bar */}
-      <div className="bg-white border border-[#CBD5E1] p-4 flex flex-col md:flex-row gap-3 items-center justify-between shadow-sm">
+      <div className="gma-card rounded-2xl p-4 flex flex-col md:flex-row gap-3 items-center justify-between">
         <div className="relative w-full md:w-80">
-          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#64748B]" />
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gma-muted" />
           <InputField
             type="text"
             placeholder="Search by learner name, ID, or quiz..."
@@ -186,7 +186,7 @@ export const TeacherSubmissionsPage: React.FC = () => {
 
         <div className="flex flex-wrap items-center gap-2.5 w-full md:w-auto">
           <div className="flex items-center gap-1.5 text-xs">
-            <span className="font-semibold text-[#64748B] uppercase">Quiz:</span>
+            <span className="font-semibold text-gma-muted uppercase">Quiz:</span>
             <SelectField
               value={selectedQuiz}
               onChange={(e) => setSelectedQuiz(e.target.value)}
@@ -202,7 +202,7 @@ export const TeacherSubmissionsPage: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-1.5 text-xs">
-            <span className="font-semibold text-[#64748B] uppercase">Class:</span>
+            <span className="font-semibold text-gma-muted uppercase">Class:</span>
             <SelectField
               value={selectedClass}
               onChange={(e) => setSelectedClass(e.target.value)}
@@ -218,7 +218,7 @@ export const TeacherSubmissionsPage: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-1.5 text-xs">
-            <span className="font-semibold text-[#64748B] uppercase">Sync:</span>
+            <span className="font-semibold text-gma-muted uppercase">Sync:</span>
             <SelectField
               value={selectedSyncStatus}
               onChange={(e) => setSelectedSyncStatus(e.target.value)}
@@ -230,7 +230,7 @@ export const TeacherSubmissionsPage: React.FC = () => {
             </SelectField>
           </div>
 
-          <span className="text-xs text-[#64748B] font-medium border-l border-[#CBD5E1] pl-2.5">
+          <span className="text-xs text-gma-muted font-medium border-l border-gma-navy/10 pl-2.5">
             {filtered.length} Records
           </span>
         </div>

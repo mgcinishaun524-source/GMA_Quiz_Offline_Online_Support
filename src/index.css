@@ -1,6 +1,52 @@
 @import "tailwindcss";
 
 /* ============================================================
+   TYPEFACE — Plus Jakarta Sans (self-hosted, offline-first)
+   One variable font file per unicode subset (wght 400–800),
+   served from /public/fonts so no external request is needed.
+   ============================================================ */
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-style: normal;
+  font-weight: 400 800;
+  font-display: swap;
+  src: url('/fonts/plus-jakarta-sans-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-style: normal;
+  font-weight: 400 800;
+  font-display: swap;
+  src: url('/fonts/plus-jakarta-sans-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+/* ============================================================
+   LOCKED GMA PALETTE — exposed as Tailwind utilities
+   e.g. bg-gma-sky, text-gma-navy, border-gma-frost, font-jakarta.
+   These ADD new tokens; the legacy --gma-* tokens below are left
+   untouched so existing screens are unaffected.
+   ============================================================ */
+@theme {
+  --font-jakarta: 'Plus Jakarta Sans', 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif;
+  --color-gma-sky: #6CABDD;
+  --color-gma-sky-deep: #4E93CB;
+  --color-gma-navy: #1C2C5B;
+  --color-gma-navy-deep: #152247;
+  --color-gma-frost: #E8F3FC;
+  --color-gma-mist: #F5F8FC;
+  --color-gma-ink: #0F172A;
+  /* Supporting tints for the app-wide redesign */
+  --color-gma-line: #D7E3F3;
+  --color-gma-muted: #5B6B85;
+  --color-gma-gold: #D6A21E;
+  --color-gma-gold-soft: #FBE9B8;
+  --shadow-gma-card: 0 26px 60px -34px rgba(28, 44, 91, 0.30), 0 8px 24px -18px rgba(28, 44, 91, 0.16);
+  --shadow-gma-float: 0 30px 66px -30px rgba(28, 44, 91, 0.42), 0 10px 26px -18px rgba(28, 44, 91, 0.24);
+}
+
+/* ============================================================
    GROWING MINDS ACADEMY — DESIGN TOKENS
    ============================================================ */
 :root {
@@ -123,6 +169,12 @@ body {
 
 @keyframes gma-splash-out {
   to { opacity: 0; transform: scale(1.06); filter: blur(7px); }
+}
+
+/* Bottom sheet slides up from below the viewport. */
+@keyframes gma-sheet-up {
+  from { opacity: 0; transform: translate3d(0, 40px, 0); }
+  to   { opacity: 1; transform: translate3d(0, 0, 0); }
 }
 
 /* --- Logo mark --------------------------------------------------------- */
@@ -256,6 +308,87 @@ body {
   animation: gma-load 2.55s cubic-bezier(0.2, 0.7, 0.3, 1) 0.20s both;
 }
 
+/* ============================================================
+   SPLASH — floating logo + frosted bottom sheet
+   The school's real logo floats above a halo; a glass bottom
+   sheet slides up with headline, subtitle, page dots and the
+   "Get Started" CTA. Only the locked GMA palette is used.
+   ============================================================ */
+
+/* Soft halo behind the floating logo — sky + gold only. */
+.gma-splash-logo-halo {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 320px;
+  height: 320px;
+  transform: translate(-50%, -50%);
+  background:
+    radial-gradient(circle, rgba(108, 171, 221, 0.45) 0%, rgba(108, 171, 221, 0.12) 38%, rgba(0, 0, 0, 0) 70%);
+  filter: blur(8px);
+  pointer-events: none;
+}
+
+/* Frosted bottom sheet with the top corners rounded like a sheet. */
+.gma-splash-sheet {
+  position: relative;
+  border-radius: 2rem 2rem 1.75rem 1.75rem;
+  background: rgba(21, 34, 71, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow:
+    0 30px 80px -20px rgba(0, 0, 0, 0.60),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.05);
+  -webkit-backdrop-filter: blur(38px) saturate(180%);
+  backdrop-filter: blur(38px) saturate(180%);
+  overflow: hidden;
+}
+
+/* Subtle sky-blue edge highlight along the top of the sheet. */
+.gma-splash-sheet::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 18%;
+  right: 18%;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(108,171,221,0.7) 50%, rgba(255,255,255,0) 100%);
+}
+
+/* Primary CTA — white pill, navy text, sky accent on press. */
+.gma-splash-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 54px;
+  border-radius: 9999px;
+  background: #FFFFFF;
+  color: #1C2C5B;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  box-shadow:
+    0 16px 34px -14px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  transition: transform 150ms ease, box-shadow 150ms ease;
+}
+.gma-splash-cta:hover {
+  box-shadow:
+    0 20px 44px -14px rgba(108, 171, 221, 0.50),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+.gma-splash-cta:active {
+  transform: scale(0.97);
+  background: #F5F8FC;
+}
+
+/* No-backdrop-filter fallback — near-opaque navy sheet. */
+@supports not ((backdrop-filter: blur(4px)) or (-webkit-backdrop-filter: blur(4px))) {
+  .gma-splash-sheet {
+    background: rgba(15, 23, 42, 0.96);
+  }
+}
+
 /* --- Scrollbar (keep last) --------------------------------------------- */
 
 /* ============================================================
@@ -274,4 +407,192 @@ body {
 }
 ::-webkit-scrollbar-thumb:hover {
   background: var(--gma-navy);
+}
+
+/* ============================================================
+   AUTH / LOGIN EXPERIENCE — Redesign Milestone 01
+   Scoped to the .gma-auth root so nothing here leaks into the
+   dashboards (those are redesigned in later milestones).
+   ============================================================ */
+
+/* Soft blue-white foundation + ambient washes */
+.gma-auth {
+  font-family: var(--font-jakarta);
+  color: #0F172A;
+  background-color: #F5F8FC;
+  background-image:
+    radial-gradient(90% 70% at 6% 0%, #FFFFFF 0%, rgba(255, 255, 255, 0) 58%),
+    radial-gradient(85% 80% at 100% 0%, #E8F3FC 0%, rgba(232, 243, 252, 0) 62%),
+    linear-gradient(168deg, #F5F8FC 0%, #E8F3FC 50%, #DCEAF8 100%);
+}
+
+/* Branded sky-blue focus ring, scoped to the auth experience */
+.gma-auth :focus-visible {
+  outline: 2px solid #6CABDD;
+  outline-offset: 2px;
+}
+
+/* Faint dotted grid, faded out toward the bottom */
+.gma-auth-grid {
+  background-image: radial-gradient(rgba(28, 44, 91, 0.07) 1px, transparent 1px);
+  background-size: 22px 22px;
+  -webkit-mask-image: radial-gradient(115% 78% at 50% 0%, #000 0%, transparent 76%);
+  mask-image: radial-gradient(115% 78% at 50% 0%, #000 0%, transparent 76%);
+}
+
+/* Soft ambient orbs sitting behind the glass card */
+.gma-orb {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(48px);
+  opacity: 0.55;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .gma-orb { animation: gma-drift 20s ease-in-out infinite alternate; }
+  .gma-orb-b { animation-duration: 26s; animation-delay: -7s; }
+  .gma-orb-c { animation-duration: 32s; animation-delay: -13s; }
+}
+
+@keyframes gma-drift {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to   { transform: translate3d(2rem, -1.5rem, 0) scale(1.08); }
+}
+
+/* Layered translucent glass surfaces.
+   - .gma-glass       → brand panel / secondary surfaces
+   - .gma-glass-strong → the main login card (more opaque, stronger blur)
+   Browsers without backdrop-filter fall back to a near-opaque solid so the
+   form is always readable (see the @supports block below). */
+.gma-glass {
+  background: rgba(255, 255, 255, 0.62);
+  border: 1px solid rgba(255, 255, 255, 0.70);
+  box-shadow:
+    0 30px 70px -24px rgba(28, 44, 91, 0.34),
+    0 12px 32px -18px rgba(28, 44, 91, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.90);
+  -webkit-backdrop-filter: blur(26px) saturate(160%);
+  backdrop-filter: blur(26px) saturate(160%);
+}
+
+.gma-glass-strong {
+  background: rgba(255, 255, 255, 0.74);
+  -webkit-backdrop-filter: blur(34px) saturate(175%);
+  backdrop-filter: blur(34px) saturate(175%);
+}
+
+@supports not ((backdrop-filter: blur(4px)) or (-webkit-backdrop-filter: blur(4px))) {
+  .gma-glass,
+  .gma-glass-strong {
+    background: rgba(255, 255, 255, 0.97);
+  }
+}
+
+/* ============================================================
+   APPLICATION-WIDE DESIGN SYSTEM — Redesign Milestone 02
+   Sky-inspired glassmorphism shared by every portal screen
+   (admin / teacher / learner). Nothing here is route-specific.
+   ============================================================ */
+
+/* App canvas: soft blue-white with gentle ambient washes */
+.gma-app {
+  font-family: var(--font-jakarta);
+  color: #0F172A;
+  background-color: #F5F8FC;
+  background-image:
+    radial-gradient(80% 55% at 8% -4%, #FFFFFF 0%, rgba(255, 255, 255, 0) 60%),
+    radial-gradient(70% 60% at 100% 0%, #E8F3FC 0%, rgba(232, 243, 252, 0) 58%),
+    linear-gradient(180deg, #F5F8FC 0%, #EFF5FC 100%);
+  background-attachment: fixed;
+}
+
+/* Faint dotted grid used behind hero / empty areas */
+.gma-app-grid {
+  background-image: radial-gradient(rgba(28, 44, 91, 0.06) 1px, transparent 1px);
+  background-size: 24px 24px;
+  -webkit-mask-image: radial-gradient(110% 70% at 50% 0%, #000 0%, transparent 78%);
+  mask-image: radial-gradient(110% 70% at 50% 0%, #000 0%, transparent 78%);
+}
+
+/* Ambient blurred orbs — decorative only, disabled for reduced motion */
+.gma-app-orb {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(60px);
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+/* ── Layered translucent surfaces ─────────────────────────────
+   .gma-card        → standard content card (tables, panels, forms)
+   .gma-card-tint   → frost-tinted card for sidebars / highlights
+   .gma-nav-glass   → floating navigation chrome (light)
+   .gma-nav-glass-navy → floating navigation chrome (navy)
+   All degrade to a near-opaque solid when backdrop-filter is absent. */
+
+.gma-card {
+  background: rgba(255, 255, 255, 0.74);
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  box-shadow:
+    0 26px 60px -34px rgba(28, 44, 91, 0.30),
+    0 8px 24px -18px rgba(28, 44, 91, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.85);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  backdrop-filter: blur(20px) saturate(150%);
+}
+
+.gma-card-tint {
+  background: linear-gradient(180deg, rgba(232, 243, 252, 0.92) 0%, rgba(255, 255, 255, 0.78) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  box-shadow:
+    0 22px 52px -36px rgba(28, 44, 91, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.85);
+  -webkit-backdrop-filter: blur(18px) saturate(145%);
+  backdrop-filter: blur(18px) saturate(145%);
+}
+
+.gma-nav-glass {
+  background: rgba(255, 255, 255, 0.80);
+  border: 1px solid rgba(255, 255, 255, 0.80);
+  box-shadow:
+    0 22px 54px -30px rgba(28, 44, 91, 0.42),
+    inset 0 1px 0 rgba(255, 255, 255, 0.90);
+  -webkit-backdrop-filter: blur(22px) saturate(165%);
+  backdrop-filter: blur(22px) saturate(165%);
+}
+
+.gma-nav-glass-navy {
+  background: linear-gradient(180deg, rgba(21, 34, 71, 0.94) 0%, rgba(28, 44, 91, 0.92) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow:
+    0 24px 56px -28px rgba(16, 26, 54, 0.62),
+    inset 0 1px 0 rgba(255, 255, 255, 0.16);
+  -webkit-backdrop-filter: blur(22px) saturate(160%);
+  backdrop-filter: blur(22px) saturate(160%);
+}
+
+/* Branded sky-blue focus ring across the app */
+.gma-app :focus-visible {
+  outline: 2px solid #6CABDD;
+  outline-offset: 2px;
+}
+
+/* Subtle float used by the navigation chrome (reduced-motion safe) */
+@keyframes gma-float {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(0, -6px, 0); }
+}
+
+@supports not ((backdrop-filter: blur(4px)) or (-webkit-backdrop-filter: blur(4px))) {
+  .gma-card,
+  .gma-card-tint {
+    background: rgba(255, 255, 255, 0.98);
+  }
+  .gma-nav-glass {
+    background: #FFFFFF;
+  }
+  .gma-nav-glass-navy {
+    background: #152247;
+  }
 }

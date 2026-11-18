@@ -24,20 +24,20 @@ export const AdminSettingsPage: React.FC = () => {
       />
 
       {isSaved && (
-        <div className="p-3 bg-[#F7F7F4] border border-[#D6A21E] text-[#0B1F4B] text-xs font-semibold">
+        <div className="p-3 bg-gma-mist border border-gma-gold text-gma-navy text-xs font-semibold">
           School configuration and assessment rules updated successfully.
         </div>
       )}
 
       <form onSubmit={handleSave} className="space-y-6">
         {/* School Profile */}
-        <div className="bg-white border border-[#CBD5E1] p-5 shadow-sm">
-          <div className="pb-3 mb-4 border-b border-[#CBD5E1]">
-            <h3 className="text-sm font-bold uppercase tracking-wider text-[#0B1F4B] flex items-center gap-2">
-              <School size={16} className="text-[#D6A21E]" />
+        <div className="gma-card rounded-2xl p-5">
+          <div className="pb-3 mb-4 border-b border-gma-navy/10">
+            <h3 className="text-sm font-bold uppercase tracking-wider text-gma-navy flex items-center gap-2">
+              <School size={16} className="text-gma-gold" />
               <span>Institutional Identity & Profile</span>
             </h3>
-            <p className="text-xs text-[#64748B]">Official school name and accreditation details</p>
+            <p className="text-xs text-gma-muted">Official school name and accreditation details</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -61,12 +61,12 @@ export const AdminSettingsPage: React.FC = () => {
         </div>
 
         {/* Academic Calendar */}
-        <div className="bg-white border border-[#CBD5E1] p-5 shadow-sm">
-          <div className="pb-3 mb-4 border-b border-[#CBD5E1]">
-            <h3 className="text-sm font-bold uppercase tracking-wider text-[#0B1F4B]">
+        <div className="gma-card rounded-2xl p-5">
+          <div className="pb-3 mb-4 border-b border-gma-navy/10">
+            <h3 className="text-sm font-bold uppercase tracking-wider text-gma-navy">
               Academic Calendar & Assessment Window
             </h3>
-            <p className="text-xs text-[#64748B]">Active school term and grading calendar</p>
+            <p className="text-xs text-gma-muted">Active school term and grading calendar</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -101,12 +101,12 @@ export const AdminSettingsPage: React.FC = () => {
         </div>
 
         {/* Assessment Defaults */}
-        <div className="bg-white border border-[#CBD5E1] p-5 shadow-sm">
-          <div className="pb-3 mb-4 border-b border-[#CBD5E1]">
-            <h3 className="text-sm font-bold uppercase tracking-wider text-[#0B1F4B]">
+        <div className="gma-card rounded-2xl p-5">
+          <div className="pb-3 mb-4 border-b border-gma-navy/10">
+            <h3 className="text-sm font-bold uppercase tracking-wider text-gma-navy">
               Default Assessment Policies & Offline Rules
             </h3>
-            <p className="text-xs text-[#64748B]">
+            <p className="text-xs text-gma-muted">
               Standard result release policies and offline tablet caching options
             </p>
           </div>

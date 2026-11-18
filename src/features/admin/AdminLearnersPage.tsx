@@ -169,7 +169,7 @@ export const AdminLearnersPage: React.FC = () => {
   const columns: Column<Learner>[] = [
     {
       header: 'Learner ID',
-      accessor: (l) => <span className="font-mono font-bold text-xs text-[#0B1F4B]">{l.id}</span>,
+      accessor: (l) => <span className="font-mono font-bold text-xs text-gma-navy">{l.id}</span>,
     },
     {
       header: 'Full Name',
@@ -179,7 +179,7 @@ export const AdminLearnersPage: React.FC = () => {
             {l.firstName} {l.lastName}
           </span>
           {l.guardianContact && (
-            <span className="text-[11px] text-[#64748B] block">{l.guardianContact}</span>
+            <span className="text-[11px] text-gma-muted block">{l.guardianContact}</span>
           )}
         </div>
       ),
@@ -196,7 +196,7 @@ export const AdminLearnersPage: React.FC = () => {
       header: 'Tablet PIN',
       accessor: (l) =>
         l.pin ? (
-          <span className="font-mono text-xs text-[#64748B]">{l.pin}</span>
+          <span className="font-mono text-xs text-gma-muted">{l.pin}</span>
         ) : (
           <span className="text-xs text-[#94A3B8]" title="PIN is securely hashed and cannot be displayed">
             ••••
@@ -214,28 +214,28 @@ export const AdminLearnersPage: React.FC = () => {
         <div className="flex items-center justify-end gap-1.5" onClick={(e) => e.stopPropagation()}>
           <button
             onClick={() => setViewingLearner(l)}
-            className="p-1.5 text-[#64748B] hover:text-[#0B1F4B] hover:bg-[#F7F7F4] transition-colors"
+            className="p-1.5 text-gma-muted hover:text-gma-navy hover:bg-gma-frost/60 transition-colors"
             title="View Details"
           >
             <Eye size={14} />
           </button>
           <button
             onClick={() => openEditModal(l)}
-            className="p-1.5 text-[#64748B] hover:text-[#0B1F4B] hover:bg-[#F7F7F4] transition-colors"
+            className="p-1.5 text-gma-muted hover:text-gma-navy hover:bg-gma-frost/60 transition-colors"
             title="Edit Learner"
           >
             <Edit2 size={14} />
           </button>
           <button
             onClick={() => handleToggleStatus(l)}
-            className="p-1.5 text-[#64748B] hover:text-[#0B1F4B] hover:bg-[#F7F7F4] transition-colors"
+            className="p-1.5 text-gma-muted hover:text-gma-navy hover:bg-gma-frost/60 transition-colors"
             title={l.isActive ? 'Deactivate Account' : 'Activate Account'}
           >
             {l.isActive ? <UserX size={14} /> : <UserCheck size={14} />}
           </button>
           <button
             onClick={() => setDeletingId(l.id)}
-            className="p-1.5 text-[#64748B] hover:text-[#B91C1C] hover:bg-[#FEE2E2] transition-colors"
+            className="p-1.5 text-gma-muted hover:text-[#B91C1C] hover:bg-[#FEE2E2] transition-colors"
             title="Delete Record"
           >
             <Trash2 size={14} />
@@ -272,9 +272,9 @@ export const AdminLearnersPage: React.FC = () => {
       )}
 
       {/* Filters and Search Bar */}
-      <div className="bg-white border border-[#CBD5E1] p-4 flex flex-col md:flex-row gap-3 items-center justify-between shadow-sm">
+      <div className="gma-card rounded-2xl p-4 flex flex-col md:flex-row gap-3 items-center justify-between">
         <div className="relative w-full md:w-80">
-          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#64748B]" />
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gma-muted" />
           <InputField
             type="text"
             placeholder="Search by name or GMA ID..."
@@ -286,7 +286,7 @@ export const AdminLearnersPage: React.FC = () => {
 
         <div className="flex flex-wrap items-center gap-2.5 w-full md:w-auto">
           <div className="flex items-center gap-1.5 text-xs">
-            <span className="font-semibold text-[#64748B] uppercase">Grade:</span>
+            <span className="font-semibold text-gma-muted uppercase">Grade:</span>
             <SelectField
               value={selectedGrade}
               onChange={(e) => setSelectedGrade(e.target.value)}
@@ -301,7 +301,7 @@ export const AdminLearnersPage: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-1.5 text-xs">
-            <span className="font-semibold text-[#64748B] uppercase">Class:</span>
+            <span className="font-semibold text-gma-muted uppercase">Class:</span>
             <SelectField
               value={selectedClass}
               onChange={(e) => setSelectedClass(e.target.value)}
@@ -316,7 +316,7 @@ export const AdminLearnersPage: React.FC = () => {
             </SelectField>
           </div>
 
-          <span className="text-xs text-[#64748B] font-medium border-l border-[#CBD5E1] pl-2.5">
+          <span className="text-xs text-gma-muted font-medium border-l border-gma-navy/10 pl-2.5">
             Showing {filteredLearners.length} learners
           </span>
         </div>
@@ -334,9 +334,9 @@ export const AdminLearnersPage: React.FC = () => {
       {/* Add / Edit Learner Modal */}
       {(isAddModalOpen || editingLearner) && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0F172A]/40 backdrop-blur-xs">
-          <div className="bg-white border border-[#CBD5E1] shadow-lg max-w-lg w-full p-6">
-            <div className="flex items-center justify-between pb-3 mb-4 border-b border-[#CBD5E1]">
-              <h3 className="text-base font-bold uppercase tracking-wider text-[#0B1F4B]">
+          <div className="gma-card rounded-2xl max-w-lg w-full p-6">
+            <div className="flex items-center justify-between pb-3 mb-4 border-b border-gma-navy/10">
+              <h3 className="text-base font-bold uppercase tracking-wider text-gma-navy">
                 {editingLearner ? `Edit Learner: ${editingLearner.id}` : 'Register New Learner'}
               </h3>
               <button
@@ -344,7 +344,7 @@ export const AdminLearnersPage: React.FC = () => {
                   setIsAddModalOpen(false);
                   setEditingLearner(null);
                 }}
-                className="text-[#64748B] hover:text-[#0B1F4B]"
+                className="text-gma-muted hover:text-gma-navy"
               >
                 <X size={18} />
               </button>
@@ -431,7 +431,7 @@ export const AdminLearnersPage: React.FC = () => {
                 </FormField>
               </div>
 
-              <div className="flex items-center justify-end gap-3 pt-3 border-t border-[#CBD5E1]">
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-gma-navy/10">
                 <OutlineButton
                   type="button"
                   onClick={() => {
@@ -453,51 +453,51 @@ export const AdminLearnersPage: React.FC = () => {
       {/* Learner Detail View Drawer/Modal */}
       {viewingLearner && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0F172A]/40 backdrop-blur-xs">
-          <div className="bg-white border border-[#CBD5E1] shadow-lg max-w-md w-full p-6">
-            <div className="flex items-center justify-between pb-3 mb-4 border-b border-[#CBD5E1]">
+          <div className="gma-card rounded-2xl max-w-md w-full p-6">
+            <div className="flex items-center justify-between pb-3 mb-4 border-b border-gma-navy/10">
               <div>
-                <h3 className="text-base font-bold text-[#0B1F4B]">Learner Profile Card</h3>
-                <span className="text-xs font-mono text-[#D6A21E] font-semibold">
+                <h3 className="text-base font-bold text-gma-navy">Learner Profile Card</h3>
+                <span className="text-xs font-mono text-gma-gold font-semibold">
                   {viewingLearner.id}
                 </span>
               </div>
               <button
                 onClick={() => setViewingLearner(null)}
-                className="text-[#64748B] hover:text-[#0B1F4B]"
+                className="text-gma-muted hover:text-gma-navy"
               >
                 <X size={18} />
               </button>
             </div>
 
             <div className="space-y-3 text-xs mb-6">
-              <div className="flex justify-between py-1.5 border-b border-[#CBD5E1]/40">
-                <span className="text-[#64748B]">Full Name:</span>
+              <div className="flex justify-between py-1.5 border-b border-gma-navy/10">
+                <span className="text-gma-muted">Full Name:</span>
                 <span className="font-bold text-[#0F172A]">
                   {viewingLearner.firstName} {viewingLearner.lastName}
                 </span>
               </div>
-              <div className="flex justify-between py-1.5 border-b border-[#CBD5E1]/40">
-                <span className="text-[#64748B]">Grade Level:</span>
-                <span className="font-semibold text-[#0B1F4B]">{viewingLearner.grade}</span>
+              <div className="flex justify-between py-1.5 border-b border-gma-navy/10">
+                <span className="text-gma-muted">Grade Level:</span>
+                <span className="font-semibold text-gma-navy">{viewingLearner.grade}</span>
               </div>
-              <div className="flex justify-between py-1.5 border-b border-[#CBD5E1]/40">
-                <span className="text-[#64748B]">Assigned Class:</span>
+              <div className="flex justify-between py-1.5 border-b border-gma-navy/10">
+                <span className="text-gma-muted">Assigned Class:</span>
                 <span className="font-semibold text-[#0F172A]">{viewingLearner.className}</span>
               </div>
-              <div className="flex justify-between py-1.5 border-b border-[#CBD5E1]/40">
-                <span className="text-[#64748B]">Tablet PIN:</span>
-                <span className="font-mono font-bold text-[#0B1F4B]">
+              <div className="flex justify-between py-1.5 border-b border-gma-navy/10">
+                <span className="text-gma-muted">Tablet PIN:</span>
+                <span className="font-mono font-bold text-gma-navy">
                   {viewingLearner.pin ? viewingLearner.pin : '•••• (hashed)'}
                 </span>
               </div>
-              <div className="flex justify-between py-1.5 border-b border-[#CBD5E1]/40">
-                <span className="text-[#64748B]">Enrollment Date:</span>
+              <div className="flex justify-between py-1.5 border-b border-gma-navy/10">
+                <span className="text-gma-muted">Enrollment Date:</span>
                 <span className="text-[#0F172A]">
                   {new Date(viewingLearner.enrolledDate).toLocaleDateString()}
                 </span>
               </div>
-              <div className="flex justify-between py-1.5 border-b border-[#CBD5E1]/40">
-                <span className="text-[#64748B]">Account Status:</span>
+              <div className="flex justify-between py-1.5 border-b border-gma-navy/10">
+                <span className="text-gma-muted">Account Status:</span>
                 <StatusLabel status={viewingLearner.isActive ? 'active' : 'inactive'} />
               </div>
             </div>
