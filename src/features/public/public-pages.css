@@ -1,0 +1,67 @@
+/* A restrained, self-contained layout for the public professional profile pages. */
+.brand-page {
+  min-height: 100vh;
+  color: #172033;
+  background: #fff;
+  font-family: 'Plus Jakarta Sans', 'Segoe UI', system-ui, sans-serif;
+  line-height: 1.7;
+}
+.brand-page a { color: #174b81; text-underline-offset: 3px; }
+.brand-page a:hover { color: #0b3158; }
+.brand-header, .brand-footer {
+  width: min(100% - 3rem, 1100px);
+  margin-inline: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+.brand-header { min-height: 76px; border-bottom: 1px solid #e6eaf0; }
+.brand-wordmark { color: #172033 !important; font-weight: 750; text-decoration: none; letter-spacing: -.025em; }
+.brand-header nav { display: flex; flex-wrap: wrap; gap: 1.25rem; font-size: .9rem; }
+.brand-header nav a { text-decoration: none; }
+.brand-page article { width: min(100% - 3rem, 820px); margin: auto; }
+.brand-hero { padding: clamp(4rem, 11vw, 8rem) 0 5rem; border-bottom: 1px solid #e6eaf0; }
+.brand-eyebrow { margin: 0 0 .85rem; color: #5a6780; font-size: .76rem; font-weight: 750; letter-spacing: .12em; text-transform: uppercase; }
+.brand-page h1, .brand-page h2, .brand-page h3 { color: #14213a; line-height: 1.2; letter-spacing: -.035em; }
+.brand-page h1 { max-width: 760px; margin: 0; font-size: clamp(2.7rem, 8vw, 5rem); }
+.brand-page h2 { margin: 0 0 1.15rem; font-size: clamp(1.7rem, 4vw, 2.45rem); }
+.brand-page h3 { margin: 2rem 0 .7rem; font-size: 1.2rem; }
+.brand-lede { max-width: 690px; margin: 1.4rem 0 1.6rem; color: #4a5870; font-size: clamp(1.1rem, 2.8vw, 1.35rem); }
+.brand-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 1.25rem; }
+.brand-button { display: inline-flex; min-height: 46px; align-items: center; justify-content: center; padding: .65rem 1.1rem; border: 1px solid #1c3e66; border-radius: 4px; background: #1c3e66; color: white !important; font-weight: 650; text-decoration: none; }
+.brand-button:hover { background: #102d4f; }
+.brand-text-link { font-weight: 650; }
+.brand-section { padding: 4rem 0; border-bottom: 1px solid #e6eaf0; }
+.brand-section > p:not(.brand-eyebrow), .brand-contact > p:not(.brand-eyebrow) { max-width: 760px; color: #4a5870; }
+.capability-list, .feature-list { padding-left: 1.25rem; }
+.capability-list { display: grid; gap: 1.3rem; padding-left: 0; list-style: none; }
+.capability-list li { display: grid; gap: .15rem; padding-bottom: 1rem; border-bottom: 1px solid #edf0f4; }
+.capability-list strong { color: #172033; }
+.capability-list span { color: #59667b; }
+.project-link-card { display: flex; justify-content: space-between; gap: 1rem; align-items: center; padding: 1.2rem 1.3rem; border: 1px solid #dfe5ec; border-radius: 5px; text-decoration: none; }
+.project-link-card span:first-child { display: grid; }
+.project-link-card strong { color: #172033; }
+.project-link-card small { color: #59667b; }
+.brand-contact { padding: 4rem 0; }
+.brand-contact h2 { margin-bottom: .8rem; }
+.brand-credit { margin-top: 2.25rem; font-size: .9rem; }
+.brand-footer { min-height: 78px; border-top: 1px solid #e6eaf0; color: #59667b; font-size: .85rem; }
+.breadcrumbs { display: flex; flex-wrap: wrap; gap: .6rem; padding-top: 1.5rem; color: #657187; font-size: .88rem; }
+.project-hero { padding-top: 4rem; }
+.project-attribution { color: #30425d; }
+.project-status { display: flex; align-items: flex-start; gap: .6rem; max-width: 680px; padding: .9rem 1rem; border-left: 3px solid #b7791f; background: #fffaf0; color: #5f461e; }
+.status-dot { flex: 0 0 .55rem; width: .55rem; height: .55rem; margin-top: .45rem; border-radius: 50%; background: #b7791f; }
+.technology-list { display: flex; flex-wrap: wrap; gap: .55rem; padding: 0; list-style: none; }
+.technology-list li { padding: .35rem .7rem; border: 1px solid #dfe5ec; border-radius: 3px; color: #33445e; font-size: .9rem; }
+.attribution-panel { padding-inline: 1rem; border-left: 3px solid #1c3e66; }
+@media (max-width: 640px) {
+  .brand-header, .brand-footer { width: min(100% - 2rem, 1100px); }
+  .brand-header { align-items: flex-start; flex-direction: column; justify-content: center; padding-block: 1rem; }
+  .brand-header nav { gap: .7rem 1rem; }
+  .brand-page article { width: min(100% - 2rem, 820px); }
+  .brand-hero { padding-block: 3.5rem; }
+  .brand-section, .brand-contact { padding-block: 3rem; }
+  .brand-footer { align-items: flex-start; flex-direction: column; justify-content: center; padding-block: 1rem; }
+}
+@media (prefers-reduced-motion: reduce) { .brand-page *, .brand-page *::before, .brand-page *::after { scroll-behavior: auto !important; } }
