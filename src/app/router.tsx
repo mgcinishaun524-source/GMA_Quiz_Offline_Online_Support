@@ -3,6 +3,7 @@ import { createBrowserRouter, Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from './AuthContext';
 import { AppShell } from '../components/layout/AppShell';
 import { LearnerSubmittedPage } from '../features/learner/LearnerSubmittedPage';
+import { DeveloperProfilePage, GmaQuizProjectPage } from '../features/public/PublicPages';
 
 // Auth pages stay in the entry bundle: they are the first screen an
 // unauthenticated visitor sees, so code-splitting them would only add a
@@ -51,138 +52,58 @@ const PrintableQuizPage = React.lazy(() => import('../features/teacher/Printable
 const PageLoader: React.FC = () => (
   <div className="flex flex-col items-center justify-center gap-3 py-24" role="status" aria-live="polite">
     <span className="sr-only">Loading page…</span>
-    <span
-      aria-hidden="true"
-      className="h-8 w-8 rounded-full border-2 border-gma-navy/12 border-t-gma-sky animate-spin"
-    />
+    <span aria-hidden="true" className="h-8 w-8 rounded-full border-2 border-gma-navy/12 border-t-gma-sky animate-spin" />
     <span className="text-xs font-medium uppercase tracking-[0.18em] text-gma-muted">Loading</span>
   </div>
 );
 
 type PageComponent = React.LazyExoticComponent<React.ComponentType>;
+const page = (Component: PageComponent) => <Suspense fallback={<PageLoader />}><Component /></Suspense>;
 
-const page = (Component: PageComponent) => (
-  <Suspense fallback={<PageLoader />}>
-    <Component />
-  </Suspense>
-);
-
-// Route Guard Component
-interface ProtectedRouteProps {
-  allowedRoles: ('admin' | 'teacher' | 'learner')[];
-}
-
+interface ProtectedRouteProps { allowedRoles: ('admin' | 'teacher' | 'learner')[]; }
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ allowedRoles }) => {
   const { user, role, isAuthenticated } = useAuth();
-
-  if (!isAuthenticated || !user) {
-    return <Navigate to="/login" replace />;
-  }
-
-  if (role && !allowedRoles.includes(role)) {
-    return <Navigate to="/unauthorized" replace />;
-  }
-
+  if (!isAuthenticated || !user) return <Navigate to="/login" replace />;
+  if (role && !allowedRoles.includes(role)) return <Navigate to="/unauthorized" replace />;
   return <Outlet />;
 };
 
-// Root Redirect Component
 const RootRedirect: React.FC = () => {
   const { user, role, isAuthenticated } = useAuth();
-
-  if (!isAuthenticated || !user) {
-    return <Navigate to="/login" replace />;
-  }
-
+  if (!isAuthenticated || !user) return <Navigate to="/login" replace />;
   if (role === 'admin') return <Navigate to="/admin/dashboard" replace />;
   if (role === 'teacher') return <Navigate to="/teacher/dashboard" replace />;
   if (role === 'learner') return <Navigate to="/learner/dashboard" replace />;
-
   return <Navigate to="/login" replace />;
 };
 
 export const router = createBrowserRouter([
-  {
-    path: '/',
-    element: <RootRedirect />,
-  },
-  {
-    path: '/login',
-    element: <LoginPage />,
-  },
-  {
-    path: '/unauthorized',
-    element: <UnauthorizedPage />,
-  },
+  { path: '/', element: <RootRedirect /> },
+  { path: '/mgcini-shaun-moyo', element: <DeveloperProfilePage /> },
+  { path: '/projects/gma-quiz-system', element: <GmaQuizProjectPage /> },
+  { path: '/login', element: <LoginPage /> },
+  { path: '/unauthorized', element: <UnauthorizedPage /> },
 
-  // Admin Portal Base
-  {
-    path: '/admin',
-    element: <ProtectedRoute allowedRoles={['admin']} />,
-    children: [
-      {
-        element: <AppShell />,
-        children: [
-          { index: true, element: <Navigate to="/admin/dashboard" replace /> },
-          { path: 'dashboard', element: page(AdminDashboard) },
-          { path: 'learners', element: page(AdminLearnersPage) },
-          { path: 'teachers', element: page(AdminTeachersPage) },
-          { path: 'classes', element: page(AdminClassesPage) },
-          { path: 'subjects', element: page(AdminSubjectsPage) },
-          { path: 'analytics', element: page(AdminAnalyticsPage) },
-          { path: 'settings', element: page(AdminSettingsPage) },
-        ],
-      },
-    ],
-  },
-
-  // Teacher Portal Base
-  {
-    path: '/teacher',
-    element: <ProtectedRoute allowedRoles={['teacher', 'admin']} />,
-    children: [
-      {
-        element: <AppShell />,
-        children: [
-          { index: true, element: <Navigate to="/teacher/dashboard" replace /> },
-          { path: 'dashboard', element: page(TeacherDashboard) },
-          { path: 'classes', element: page(TeacherClassesPage) },
-          { path: 'quizzes', element: page(TeacherQuizzesPage) },
-          { path: 'quizzes/new', element: page(NewQuizPage) },
-          { path: 'quizzes/:id', element: page(TeacherQuizDetailPage) },
-          { path: 'quizzes/:id/print', element: page(PrintableQuizPage) },
-          { path: 'submissions', element: page(TeacherSubmissionsPage) },
-          { path: 'results', element: page(TeacherResultsPage) },
-          { path: 'analytics', element: page(TeacherAnalyticsPage) },
-          { path: 'settings', element: page(TeacherSettingsPage) },
-        ],
-      },
-    ],
-  },
-
-  // Learner Portal Base
-  {
-    path: '/learner',
-    element: <ProtectedRoute allowedRoles={['learner', 'teacher', 'admin']} />,
-    children: [
-      {
-        element: <AppShell />,
-        children: [
-          { index: true, element: <Navigate to="/learner/dashboard" replace /> },
-          { path: 'dashboard', element: page(LearnerDashboard) },
-          { path: 'quizzes', element: page(LearnerQuizzesPage) },
-          { path: 'quizzes/:id/print', element: page(PrintableQuizPage) },
-          { path: 'take/:id', element: page(LearnerQuizPlayer) },
-          { path: 'submitted', element: <LearnerSubmittedPage /> },
-          { path: 'results', element: page(LearnerResultsPage) },
-        ],
-      },
-    ],
-  },
-
-  // Catch-all 404
-  {
-    path: '*',
-    element: <Navigate to="/" replace />,
-  },
+  { path: '/admin', element: <ProtectedRoute allowedRoles={['admin']} />, children: [{ element: <AppShell />, children: [
+    { index: true, element: <Navigate to="/admin/dashboard" replace /> },
+    { path: 'dashboard', element: page(AdminDashboard) }, { path: 'learners', element: page(AdminLearnersPage) },
+    { path: 'teachers', element: page(AdminTeachersPage) }, { path: 'classes', element: page(AdminClassesPage) },
+    { path: 'subjects', element: page(AdminSubjectsPage) }, { path: 'analytics', element: page(AdminAnalyticsPage) },
+    { path: 'settings', element: page(AdminSettingsPage) },
+  ] }] },
+  { path: '/teacher', element: <ProtectedRoute allowedRoles={['teacher', 'admin']} />, children: [{ element: <AppShell />, children: [
+    { index: true, element: <Navigate to="/teacher/dashboard" replace /> },
+    { path: 'dashboard', element: page(TeacherDashboard) }, { path: 'classes', element: page(TeacherClassesPage) },
+    { path: 'quizzes', element: page(TeacherQuizzesPage) }, { path: 'quizzes/new', element: page(NewQuizPage) },
+    { path: 'quizzes/:id', element: page(TeacherQuizDetailPage) }, { path: 'quizzes/:id/print', element: page(PrintableQuizPage) },
+    { path: 'submissions', element: page(TeacherSubmissionsPage) }, { path: 'results', element: page(TeacherResultsPage) },
+    { path: 'analytics', element: page(TeacherAnalyticsPage) }, { path: 'settings', element: page(TeacherSettingsPage) },
+  ] }] },
+  { path: '/learner', element: <ProtectedRoute allowedRoles={['learner', 'teacher', 'admin']} />, children: [{ element: <AppShell />, children: [
+    { index: true, element: <Navigate to="/learner/dashboard" replace /> },
+    { path: 'dashboard', element: page(LearnerDashboard) }, { path: 'quizzes', element: page(LearnerQuizzesPage) },
+    { path: 'quizzes/:id/print', element: page(PrintableQuizPage) }, { path: 'take/:id', element: page(LearnerQuizPlayer) },
+    { path: 'submitted', element: <LearnerSubmittedPage /> }, { path: 'results', element: page(LearnerResultsPage) },
+  ] }] },
+  { path: '*', element: <Navigate to="/" replace /> },
 ]);

@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+
+Sitemap: https://mgcinishaunporfolio.vercel.app/sitemap.xml
