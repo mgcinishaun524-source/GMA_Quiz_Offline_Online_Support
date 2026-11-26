@@ -1,39 +1,25 @@
 # SEO audit and implementation notes
 
-## Audit summary
+## Second review and confirmed production origin
 
-Repository review found a React 19 + TypeScript single-page application built with Vite and React Router, deployed via Vercel rewrites. The app root redirects to login or a protected portal, and the existing document title/description identify the school quiz product, not the developer. Public, indexable person and project pages did not exist. There was no sitemap or robots.txt. The project README states that no application screenshots are currently in the repository, so this implementation does not add fabricated imagery.
+The owner confirmed the personal portfolio production origin as `https://mgcinishaunporfolio.vercel.app`. This is distinct from the GMA application origin. The Vercel rewrite configuration was inspected and left unchanged: `/api/:path*` is sent to `/api/index`, followed by the SPA fallback. The build will create static route files in `dist` so Vercel's normal static-file lookup can serve them before the catch-all rewrite. No merge or production deployment was performed.
 
-## Prioritised plan and work completed
+## Implementation
 
-1. Add public, indexable developer and GMA project routes without changing the app root or existing authenticated workflows.
-2. Add useful, distinct page titles and descriptions, canonical URLs, Open Graph and X/Twitter metadata, and route-specific JSON-LD.
-3. Add sitemap and robots.txt for the two public routes only; exclude protected product portals from the sitemap.
-4. Provide human-readable profile/project content, cross-links, explicit product/institution attribution, and an honest app-review status.
-5. Keep existing Vite/React/TypeScript/Vercel architecture and styling independent from existing application styles.
+- Updated `src/features/public/seo.ts` to use the confirmed personal origin. Client-side route navigation continues to update canonical, description, Open Graph, X/Twitter, robots, and JSON-LD metadata.
+- Added a Vite build plugin in `vite.config.ts`. After the standard Vite build it writes static HTML at `dist/mgcini-shaun-moyo/index.html` and `dist/projects/gma-quiz-system/index.html`. Each generated page contains its own title, description, canonical, robots directive, Open Graph URL/title/description, X/Twitter title/description, JSON-LD, and meaningful semantic page content in the initial response. The normal React entry assets remain in each document, so client-side hydration is not required for initial reading and React can still mount the existing SPA.
+- Updated `public/sitemap.xml` and `public/robots.txt` to the confirmed domain.
+- Removed `isAccessibleForFree` from SoftwareApplication JSON-LD because product access terms have not been verified.
+- Kept the existing Vercel rewrites, React authentication, offline/service-worker code, and application routes unchanged in behavior. No dependencies were added.
 
-## Metadata and entity notes
+## Build and verification status
 
-The public website origin in repository metadata is `https://gma-tau.vercel.app`. Route canonical URLs and sitemap entries use that origin. The profile uses Person and ProfilePage JSON-LD; project route uses SoftwareApplication JSON-LD. The only `sameAs` link is the repository owner's GitHub profile, verified from the repository metadata. LinkedIn was not supplied, so no profile link was invented. No qualifications, employers, awards, reviews, or app publication claims are added.
+The sitemap structure and robots directives were reviewed in source. The Vite plugin emits the static page files and metadata described above by construction. However, the GitHub integration available in this task does not provide a shell, local checkout, browser, network HTTP client, or validator. Therefore `npm run build`, TypeScript checks, tests, generated output inspection, actual route HTTP status checks, and automated XML/JSON-LD validation have **not** been run here. Do not treat those checks as passed. Run `npm run build`, `npm run lint`, and `npm test` in CI or a developer environment; inspect the two generated HTML files, validate JSON-LD, and confirm the Vercel static assets take precedence over the existing catch-all rewrite before deployment.
 
-Metadata is set client-side when the public route mounts. This SPA has no server-side rendering or prerender pipeline; HTML crawlers that do not execute JavaScript may initially see the existing app shell metadata. For stronger first-response SEO, add Vercel-compatible prerendering or server rendering in a separately tested change.
+## Profiles, contact, and manual actions
 
-## Google Search Console checklist
-
-1. Confirm `https://gma-tau.vercel.app` is the canonical production hostname (or update `SITE_URL`, sitemap, and canonical values if not).
-2. Add the domain or URL-prefix property in Google Search Console and verify it using a DNS TXT record or the HTML-file method. The repository already has a Google verification tag/token in `index.html`; confirm that token belongs to this Search Console property and that the deployed page serves it before relying on it.
-3. Deploy the branch to the production hostname, then open `/robots.txt` and `/sitemap.xml` to confirm both return successfully.
-4. Submit `https://gma-tau.vercel.app/sitemap.xml` in Search Console.
-5. Use URL Inspection on `/mgcini-shaun-moyo` and `/projects/gma-quiz-system`, run a live test, and request indexing if Google permits.
-6. Monitor Page indexing, enhancements/structured-data reports where applicable, and Search results performance after crawl data accumulates.
-
-No Search Console ownership verification or URL submission is claimed by this implementation.
-
-## Remaining manual actions and validation
-
-- Confirm the deployed canonical domain; repository homepage metadata may not be the intended personal portfolio domain.
-- Supply verified LinkedIn, contact email, location, and any additional genuine professional profiles if they should be published. No email or Zimbabwe location was inferred.
-- Add authentic, permission-cleared screenshots and descriptive alt text when available. No screenshot was found in the repository.
-- Test all routes and existing sign-in, role guards, dashboards, offline mode, and API routes after deployment.
-- Run the production build, TypeScript check, accessibility checks, and field Core Web Vitals measurements on the deployed site. Repository tools in this workflow do not provide a local shell/browser, so those checks must run in CI or a developer environment.
-- Keep the Google Play Console status current; the page says submitted for review and explicitly does not say published.
+- GitHub is the only `sameAs` profile because it is verified from the repository owner metadata. No LinkedIn profile or contact information was supplied. Add verified LinkedIn URL to `sameAs` in `src/features/public/seo.ts` and to the visible profile page in `src/features/public/PublicPages.tsx` when provided; add a verified email/contact method to that profile's contact section then.
+- No screenshots were present in repository source; no placeholders were invented. Add permission-cleared screenshots and meaningful alt text when available.
+- The Google Play status remains “submitted to Google Play Console for review,” not published.
+- After review, deploy only with separate approval. Then test direct route requests and confirm returned HTML contains each route's metadata and rendered content, submit the sitemap in Search Console, and monitor indexing and Core Web Vitals.
+- Credentials, qualifications, awards, employment, LinkedIn, email, and location were not fabricated.

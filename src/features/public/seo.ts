@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 
-export const SITE_URL = 'https://gma-tau.vercel.app';
+export const SITE_URL = 'https://mgcinishaunporfolio.vercel.app';
 export const PERSON_URL = `${SITE_URL}/mgcini-shaun-moyo`;
 export const PROJECT_URL = `${SITE_URL}/projects/gma-quiz-system`;
 export const GITHUB_PROFILE = 'https://github.com/mgcinishaun524-source';
@@ -23,7 +23,7 @@ function setMeta(attribute: 'name' | 'property', key: string, value: string) {
   element.content = value;
 }
 
-/** Updates share, canonical, indexing, and JSON-LD metadata for public routes. */
+/** Keeps client-side navigation metadata in step with the prerendered route HTML. */
 export function usePageSeo({ title, description, path, schema, noIndex = false }: PageSeoOptions) {
   useEffect(() => {
     const canonicalUrl = `${SITE_URL}${path}`;
