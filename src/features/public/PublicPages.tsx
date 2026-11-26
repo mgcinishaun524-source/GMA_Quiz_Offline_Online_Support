@@ -81,7 +81,6 @@ export function GmaQuizProjectPage() {
     url: PROJECT_URL,
     creator: { '@id': `${PERSON_URL}#person` },
     publisher: { '@type': 'Organization', name: 'Growing Minds Academy' },
-    isAccessibleForFree: false,
   };
   const schema = [projectSchema, { '@context': 'https://schema.org', ...websiteEntity }];
   usePageSeo({ title: projectTitle, description: projectDescription, path: '/projects/gma-quiz-system', schema });
