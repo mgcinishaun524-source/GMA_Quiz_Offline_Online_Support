@@ -1,0 +1,493 @@
+name: SEO verification
+
+on:
+  push:
+    branches:
+      - seo/mgcini-shaun-moyo-profile
+  pull_request:
+    branches:
+      - seo/mgcini-shaun-moyo-profile
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: seo-verification-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Build and verify public SEO pages
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build production site
+        run: npm run build
+
+      - name: Verify generated SEO pages and crawl files
+        run: |
+          node --input-type=module <<'NODE'
+          import { readFileSync, existsSync } from 'node:fs';
+
+          const siteUrl = 'https://mgcinishaunporfolio.vercel.app';
+          const profileUrl = `${siteUrl}/mgcini-shaun-moyo`;
+          const projectUrl = `${siteUrl}/projects/gma-quiz-system`;
+          const personId = `${profileUrl}#person`;
+          const profilePath = 'dist/mgcini-shaun-moyo/index.html';
+          const projectPath = 'dist/projects/gma-quiz-system/index.html';
+          let failures = 0;
+
+          function report(label, passed, reason, file) {
+            console.log(`${passed ? 'PASS' : 'FAIL'} ${label}${passed ? '' : `: ${reason} (${file})`}`);
+            if (!passed) failures += 1;
+          }
+
+          function readRequired(file, label) {
+            if (!existsSync(file)) {
+              report(label, false, 'required file does not exist', file);
+              return null;
+            }
+            report(label, true);
+            return readFileSync(file, 'utf8');
+          }
+
+          function decodeEntities(value) {
+            const named = { amp: '&', apos: "'", gt: '>', lt: '<', nbsp: '\u00a0', quot: '"' };
+            return value.replace(/&(#x[0-9a-f]+|#[0-9]+|[a-z][a-z0-9]+);/gi, (entity, reference) => {
+              if (reference[0] !== '#') {
+                return reference in named ? named[reference] : entity;
+              }
+              const codePoint = reference[1].toLowerCase() === 'x'
+                ? Number.parseInt(reference.slice(2), 16)
+                : Number.parseInt(reference.slice(1), 10);
+              if (!Number.isInteger(codePoint) || codePoint < 0 || codePoint > 0x10ffff) {
+                throw new Error(`invalid character reference ${entity}`);
+              }
+              return String.fromCodePoint(codePoint);
+            });
+          }
+
+          function parseAttributes(tag) {
+            const attributes = {};
+            const nameEnd = tag.search(/\s/);
+            let rest = nameEnd < 0 ? '' : tag.slice(nameEnd).replace(/\/?>\s*$/, '');
+            while (rest.trim()) {
+              rest = rest.trimStart();
+              const match = rest.match(/^([^\s=/>]+)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+)))?/);
+              if (!match) throw new Error(`malformed attribute in ${tag}`);
+              const name = match[1].toLowerCase();
+              if (Object.hasOwn(attributes, name)) throw new Error(`duplicate ${name} attribute`);
+              attributes[name] = decodeEntities(match[2] ?? match[3] ?? match[4] ?? '');
+              rest = rest.slice(match[0].length);
+            }
+            return attributes;
+          }
+
+          function findSingleSection(html, tag, file) {
+            const matches = [...html.matchAll(new RegExp(`<${tag}\\b[^>]*>([\\s\\S]*?)<\\/${tag}\\s*>`, 'gi'))];
+            report(`${file}: exactly one ${tag} element`, matches.length === 1,
+              `expected one ${tag} element, found ${matches.length}`, file);
+            return matches.length === 1 ? matches[0][1] : '';
+          }
+
+          function verifyHeadMetadata(head, file, { title, description, canonical }) {
+            const titleMatches = [...head.matchAll(/<title\b[^>]*>([\s\S]*?)<\/title>/gi)];
+            let actualTitle = '';
+            try {
+              actualTitle = titleMatches.length === 1 ? decodeEntities(titleMatches[0][1]).trim() : '';
+            } catch (error) {
+              report(`${file}: page title`, false, error.message, file);
+            }
+            report(`${file}: page-specific title`, titleMatches.length === 1 && actualTitle === title,
+              `expected exactly one title equal to "${title}"`, file);
+
+            const metaTags = [...head.matchAll(/<meta\b[^>]*>/gi)].map(([tag]) => parseAttributes(tag));
+            const metaContent = (attribute, key) => {
+              const matches = metaTags.filter((meta) => meta[attribute]?.toLowerCase() === key.toLowerCase());
+              return matches.length === 1 ? matches[0].content : null;
+            };
+            const checkMeta = (label, attribute, key, expected) => {
+              report(`${file}: ${label}`, metaContent(attribute, key) === expected,
+                `expected exactly one ${attribute}="${key}" with the required content`, file);
+            };
+
+            checkMeta('meta description', 'name', 'description', description);
+            checkMeta('Open Graph title', 'property', 'og:title', title);
+            checkMeta('Open Graph description', 'property', 'og:description', description);
+            checkMeta('Open Graph type', 'property', 'og:type', 'website');
+            checkMeta('Open Graph URL', 'property', 'og:url', canonical);
+            checkMeta('Open Graph site name', 'property', 'og:site_name', 'Mgcini Shaun Moyo');
+            checkMeta('Twitter card', 'name', 'twitter:card', 'summary');
+            checkMeta('Twitter title', 'name', 'twitter:title', title);
+            checkMeta('Twitter description', 'name', 'twitter:description', description);
+
+            const canonicalLinks = [...head.matchAll(/<link\b[^>]*>/gi)]
+              .map(([tag]) => parseAttributes(tag))
+              .filter((attributes) => attributes.rel?.toLowerCase().split(/\s+/).includes('canonical'));
+            report(`${file}: canonical URL`,
+              canonicalLinks.length === 1 && canonicalLinks[0].href === canonical,
+              `expected exactly one canonical link to ${canonical}`, file);
+
+            const robots = metaTags.filter((meta) => /^(robots|googlebot|bingbot)$/i.test(meta.name ?? ''));
+            report(`${file}: no accidental noindex`,
+              !robots.some((meta) => /\bnoindex\b/i.test(meta.content ?? '')),
+              'found a noindex directive in head robots metadata', file);
+          }
+
+          function visibleText(body) {
+            const withoutHiddenContent = body
+              .replace(/<!--[\s\S]*?-->/g, ' ')
+              .replace(/<(script|style)\b[^>]*>[\s\S]*?<\/\1\s*>/gi, ' ');
+            return decodeEntities(withoutHiddenContent.replace(/<[^>]*>/g, ' '))
+              .replace(/\s+/g, ' ')
+              .trim();
+          }
+
+          function parseJsonLd(head, file) {
+            const scripts = [...head.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script\s*>/gi)]
+              .map(([, attributes, content]) => ({
+                attributes: parseAttributes(`<script ${attributes}>`),
+                content,
+              }))
+              .filter(({ attributes }) => attributes.type?.toLowerCase() === 'application/ld+json');
+            if (scripts.length === 0) {
+              report(`${file}: valid JSON-LD`, false, 'no application/ld+json script found in head', file);
+              return [];
+            }
+
+            const schemas = [];
+            let valid = true;
+            for (const [index, { content }] of scripts.entries()) {
+              try {
+                const parsed = JSON.parse(content);
+                schemas.push(...(Array.isArray(parsed) ? parsed : [parsed]));
+              } catch (error) {
+                valid = false;
+                report(`${file}: JSON-LD script ${index + 1}`, false, `could not parse JSON-LD: ${error.message}`, file);
+              }
+            }
+            valid &&= schemas.length > 0 && schemas.every((schema) =>
+              schema && typeof schema === 'object' && !Array.isArray(schema)
+                && schema['@context'] === 'https://schema.org'
+                && typeof schema['@type'] === 'string');
+            report(`${file}: valid schema.org JSON-LD`, valid,
+              'every JSON-LD script must parse to schema.org objects with a @type', file);
+            return schemas;
+          }
+
+          function verifySchema(schemas, type, predicate, file, details) {
+            const matches = schemas.filter((schema) => schema?.['@type'] === type);
+            report(`${file}: ${type} structured data`,
+              matches.length === 1 && predicate(matches[0]),
+              `expected exactly one ${type} schema with ${details}`, file);
+            return matches.length === 1 ? matches[0] : null;
+          }
+
+          function verifyProfile(html) {
+            if (html === null) return;
+            const head = findSingleSection(html, 'head', profilePath).replace(/<!--[\s\S]*?-->/g, ' ');
+            const body = findSingleSection(html, 'body', profilePath);
+            verifyHeadMetadata(head, profilePath, {
+              title: 'Mgcini Shaun Moyo | Software Engineer & Digital Creator',
+              description: 'Meet Mgcini Shaun Moyo, a Software Engineer working in full-stack development, UI/UX and product design, software QA, and digital marketing. Explore the GMA Quiz System project.',
+              canonical: profileUrl,
+            });
+
+            const schemas = parseJsonLd(head, profilePath);
+            const person = verifySchema(schemas, 'Person', (schema) =>
+              schema['@id'] === personId
+                && schema.name === 'Mgcini Shaun Moyo'
+                && schema.jobTitle === 'Software Engineer'
+                && schema.url === profileUrl,
+            profilePath, 'the source-defined person id, name, job title and canonical URL');
+            const profilePage = person?.mainEntityOfPage;
+            report(`${profilePath}: ProfilePage relationship`,
+              profilePage?.['@type'] === 'ProfilePage'
+                && profilePage['@id'] === `${profileUrl}#profilepage`
+                && profilePage.url === profileUrl
+                && profilePage.name === 'Mgcini Shaun Moyo | Software Engineer & Digital Creator'
+                && profilePage.mainEntity?.['@id'] === personId,
+              'expected the source-defined ProfilePage id, URL, name and mainEntity Person reference', profilePath);
+            verifySchema(schemas, 'WebSite', (schema) =>
+              schema['@id'] === `${siteUrl}/#website`
+                && schema.url === siteUrl
+                && schema.name === 'Mgcini Shaun Moyo | Software Engineer'
+                && schema.publisher?.['@id'] === personId
+                && schema.inLanguage === 'en',
+            profilePath, 'the source-defined site URL, name, publisher and language');
+
+            let text = '';
+            try {
+              text = visibleText(body);
+            } catch (error) {
+              report(`${profilePath}: visible page text`, false, error.message, profilePath);
+            }
+            report(`${profilePath}: profile disclosure`,
+              text.includes('This profile focuses on verifiable project work rather than unsubstantiated credentials or employment claims.'),
+              'expected the existing profile credentials/employment disclosure in visible page content', profilePath);
+          }
+
+          function verifyProject(html) {
+            if (html === null) return;
+            const head = findSingleSection(html, 'head', projectPath).replace(/<!--[\s\S]*?-->/g, ' ');
+            const body = findSingleSection(html, 'body', projectPath);
+            verifyHeadMetadata(head, projectPath, {
+              title: 'GMA Quiz System | Designed and Developed by Mgcini Shaun Moyo',
+              description: 'Project case study for the GMA Quiz System, an AI-powered, offline-first school assessment platform built for Growing Minds Academy. See features, technology, contributions, and status.',
+              canonical: projectUrl,
+            });
+
+            const schemas = parseJsonLd(head, projectPath);
+            verifySchema(schemas, 'SoftwareApplication', (schema) =>
+              schema['@id'] === `${projectUrl}#software`
+                && schema.name === 'GMA Quiz System'
+                && schema.url === projectUrl
+                && schema.description === 'An AI-powered, offline-first school assessment platform developed for Growing Minds Academy, with quiz generation, assessment management, grading, and offline submission sync.'
+                && schema.applicationCategory === 'EducationalApplication'
+                && schema.operatingSystem === 'Web'
+                && schema.creator?.['@id'] === personId
+                && schema.publisher?.['@type'] === 'Organization'
+                && schema.publisher?.name === 'Growing Minds Academy',
+            projectPath, 'the source-defined name, description, URL, creator and publisher');
+            verifySchema(schemas, 'WebSite', (schema) =>
+              schema['@id'] === `${siteUrl}/#website`
+                && schema.url === siteUrl
+                && schema.name === 'Mgcini Shaun Moyo | Software Engineer'
+                && schema.publisher?.['@id'] === personId
+                && schema.inLanguage === 'en',
+            projectPath, 'the source-defined site URL, name, publisher and language');
+
+            let text = '';
+            try {
+              text = visibleText(body);
+            } catch (error) {
+              report(`${projectPath}: visible page text`, false, error.message, projectPath);
+            }
+            for (const phrase of [
+              'Designed and Developed by Mgcini Shaun Moyo',
+              'Built for Growing Minds Academy',
+              'access to a live public demo is not provided on this page',
+              'It is not represented as published.',
+            ]) {
+              report(`${projectPath}: visible text "${phrase}"`, text.includes(phrase),
+                'expected the existing attribution/disclosure phrase in visible page content', projectPath);
+            }
+          }
+
+          function decodeXmlEntities(value) {
+            const withoutEntities = value.replace(/&(?:amp|lt|gt|quot|apos|#x[0-9a-f]+|#[0-9]+);/gi, '');
+            if (withoutEntities.includes('&')) throw new Error('unescaped ampersand in XML');
+            return value.replace(/&([^;]+);/g, (entity, reference) => {
+              if (reference === 'amp') return '&';
+              if (reference === 'lt') return '<';
+              if (reference === 'gt') return '>';
+              if (reference === 'quot') return '"';
+              if (reference === 'apos') return "'";
+              if (/^#x[0-9a-f]+$/i.test(reference) || /^#[0-9]+$/.test(reference)) {
+                const codePoint = reference[1].toLowerCase() === 'x'
+                  ? Number.parseInt(reference.slice(2), 16)
+                  : Number.parseInt(reference.slice(1), 10);
+                const validXmlCodePoint = codePoint === 0x9 || codePoint === 0xa || codePoint === 0xd
+                  || (codePoint >= 0x20 && codePoint <= 0xd7ff)
+                  || (codePoint >= 0xe000 && codePoint <= 0xfffd)
+                  || (codePoint >= 0x10000 && codePoint <= 0x10ffff);
+                if (Number.isInteger(codePoint) && validXmlCodePoint) {
+                  return String.fromCodePoint(codePoint);
+                }
+              }
+              throw new Error(`invalid or unsupported XML entity ${entity}`);
+            });
+          }
+
+          function parseXml(xml) {
+            let position = 0;
+            let root = null;
+            const stack = [];
+
+            function appendText(text) {
+              if (stack.length === 0) {
+                if (text.trim()) throw new Error('text found outside the document element');
+                return;
+              }
+              stack.at(-1).text += decodeXmlEntities(text);
+            }
+
+            while (position < xml.length) {
+              if (xml.startsWith('<!--', position)) {
+                const end = xml.indexOf('-->', position + 4);
+                if (end < 0 || xml.slice(position + 4, end).includes('--')) throw new Error('malformed XML comment');
+                position = end + 3;
+                continue;
+              }
+              if (xml.startsWith('<?', position)) {
+                const end = xml.indexOf('?>', position + 2);
+                if (end < 0) throw new Error('unterminated processing instruction');
+                position = end + 2;
+                continue;
+              }
+              if (/^<!DOCTYPE\b/i.test(xml.slice(position))) throw new Error('DOCTYPE declarations are not allowed');
+              if (xml.startsWith('<![CDATA[', position)) {
+                const end = xml.indexOf(']]>', position + 9);
+                if (end < 0 || stack.length === 0) throw new Error('malformed CDATA section');
+                stack.at(-1).text += xml.slice(position + 9, end);
+                position = end + 3;
+                continue;
+              }
+              if (xml.startsWith('</', position)) {
+                const end = xml.indexOf('>', position + 2);
+                if (end < 0) throw new Error('unterminated closing tag');
+                const name = xml.slice(position + 2, end).trim();
+                if (!/^[A-Za-z_][\w:.-]*$/.test(name) || stack.at(-1)?.name !== name) {
+                  throw new Error(`unexpected or mismatched closing tag </${name}>`);
+                }
+                stack.pop();
+                position = end + 1;
+                continue;
+              }
+              if (xml[position] === '<') {
+                let end = position + 1;
+                let quote = null;
+                for (; end < xml.length; end += 1) {
+                  const character = xml[end];
+                  if (quote) {
+                    if (character === quote) quote = null;
+                  } else if (character === '"' || character === "'") {
+                    quote = character;
+                  } else if (character === '>') {
+                    break;
+                  }
+                }
+                if (end === xml.length || quote) throw new Error('unterminated start tag or attribute');
+                let contents = xml.slice(position + 1, end).trim();
+                const selfClosing = /\/$/.test(contents);
+                if (selfClosing) contents = contents.slice(0, -1).trimEnd();
+                const nameMatch = contents.match(/^([A-Za-z_][\w:.-]*)([\s\S]*)$/);
+                if (!nameMatch) throw new Error('malformed start tag');
+                const [, name, attributeText] = nameMatch;
+                const attributes = {};
+                let rest = attributeText;
+                while (rest.trim()) {
+                  rest = rest.trimStart();
+                  const match = rest.match(/^([A-Za-z_][\w:.-]*)\s*=\s*(?:"([^"]*)"|'([^']*)')/);
+                  if (!match) throw new Error(`malformed attribute on <${name}>`);
+                  if (Object.hasOwn(attributes, match[1])) throw new Error(`duplicate ${match[1]} attribute`);
+                  attributes[match[1]] = decodeXmlEntities(match[2] ?? match[3] ?? '');
+                  rest = rest.slice(match[0].length);
+                }
+                const element = { name, attributes, children: [], text: '' };
+                if (stack.length) stack.at(-1).children.push(element);
+                else if (root) throw new Error('multiple document elements');
+                else root = element;
+                if (!selfClosing) stack.push(element);
+                position = end + 1;
+                continue;
+              }
+              const end = xml.indexOf('<', position);
+              const textEnd = end < 0 ? xml.length : end;
+              appendText(xml.slice(position, textEnd));
+              position = textEnd;
+            }
+
+            if (stack.length) throw new Error(`unclosed <${stack.at(-1).name}> element`);
+            if (!root) throw new Error('missing document element');
+            return root;
+          }
+
+          function verifyCrawlFiles() {
+            const robotsPath = 'dist/robots.txt';
+            const sitemapPath = 'dist/sitemap.xml';
+            const robots = readRequired(robotsPath, 'Built robots.txt exists');
+            const sitemap = readRequired(sitemapPath, 'Built sitemap.xml exists');
+
+            if (robots !== null) {
+              const sitemapDirectives = robots.split(/\r?\n/)
+                .map((line) => line.trim())
+                .filter((line) => /^Sitemap:/i.test(line));
+              report('robots.txt sitemap reference',
+                sitemapDirectives.length === 1
+                  && sitemapDirectives[0] === `Sitemap: ${siteUrl}/sitemap.xml`,
+                `expected exactly one Sitemap directive for ${siteUrl}/sitemap.xml`, robotsPath);
+            }
+            if (sitemap === null) return;
+
+            let root;
+            try {
+              root = parseXml(sitemap);
+              report('sitemap XML well-formed', true);
+            } catch (error) {
+              report('sitemap XML well-formed', false, error.message, sitemapPath);
+              return;
+            }
+
+            const namespace = 'http://www.sitemaps.org/schemas/sitemap/0.9';
+            const childrenAreUrls = root.children.every((child) => child.name === 'url');
+            report('sitemap urlset structure',
+              root.name === 'urlset'
+                && root.attributes.xmlns === namespace
+                && !root.text.trim()
+                && childrenAreUrls
+                && root.children.length > 0,
+              `expected a ${namespace} urlset containing url elements only`, sitemapPath);
+
+            const locations = [];
+            for (const [index, entry] of root.children.entries()) {
+              const location = entry.children.length === 1 ? entry.children[0] : null;
+              const validLocation = entry.name === 'url'
+                && !entry.text.trim()
+                && location?.name === 'loc'
+                && location.children.length === 0;
+              report(`sitemap URL entry ${index + 1} structure`, validLocation,
+                'each url must contain exactly one text-only loc element', sitemapPath);
+              if (validLocation) locations.push(location.text.trim());
+            }
+
+            let allSameDomain = locations.length === root.children.length;
+            for (const [index, location] of locations.entries()) {
+              try {
+                const parsed = new URL(location);
+                if (parsed.origin !== siteUrl || parsed.href !== location || parsed.username || parsed.password) {
+                  allSameDomain = false;
+                }
+              } catch {
+                allSameDomain = false;
+              }
+              report(`sitemap URL ${index + 1} uses exact canonical domain`,
+                (() => {
+                  try {
+                    const parsed = new URL(location);
+                    return parsed.origin === siteUrl && parsed.href === location
+                      && !parsed.username && !parsed.password;
+                  } catch {
+                    return false;
+                  }
+                })(),
+                `expected an absolute URL on exactly ${siteUrl}`, sitemapPath);
+            }
+            report('all sitemap URLs use exact canonical domain', allSameDomain,
+              `every sitemap loc must use exactly ${siteUrl}`, sitemapPath);
+
+            for (const requiredUrl of [profileUrl, projectUrl]) {
+              report(`sitemap includes ${requiredUrl}`, locations.includes(requiredUrl),
+                `missing exact loc value ${requiredUrl}`, sitemapPath);
+            }
+          }
+
+          verifyProfile(readRequired(profilePath, 'Profile HTML generated'));
+          verifyProject(readRequired(projectPath, 'Project HTML generated'));
+          verifyCrawlFiles();
+
+          console.log(`SEO verification: ${failures === 0 ? 'all checks passed' : `${failures} check(s) failed`}`);
+          process.exitCode = failures === 0 ? 0 : 1;
+          NODE
